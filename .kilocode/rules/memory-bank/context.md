@@ -26,6 +26,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added avatars to reviews** - Client photos in reviews section
 - [x] **Added cities display** - Shows Kaluga, Tula, Obninsk, +200km
 - [x] **Updated Telegram contact** - Now links to @krisdev13
+- [x] **Added calculator section** - Multi-parameter car price calculator with photo upload
 
 ## Current Structure
 
@@ -41,10 +42,11 @@ A selling landing page for car, motorcycle and special equipment buyout services
 
 1. **Hero Section** - Main offer with "Выкупаем авто за 15 минут"
 2. **Services** - Auto, motorcycle, special equipment buyout
-3. **Advantages** - Fast evaluation, honest prices, free evacuation, 24/7
-4. **Reviews** - 4 client testimonials
-5. **Contact Form** - Lead capture with validation
-6. **Contacts** - Telegram, WhatsApp, Phone links
+3. **Calculator** - Multi-parameter price calculator with photo upload
+4. **Advantages** - Fast evaluation, honest prices, free evacuation, 24/7
+5. **Reviews** - 4 client testimonials
+6. **Contact Form** - Lead capture with validation
+7. **Contacts** - Telegram, WhatsApp, Phone links
 
 ## SEO Keywords Used
 
@@ -81,3 +83,4 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | Initial | Template created with base setup |
 | 2024-02-13 | Created АвтоВыкуп landing page with SEO, animations, all sections |
 | 2026-02-13 | Updated to black-red gradient, replaced icons with Lucide |
+| 2026-02-13 | Added car price calculator with photo upload |

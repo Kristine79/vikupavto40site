@@ -16,7 +16,11 @@ import {
   Phone, 
   MessageCircle,
   Send,
-  CheckCircle
+  CheckCircle,
+  Calculator,
+  Upload,
+  X,
+  Image as ImageIcon
 } from "lucide-react";
 
 // Review data
@@ -60,6 +64,111 @@ export default function Home() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Calculator state
+  const [calcData, setCalcData] = useState({
+    brand: "",
+    model: "",
+    year: "",
+    mileage: "",
+    engineType: "petrol",
+    condition: "good",
+    hasDocuments: "yes",
+    hasAccidents: "no"
+  });
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newPhotos = Array.from(e.target.files);
+      const newPreviews = newPhotos.map(file => URL.createObjectURL(file));
+      setPhotos([...photos, ...newPhotos].slice(0, 5));
+      setPhotoPreviews([...photoPreviews, ...newPreviews].slice(0, 5));
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
+    setPhotoPreviews(photoPreviews.filter((_, i) => i !== index));
+  };
+
+  const calculatePrice = async () => {
+    setIsCalculating(true);
+    
+    // Base prices by brand
+    const basePrices: Record<string, number> = {
+      "BMW": 1500000,
+      "Mercedes": 1600000,
+      "Audi": 1400000,
+      "Toyota": 1200000,
+      "Honda": 1000000,
+      "Nissan": 900000,
+      "Ford": 800000,
+      "Volkswagen": 850000,
+      "Hyundai": 700000,
+      "Kia": 650000,
+      "Lada": 400000,
+      " Renault": 600000,
+      "Mitsubishi": 950000,
+      "Mazda": 880000,
+      "Другая": 500000
+    };
+
+    let basePrice = basePrices[calcData.brand] || 500000;
+    
+    // Year adjustment (depreciation)
+    const currentYear = new Date().getFullYear();
+    const yearDiff = currentYear - parseInt(calcData.year || "2015");
+    const yearMultiplier = Math.max(0.3, 1 - (yearDiff * 0.05));
+    basePrice *= yearMultiplier;
+
+    // Mileage adjustment
+    const mileage = parseInt(calcData.mileage || "0");
+    if (mileage > 100000) basePrice *= 0.9;
+    if (mileage > 200000) basePrice *= 0.85;
+    if (mileage > 300000) basePrice *= 0.75;
+
+    // Engine type
+    if (calcData.engineType === "electric") basePrice *= 1.1;
+    if (calcData.engineType === "diesel") basePrice *= 0.95;
+
+    // Condition
+    if (calcData.condition === "excellent") basePrice *= 1.15;
+    if (calcData.condition === "fair") basePrice *= 0.8;
+    if (calcData.condition === "poor") basePrice *= 0.6;
+
+    // Accidents
+    if (calcData.hasAccidents === "yes") basePrice *= 0.7;
+
+    // Documents
+    if (calcData.hasDocuments === "no") basePrice *= 0.5;
+
+    // Simulate calculation delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setEstimatedPrice(Math.round(basePrice));
+    setIsCalculating(false);
+  };
+
+  const sendCalculationToTelegram = () => {
+    const message = `🚗 *Запрос расчета стоимости авто*\n\n` +
+      `*Марка:* ${calcData.brand}\n` +
+      `*Модель:* ${calcData.model}\n` +
+      `*Год:* ${calcData.year}\n` +
+      `*Пробег:* ${calcData.mileage} км\n` +
+      `*Двигатель:* ${calcData.engineType}\n` +
+      `*Состояние:* ${calcData.condition}\n` +
+      `*ДТП:* ${calcData.hasAccidents === "yes" ? "Да" : "Нет"}\n` +
+      `*Документы:* ${calcData.hasDocuments === "yes" ? "Есть" : "Нет"}\n` +
+      `*Фото:* ${photos.length} фото\n\n` +
+      `*Предварительная цена:* ${estimatedPrice?.toLocaleString()} ₽`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://t.me/krisdev13?text=${encodedMessage}`, '_blank');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +225,7 @@ export default function Home() {
             className="hidden md:flex items-center gap-6"
           >
             <a href="#services" className="hover:text-red-400 transition-colors font-medium">Услуги</a>
+            <a href="#calculator" className="hover:text-red-400 transition-colors font-medium">Калькулятор</a>
             <a href="#advantages" className="hover:text-red-400 transition-colors font-medium">Преимущества</a>
             <a href="#reviews" className="hover:text-red-400 transition-colors font-medium">Отзывы</a>
             <a href="#contact" className="hover:text-red-400 transition-colors font-medium">Контакты</a>
@@ -413,6 +523,246 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Calculator Section */}
+      <section id="calculator" className="relative z-10 py-24 bg-black/20">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                КАЛЬКУЛЯТОР СТОИМОСТИ
+              </span>
+            </h2>
+            <p className="text-gray-400 text-lg">Узнайте примерную цену за 2 минуты</p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl p-8 md:p-10 rounded-3xl border border-white/10">
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                {/* Brand */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Марка автомобиля</label>
+                  <select
+                    value={calcData.brand}
+                    onChange={(e) => setCalcData({ ...calcData, brand: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
+                  >
+                    <option value="" className="bg-neutral-900">Выберите марку</option>
+                    <option value="BMW" className="bg-neutral-900">BMW</option>
+                    <option value="Mercedes" className="bg-neutral-900">Mercedes</option>
+                    <option value="Audi" className="bg-neutral-900">Audi</option>
+                    <option value="Toyota" className="bg-neutral-900">Toyota</option>
+                    <option value="Honda" className="bg-neutral-900">Honda</option>
+                    <option value="Nissan" className="bg-neutral-900">Nissan</option>
+                    <option value="Ford" className="bg-neutral-900">Ford</option>
+                    <option value="Volkswagen" className="bg-neutral-900">Volkswagen</option>
+                    <option value="Hyundai" className="bg-neutral-900">Hyundai</option>
+                    <option value="Kia" className="bg-neutral-900">Kia</option>
+                    <option value="Lada" className="bg-neutral-900">Lada (ВАЗ)</option>
+                    <option value="Renault" className="bg-neutral-900">Renault</option>
+                    <option value="Mitsubishi" className="bg-neutral-900">Mitsubishi</option>
+                    <option value="Mazda" className="bg-neutral-900">Mazda</option>
+                    <option value="Другая" className="bg-neutral-900">Другая</option>
+                  </select>
+                </div>
+
+                {/* Model */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Модель</label>
+                  <input
+                    type="text"
+                    placeholder="Например: Camry, X5, Focus"
+                    value={calcData.model}
+                    onChange={(e) => setCalcData({ ...calcData, model: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+                  />
+                </div>
+
+                {/* Year */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Год выпуска</label>
+                  <select
+                    value={calcData.year}
+                    onChange={(e) => setCalcData({ ...calcData, year: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
+                  >
+                    <option value="" className="bg-neutral-900">Выберите год</option>
+                    {[...Array(25)].map((_, i) => {
+                      const year = 2025 - i;
+                      return <option key={year} value={year} className="bg-neutral-900">{year}</option>;
+                    })}
+                  </select>
+                </div>
+
+                {/* Mileage */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Пробег (км)</label>
+                  <input
+                    type="number"
+                    placeholder="Например: 150000"
+                    value={calcData.mileage}
+                    onChange={(e) => setCalcData({ ...calcData, mileage: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+                  />
+                </div>
+
+                {/* Engine Type */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Тип двигателя</label>
+                  <select
+                    value={calcData.engineType}
+                    onChange={(e) => setCalcData({ ...calcData, engineType: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
+                  >
+                    <option value="petrol" className="bg-neutral-900">Бензин</option>
+                    <option value="diesel" className="bg-neutral-900">Дизель</option>
+                    <option value="electric" className="bg-neutral-900">Электро</option>
+                    <option value="hybrid" className="bg-neutral-900">Гибрид</option>
+                  </select>
+                </div>
+
+                {/* Condition */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Состояние</label>
+                  <select
+                    value={calcData.condition}
+                    onChange={(e) => setCalcData({ ...calcData, condition: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
+                  >
+                    <option value="excellent" className="bg-neutral-900">Отличное</option>
+                    <option value="good" className="bg-neutral-900">Хорошее</option>
+                    <option value="fair" className="bg-neutral-900">Удовлетворительное</option>
+                    <option value="poor" className="bg-neutral-900">Плохое</option>
+                  </select>
+                </div>
+
+                {/* Accidents */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Были ДТП?</label>
+                  <select
+                    value={calcData.hasAccidents}
+                    onChange={(e) => setCalcData({ ...calcData, hasAccidents: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
+                  >
+                    <option value="no" className="bg-neutral-900">Нет</option>
+                    <option value="yes" className="bg-neutral-900">Да</option>
+                  </select>
+                </div>
+
+                {/* Documents */}
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Документы</label>
+                  <select
+                    value={calcData.hasDocuments}
+                    onChange={(e) => setCalcData({ ...calcData, hasDocuments: e.target.value })}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
+                  >
+                    <option value="yes" className="bg-neutral-900">Есть</option>
+                    <option value="no" className="bg-neutral-900">Нет / Потеряны</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Photo Upload */}
+              <div className="mb-8">
+                <label className="block text-sm text-gray-400 mb-2">
+                  Фото автомобиля (до 5 фото)
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {photoPreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-white/10">
+                      <Image 
+                        src={preview} 
+                        alt={`Фото ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                      <button
+                        onClick={() => removePhoto(index)}
+                        className="absolute top-1 right-1 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                  {photos.length < 5 && (
+                    <label className="aspect-square rounded-xl border-2 border-dashed border-white/20 hover:border-red-500/50 transition-colors cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-red-400">
+                      <Upload className="w-8 h-8 mb-2" />
+                      <span className="text-xs">Загрузить</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              {/* Calculate Button */}
+              <motion.button
+                onClick={calculatePrice}
+                disabled={isCalculating || !calcData.brand || !calcData.year}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-r from-red-600 to-red-900 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isCalculating ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Расчет...
+                  </>
+                ) : (
+                  <>
+                    <Calculator className="w-5 h-5" />
+                    Рассчитать стоимость
+                  </>
+                )}
+              </motion.button>
+
+              {/* Result */}
+              {estimatedPrice !== null && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8 p-6 bg-gradient-to-r from-green-600/20 to-emerald-600/20 rounded-xl border border-green-500/30"
+                >
+                  <div className="text-center">
+                    <div className="text-gray-400 mb-2">Примерная стоимость</div>
+                    <div className="text-4xl md:text-5xl font-bold text-green-400 mb-4">
+                      {estimatedPrice.toLocaleString()} ₽
+                    </div>
+                    <p className="text-sm text-gray-500 mb-4">
+                      *Точная цена после осмотра. Зависит от реального состояния авто
+                    </p>
+                    <motion.button
+                      onClick={sendCalculationToTelegram}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-green-600 px-8 py-3 rounded-full font-bold flex items-center gap-2 mx-auto hover:bg-green-700 transition-colors"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      Получить точную оценку в Telegram
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
         </div>
       </section>
 
