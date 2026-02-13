@@ -1,8 +1,8 @@
-# Active Context: Next.js Landing Page - АвтоВыкуп
+# Active Context: Next.js Landing Page - АвтоВыкуп40
 
 ## Current State
 
-**Project Status**: ✅ Landing page complete with black-red design
+**Project Status**: ✅ Landing page complete with full functionality
 
 A selling landing page for car, motorcycle and special equipment buyout services in Kaluga, Tula, Obninsk and surrounding areas up to 200km.
 
@@ -18,8 +18,14 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] SEO optimization (metadata, keywords for Kaluga region)
 - [x] Modern animations using Framer Motion
 - [x] Contact form with validation
-- [x] Black-red gradient color scheme (instead of cyan-magenta)
+- [x] Black-red gradient color scheme
 - [x] Lucide icons installed and integrated
+- [x] **Form sends to Telegram @krisdev13** - Form now opens Telegram with pre-filled message
+- [x] **Logo updated to АвтоВыкуп40** - Added "40" to logo
+- [x] **Added photos to services** - Cars, motorcycles, special equipment images
+- [x] **Added avatars to reviews** - Client photos in reviews section
+- [x] **Added cities display** - Shows Kaluga, Tula, Obninsk, +200km
+- [x] **Updated Telegram contact** - Now links to @krisdev13
 
 ## Current Structure
 
@@ -28,6 +34,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | `src/app/page.tsx` | Landing page with all sections | ✅ Complete |
 | `src/app/layout.tsx` | Root layout with SEO metadata | ✅ Complete |
 | `src/app/globals.css` | Global styles | ✅ Ready |
+| `next.config.ts` | Image domains config | ✅ Updated |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
 
 ## Landing Page Sections

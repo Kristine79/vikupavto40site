@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { 
   Car, 
   Bike, 
@@ -24,25 +25,29 @@ const reviews = [
     name: "Алексей Петров",
     city: "Калуга",
     text: "Продал свой Ford Focus за 45 минут! Оценщик приехал прямо на работу, всё осмотрел и рассчитался на месте. Отличный сервис!",
-    rating: 5
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
   },
   {
     name: "Михаил Иванов",
     city: "Тула",
     text: "Взяли мою старую Toyota Camry даже с неисправным двигателем. Цена устроила, вывезли на эвакуаторе бесплатно. Рекомендую!",
-    rating: 5
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face"
   },
   {
     name: "Сергей Николаев",
     city: "Обнинск",
     text: "Продал мотоцикл Honda CBR. Всё чётко, без лишних вопросов. Деньги получил в день обращения. Молодцы!",
-    rating: 5
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
   },
   {
     name: "Дмитрий Смирнов",
     city: "Калуга",
     text: "Продавал экскаватор-погрузчик. Компания оценила технику справедливо, помогли с оформлением документов. Очень доволен!",
-    rating: 5
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=face"
   }
 ];
 
@@ -59,7 +64,22 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Create message for Telegram
+    const telegramMessage = `🚗 *Новая заявка на выкуп авто*\n\n` +
+      `*Имя:* ${formData.name}\n` +
+      `*Телефон:* ${formData.phone}\n` +
+      `*Тип ТС:* ${formData.vehicleType === 'auto' ? 'Легковой автомобиль' : formData.vehicleType === 'motorcycle' ? 'Мотоцикл' : 'Спецтехника'}\n` +
+      `*Сообщение:* ${formData.message || 'Не указано'}`;
+    
+    // Encode message for URL
+    const encodedMessage = encodeURIComponent(telegramMessage);
+    
+    // Open Telegram with pre-filled message
+    window.open(`https://t.me/krisdev13?text=${encodedMessage}`, '_blank');
+    
+    // Simulate loading
+    await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSubmitting(false);
     setSubmitSuccess(true);
     setFormData({ name: "", phone: "", vehicleType: "auto", message: "" });
@@ -86,9 +106,9 @@ export default function Home() {
             className="flex items-center gap-2"
           >
             <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-900 rounded-lg flex items-center justify-center shadow-lg shadow-red-600/30">
-              <span className="text-xl font-bold">А</span>
+              <span className="text-xl font-bold">АВ</span>
             </div>
-            <span className="text-xl font-bold">АвтоВыкуп</span>
+            <span className="text-xl font-bold">АвтоВыкуп<span className="text-red-500">40</span></span>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
@@ -200,6 +220,30 @@ export default function Home() {
                 <div className="text-gray-400 mt-1">Работаем всегда</div>
               </div>
             </motion.div>
+
+            {/* Cities We Serve */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="mt-16 flex flex-wrap justify-center gap-4"
+            >
+              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
+                <MapPin className="w-4 h-4 text-red-500" />
+                <span className="text-gray-300">Калуга</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
+                <MapPin className="w-4 h-4 text-red-500" />
+                <span className="text-gray-300">Тула</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
+                <MapPin className="w-4 h-4 text-red-500" />
+                <span className="text-gray-300">Обнинск</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
+                <span className="text-gray-300">+ 200км от Калуги</span>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -229,10 +273,17 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
               whileHover={{ y: -10 }}
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group overflow-hidden"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-900 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-red-600/30">
-                <Car className="w-12 h-12 text-white" />
+              <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+                <Image 
+                  src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&h=400&fit=crop" 
+                  alt="Автомобили премиум класса"
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 text-white font-bold">BMW, Mercedes, Audi</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Легковые авто</h3>
               <ul className="space-y-2 text-gray-400">
@@ -251,10 +302,17 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
               whileHover={{ y: -10 }}
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group overflow-hidden"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-900 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-red-600/30">
-                <Bike className="w-12 h-12 text-white" />
+              <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+                <Image 
+                  src="https://images.unsplash.com/photo-1558981806-ec527fa84c3d?w=600&h=400&fit=crop" 
+                  alt="Мотоциклы"
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 text-white font-bold">Kawasaki, Honda, Yamaha</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Мотоциклы</h3>
               <ul className="space-y-2 text-gray-400">
@@ -273,10 +331,17 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
               whileHover={{ y: -10 }}
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group overflow-hidden"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-900 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-red-600/30">
-                <Truck className="w-12 h-12 text-white" />
+              <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+                <Image 
+                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=400&fit=crop" 
+                  alt="Спецтехника"
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 text-white font-bold">Экскаваторы, погрузчики</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Спецтехника</h3>
               <ul className="space-y-2 text-gray-400">
@@ -378,16 +443,26 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10"
               >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-red-500">
+                    <Image 
+                      src={review.avatar} 
+                      alt={review.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <div className="font-bold">{review.name}</div>
+                    <div className="text-sm text-red-400">{review.city}</div>
+                  </div>
+                </div>
                 <div className="flex gap-1 mb-3">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className={`w-5 h-5 ${j < review.rating ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
+                    <Star key={j} className={`w-4 h-4 ${j < review.rating ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
                   ))}
                 </div>
-                <p className="text-gray-300 mb-4 italic">&ldquo;{review.text}&rdquo;</p>
-                <div className="border-t border-white/10 pt-3">
-                  <div className="font-bold">{review.name}</div>
-                  <div className="text-sm text-red-400">{review.city}</div>
-                </div>
+                <p className="text-gray-300 text-sm italic">&ldquo;{review.text}&rdquo;</p>
               </motion.div>
             ))}
           </div>
@@ -504,7 +579,7 @@ export default function Home() {
               className="mt-12 grid md:grid-cols-3 gap-6"
             >
               <a 
-                href="https://t.me/autovykup_kaluga"
+                href="https://t.me/krisdev13"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
@@ -514,7 +589,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">Telegram</div>
-                  <div className="text-gray-400 text-sm">@autovykup_kaluga</div>
+                  <div className="text-gray-400 text-sm">@krisdev13</div>
                 </div>
               </a>
 
