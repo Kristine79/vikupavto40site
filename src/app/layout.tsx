@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Next.js Template",
-  description: "A minimal Next.js starter template",
+  title: "АвтоВыкуп Калуга, Тула, Обнинск - Выкуп автомобилей за 15 минут",
+  description: "Срочный выкуп автомобилей, мотоциклов и спецтехники в Калуге, Туле и Обнинске. Бесплатный вывоз на эвакуаторе. Оценка за 5 минут. Честные цены. Звоните: +7 (4842) 55-55-55",
+  keywords: "выкуп авто, выкуп автомобилей, продать авто, выкуп мотоциклов, выкуп спецтехники, автовыкуп Калуга, автовыкуп Тула, автовыкуп Обнинск, срочный выкуп авто, выкуп битых авто",
+  authors: [{ name: "АвтоВыкуп" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "АвтоВыкуп Калуга, Тула, Обнинск - Выкуп автомобилей за 15 минут",
+    description: "Срочный выкуп автомобилей, мотоциклов и спецтехники. Бесплатный вывоз на эвакуаторе.",
+    type: "website",
+    locale: "ru_RU",
+  },
 };
 
 export default function RootLayout({
@@ -23,10 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="ru">
+      <body className={`${inter.variable} antialiased`}>
         {children}
       </body>
     </html>
