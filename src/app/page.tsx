@@ -53,6 +53,18 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
   </svg>
 );
 
+const TelegramIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+  </svg>
+);
+
+const WhatsAppIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
 const PhoneIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -118,9 +130,12 @@ export default function Home() {
     <main className="min-h-screen bg-neutral-900 text-white overflow-x-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-neutral-900 to-black"></div>
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/30 via-neutral-950 to-black"></div>
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-magenta-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-cyan-500/5 via-magenta-500/5 to-cyan-500/5 rounded-full blur-[100px]"></div>
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,245,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,245,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       </div>
 
       {/* Header */}
@@ -131,7 +146,7 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-2"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-magenta-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/30">
               <span className="text-xl font-bold">А</span>
             </div>
             <span className="text-xl font-bold">АвтоВыкуп</span>
@@ -139,19 +154,19 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="hidden md:flex items-center gap-4"
+            className="hidden md:flex items-center gap-6"
           >
-            <a href="#services" className="hover:text-orange-400 transition-colors">Услуги</a>
-            <a href="#advantages" className="hover:text-orange-400 transition-colors">Преимущества</a>
-            <a href="#reviews" className="hover:text-orange-400 transition-colors">Отзывы</a>
-            <a href="#contact" className="hover:text-orange-400 transition-colors">Контакты</a>
+            <a href="#services" className="hover:text-cyan-400 transition-colors font-medium">Услуги</a>
+            <a href="#advantages" className="hover:text-cyan-400 transition-colors font-medium">Преимущества</a>
+            <a href="#reviews" className="hover:text-cyan-400 transition-colors font-medium">Отзывы</a>
+            <a href="#contact" className="hover:text-cyan-400 transition-colors font-medium">Контакты</a>
           </motion.div>
           <motion.a 
             href="#contact"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ scale: 1.05 }}
-            className="bg-gradient-to-r from-orange-500 to-red-500 px-6 py-2 rounded-full font-semibold"
+            className="bg-gradient-to-r from-cyan-500 to-magenta-500 px-6 py-2 rounded-full font-semibold shadow-lg shadow-cyan-500/30"
           >
             Связаться
           </motion.a>
@@ -167,8 +182,8 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <span className="inline-block px-4 py-2 bg-orange-500/20 text-orange-400 rounded-full text-sm font-semibold mb-6">
-                🚀 Выкуп в Калуге, Туле и Обнинске
+              <span className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500/20 via-magenta-500/20 to-cyan-500/20 border border-cyan-500/30 text-cyan-400 rounded-full text-sm font-bold mb-6 backdrop-blur-sm">
+                ⚡ Выкуп в Калуге, Туле и Обнинске
               </span>
             </motion.div>
             
@@ -176,13 +191,13 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight"
+              className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight tracking-tight"
             >
-              <span className="bg-gradient-to-r from-white via-orange-100 to-orange-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-cyan-100 to-cyan-300 bg-clip-text text-transparent">
                 ВЫКУПАЕМ АВТО
               </span>
               <br />
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 via-magenta-400 to-cyan-400 bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient">
                 ЗА 15 МИНУТ
               </span>
             </motion.h1>
@@ -194,7 +209,7 @@ export default function Home() {
               className="text-xl md:text-2xl text-gray-300 mb-10"
             >
               Автомобили, мотоциклы и спецтехника любого состояния. 
-              <span className="text-orange-400"> Бесплатный вывоз</span> по Калужской области до 200 км
+              <span className="text-cyan-400 font-semibold">Бесплатный вывоз</span> по Калужской области до 200 км
             </motion.p>
 
             <motion.div 
@@ -207,7 +222,7 @@ export default function Home() {
                 href="#contact"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-orange-500 to-red-500 px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-orange-500/25"
+                className="bg-gradient-to-r from-cyan-500 to-magenta-500 px-8 py-4 rounded-full font-bold text-lg shadow-2xl shadow-cyan-500/30"
               >
                 Продать авто сейчас
               </motion.a>
@@ -215,7 +230,7 @@ export default function Home() {
                 href="#advantages"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="border-2 border-orange-500 px-8 py-4 rounded-full font-bold text-lg hover:bg-orange-500/20 transition-colors"
+                className="border-2 border-cyan-500 px-8 py-4 rounded-full font-bold text-lg hover:bg-cyan-500/20 transition-colors"
               >
                 Узнать условия
               </motion.a>
@@ -226,23 +241,23 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
+              className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6"
             >
               <div className="text-center">
-                <div className="text-4xl font-bold text-orange-500">500+</div>
-                <div className="text-gray-400">Авто выкуплено</div>
+                <div className="text-4xl md:text-5xl font-bold text-cyan-400">500+</div>
+                <div className="text-gray-400 mt-1">Авто выкуплено</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-orange-500">15 мин</div>
-                <div className="text-gray-400">Среднее время</div>
+                <div className="text-4xl md:text-5xl font-bold text-cyan-400">15 мин</div>
+                <div className="text-gray-400 mt-1">Среднее время</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-orange-500">98%</div>
-                <div className="text-gray-400">Довольных клиентов</div>
+                <div className="text-4xl md:text-5xl font-bold text-cyan-400">98%</div>
+                <div className="text-gray-400 mt-1">Довольных клиентов</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-orange-500">24/7</div>
-                <div className="text-gray-400">Работаем всегда</div>
+                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent">24/7</div>
+                <div className="text-gray-400 mt-1">Работаем всегда</div>
               </div>
             </motion.div>
           </div>
@@ -250,7 +265,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="relative z-10 py-24 bg-black/30">
+      <section id="services" className="relative z-10 py-24 bg-black/20">
         <div className="container mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -259,7 +274,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent">
                 ЧТО МЫ ВЫКУПАЕМ
               </span>
             </h2>
@@ -274,9 +289,9 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
               whileHover={{ y: -10 }}
-              className="bg-gradient-to-br from-neutral-800 to-neutral-900 p-8 rounded-2xl border border-neutral-700 hover:border-orange-500 transition-colors group"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-colors group"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-magenta-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/30">
                 <CarIcon />
               </div>
               <h3 className="text-2xl font-bold mb-4">Легковые авто</h3>
@@ -296,9 +311,9 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
               whileHover={{ y: -10 }}
-              className="bg-gradient-to-br from-neutral-800 to-neutral-900 p-8 rounded-2xl border border-neutral-700 hover:border-orange-500 transition-colors group"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-colors group"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-magenta-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/30">
                 <MotorcycleIcon />
               </div>
               <h3 className="text-2xl font-bold mb-4">Мотоциклы</h3>
@@ -318,9 +333,9 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
               whileHover={{ y: -10 }}
-              className="bg-gradient-to-br from-neutral-800 to-neutral-900 p-8 rounded-2xl border border-neutral-700 hover:border-orange-500 transition-colors group"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-colors group"
             >
-              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-magenta-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/30">
                 <TruckIcon />
               </div>
               <h3 className="text-2xl font-bold mb-4">Спецтехника</h3>
@@ -346,7 +361,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent">
                 ПОЧЕМУ ВЫБИРАЮТ НАС
               </span>
             </h2>
@@ -383,9 +398,9 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ scale: 1.02 }}
-                className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700 hover:border-orange-500/50 transition-colors"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-cyan-500/50 transition-colors"
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center text-orange-500 mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-cyan-500/20 to-magenta-500/20 rounded-xl flex items-center justify-center text-cyan-400 mb-4">
                   {adv.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-2">{adv.title}</h3>
@@ -397,7 +412,7 @@ export default function Home() {
       </section>
 
       {/* Reviews Section */}
-      <section id="reviews" className="relative z-10 py-24 bg-black/30">
+      <section id="reviews" className="relative z-10 py-24 bg-black/20">
         <div className="container mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -406,7 +421,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent">
                 ОТЗЫВЫ КЛИЕНТОВ
               </span>
             </h2>
@@ -421,7 +436,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-neutral-800 p-6 rounded-xl border border-neutral-700"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10"
               >
                 <div className="flex gap-1 mb-3">
                   {[...Array(5)].map((_, j) => (
@@ -429,9 +444,9 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4 italic">&ldquo;{review.text}&rdquo;</p>
-                <div className="border-t border-neutral-700 pt-3">
+                <div className="border-t border-white/10 pt-3">
                   <div className="font-bold">{review.name}</div>
-                  <div className="text-sm text-orange-500">{review.city}</div>
+                  <div className="text-sm text-cyan-400">{review.city}</div>
                 </div>
               </motion.div>
             ))}
@@ -440,18 +455,22 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section id="contact" className="relative z-10 py-24">
-        <div className="container mx-auto px-4">
+      <section id="contact" className="relative z-10 py-24 overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-900 to-black"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-magenta-500/10 rounded-full blur-[100px]"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-br from-neutral-800 to-neutral-900 p-8 md:p-12 rounded-3xl border border-neutral-700"
+              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl p-8 md:p-12 rounded-3xl border border-white/10"
             >
               <div className="text-center mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent">
                     ПРОДАЙ АВТО ЗА 15 МИНУТ
                   </span>
                 </h2>
@@ -489,7 +508,7 @@ export default function Home() {
                           required
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors"
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors"
                           placeholder="Иван Иванов"
                         />
                       </div>
@@ -500,7 +519,7 @@ export default function Home() {
                           required
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors"
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors"
                           placeholder="+7 (999) 123-45-67"
                         />
                       </div>
@@ -510,7 +529,7 @@ export default function Home() {
                       <select
                         value={formData.vehicleType}
                         onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
-                        className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors"
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors"
                       >
                         <option value="auto">Легковой автомобиль</option>
                         <option value="moto">Мотоцикл</option>
@@ -523,7 +542,7 @@ export default function Home() {
                         rows={3}
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors resize-none"
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors resize-none"
                         placeholder="Toyota Camry, 2018 год, пробег 150 000 км..."
                       />
                     </div>
@@ -532,7 +551,7 @@ export default function Home() {
                       disabled={isSubmitting}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 py-4 rounded-xl font-bold text-lg shadow-lg shadow-orange-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-gradient-to-r from-cyan-500 to-magenta-500 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center justify-center gap-2">
@@ -554,78 +573,156 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Contacts Section */}
-      <section className="relative z-10 py-24 bg-black/30">
-        <div className="container mx-auto px-4">
+      {/* Contacts Section - 2026 Style */}
+      <section className="relative z-10 py-24 overflow-hidden">
+        {/* Neon Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-neutral-900 to-black"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-conic from-cyan-500/10 via-transparent to-magenta-500/10 rounded-full blur-3xl animate-spin-slow"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+              className="inline-block"
+            >
+              <span className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500 via-magenta-500 to-cyan-500 bg-[length:200%_200%] animate-gradient text-white font-bold rounded-full text-sm mb-6 shadow-lg shadow-cyan-500/30">
+                ⚡ СВЯЖИСЬ С НАМИ
+              </span>
+            </motion.div>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4">
+              <span className="bg-gradient-to-r from-white via-cyan-200 to-cyan-400 bg-clip-text text-transparent">
                 КОНТАКТЫ
               </span>
             </h2>
-            <p className="text-gray-400 text-lg">Ждем вас в офисах</p>
+            <p className="text-gray-400 text-lg">Выбери удобный способ связи</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Contact Methods - Glassmorphism Cards */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
-              { city: "Калуга", address: "ул. Кирова, 19", phone: "+7 (4842) 55-55-55" },
-              { city: "Тула", address: "ул. Фридриха Энгельса, 26", phone: "+7 (4872) 55-55-55" },
-              { city: "Обнинск", address: "ул. Королева, 6", phone: "+7 (4843) 55-55-55" }
-            ].map((office, i) => (
-              <motion.div 
+              { 
+                icon: <TelegramIcon />, 
+                title: "Telegram", 
+                desc: "Быстрые ответы",
+                link: "https://t.me/autovykup_kaluga",
+                color: "from-cyan-400 to-cyan-600",
+                glow: "shadow-cyan-500/50",
+                borderColor: "border-cyan-500/50"
+              },
+              { 
+                icon: <WhatsAppIcon />, 
+                title: "WhatsApp", 
+                desc: "Напиши нам",
+                link: "https://wa.me/74842555555",
+                color: "from-green-400 to-green-600",
+                glow: "shadow-green-500/50",
+                borderColor: "border-green-500/50"
+              },
+              { 
+                icon: <PhoneIcon />, 
+                title: "Телефон", 
+                desc: "Звони прямо сейчас",
+                link: "tel:+74842555555",
+                color: "from-magenta-500 to-pink-600",
+                glow: "shadow-magenta-500/50",
+                borderColor: "border-magenta-500/50"
+              }
+            ].map((contact, i) => (
+              <motion.a
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                href={contact.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 30, rotateX: -20 }}
+                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-neutral-800 p-8 rounded-2xl border border-neutral-700"
+                transition={{ delay: i * 0.15, type: "spring", stiffness: 150 }}
+                whileHover={{ 
+                  y: -10, 
+                  scale: 1.02,
+                  boxShadow: `0 20px 40px -20px ${contact.glow}`
+                }}
+                className={`group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl p-8 rounded-3xl border ${contact.borderColor} hover:border-opacity-100 transition-all duration-300`}
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                    <LocationIcon />
-                  </div>
-                  <h3 className="text-xl font-bold">{office.city}</h3>
+                {/* Glow Effect */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${contact.color} opacity-0 group-hover:opacity-20 rounded-3xl transition-opacity duration-300`}></div>
+                
+                <div className="relative z-10 text-center">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
+                    transition={{ duration: 0.3 }}
+                    className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br ${contact.color} rounded-2xl flex items-center justify-center shadow-lg ${contact.glow}`}
+                  >
+                    <span className="text-white">{contact.icon}</span>
+                  </motion.div>
+                  
+                  <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-cyan-300 transition-colors">
+                    {contact.title}
+                  </h3>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
+                    {contact.desc}
+                  </p>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    whileHover={{ opacity: 1, y: 0 }}
+                    className="mt-4 text-sm font-medium text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    Нажми для связи →
+                  </motion.div>
                 </div>
-                <p className="text-gray-400 mb-2">{office.address}</p>
-                <a href={`tel:${office.phone}`} className="text-orange-500 font-semibold hover:underline">
-                  {office.phone}
-                </a>
-                <div className="mt-4 h-32 bg-neutral-900 rounded-lg flex items-center justify-center text-gray-500 text-sm">
-                  Карта скоро появится
-                </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
 
+          {/* Main Phone CTA */}
           <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mt-12"
+            transition={{ delay: 0.5 }}
+            className="text-center mt-16"
           >
-            <p className="text-gray-400 mb-4">Или звоните прямо сейчас:</p>
-            <a 
-              href="tel:+74842555555" 
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-red-500 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform"
+            <p className="text-gray-400 mb-6">Или звоните напрямую:</p>
+            <motion.a 
+              href="tel:+74842555555"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-magenta-500 to-cyan-500 bg-[length:200%_200%] animate-gradient px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all"
             >
               <PhoneIcon />
-              +7 (4842) 55-55-55
-            </a>
+              <span>+7 (4842) 55-55-55</span>
+            </motion.a>
           </motion.div>
+
+          {/* Floating Elements */}
+          <motion.div
+            animate={{ y: [0, -20, 0], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-20 left-10 w-4 h-4 bg-cyan-500/30 rounded-full blur-sm"
+          />
+          <motion.div
+            animate={{ y: [0, 30, 0], rotate: [0, -10, 10, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-20 right-10 w-6 h-6 bg-magenta-500/30 rounded-full blur-sm"
+          />
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-8 border-t border-neutral-800">
+      <footer className="relative z-10 py-8 border-t border-white/10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-magenta-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/30">
                 <span className="text-sm font-bold">А</span>
               </div>
               <span className="font-bold">АвтоВыкуп</span>
