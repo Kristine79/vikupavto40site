@@ -213,6 +213,7 @@ export default function Home() {
 
   // Estimated repair cost database based on typical Russian market prices (2024)
   // Brand multipliers for repair costs - parts for premium cars cost more
+  // Note: brand names must match exactly with carBrandsAndModels keys
   const brandRepairMultiplier: Record<string, number> = {
     // Budget brands - cheaper repairs
     'Lada (ВАЗ)': 0.7,
@@ -223,6 +224,11 @@ export default function Home() {
     'Chery': 0.8,
     'Geely': 0.8,
     'JAC': 0.8,
+    'Great Wall': 0.8,
+    'Haval': 0.8,
+    'Lifan': 0.75,
+    'FAW': 0.8,
+    'ЗАЗ': 0.7,
     // Mid-range brands - standard repairs
     'Kia': 1.0,
     'Hyundai': 1.0,
@@ -251,10 +257,11 @@ export default function Home() {
     'Mini': 1.2,
     'Smart': 1.3,
     'Saab': 1.1,
+    'Tesla': 1.5,
     // Premium brands - more expensive repairs
     'Audi': 1.5,
     'BMW': 1.6,
-    'Mercedes-Benz': 1.7,
+    'Mercedes': 1.7,
     'Lexus': 1.8,
     'Porsche': 2.2,
     'Land Rover': 1.7,
