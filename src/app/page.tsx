@@ -20,7 +20,10 @@ import {
   Calculator,
   Upload,
   X,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Brain,
+  Camera,
+  AlertTriangle
 } from "lucide-react";
 
 // Review data
@@ -81,18 +84,69 @@ export default function Home() {
   const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
+  // AI Damage Assessment state
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [damageZones, setDamageZones] = useState<Array<{
+    id: number;
+    zone: string;
+    severity: 'minor' | 'moderate' | 'severe';
+    description: string;
+    repairCost: number;
+  }>>([]);
+  const [selectedZone, setSelectedZone] = useState<number | null>(null);
+
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newPhotos = Array.from(e.target.files);
       const newPreviews = newPhotos.map(file => URL.createObjectURL(file));
       setPhotos([...photos, ...newPhotos].slice(0, 5));
       setPhotoPreviews([...photoPreviews, ...newPreviews].slice(0, 5));
+      // Reset damage analysis when new photos are uploaded
+      setDamageZones([]);
+      setEstimatedPrice(null);
     }
   };
 
   const removePhoto = (index: number) => {
     setPhotos(photos.filter((_, i) => i !== index));
     setPhotoPreviews(photoPreviews.filter((_, i) => i !== index));
+    setDamageZones([]);
+    setEstimatedPrice(null);
+  };
+
+  // Simulate AI damage detection
+  const analyzeDamage = async () => {
+    setIsAnalyzing(true);
+    setDamageZones([]);
+    
+    // Simulate AI analysis delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Generate random damage zones for demo
+    const possibleZones = [
+      { zone: 'Передний бампер', severity: 'minor' as const, description: 'Царапины', baseCost: 15000 },
+      { zone: 'Капот', severity: 'moderate' as const, description: 'Вмятина', baseCost: 25000 },
+      { zone: 'Левое крыло', severity: 'severe' as const, description: 'Деформация', baseCost: 35000 },
+      { zone: 'Дверь водителя', severity: 'minor' as const, description: 'Царапины', baseCost: 12000 },
+      { zone: 'Задний бампер', severity: 'moderate' as const, description: 'Трещина', baseCost: 20000 },
+      { zone: 'Крыша', severity: 'minor' as const, description: 'Царапины', baseCost: 18000 },
+      { zone: 'Фара', severity: 'severe' as const, description: 'Разбита', baseCost: 40000 },
+      { zone: 'Зеркало', severity: 'moderate' as const, description: 'Трещина', baseCost: 15000 },
+    ];
+    
+    // Randomly select 1-4 damage zones
+    const numDamages = Math.floor(Math.random() * 4) + 1;
+    const shuffled = possibleZones.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, numDamages);
+    
+    const damages = selected.map((d, i) => ({
+      id: i + 1,
+      ...d,
+      repairCost: d.baseCost * (d.severity === 'minor' ? 0.5 : d.severity === 'moderate' ? 1 : 1.5)
+    }));
+    
+    setDamageZones(damages);
+    setIsAnalyzing(false);
   };
 
   const calculatePrice = async () => {
@@ -111,7 +165,7 @@ export default function Home() {
       "Hyundai": 700000,
       "Kia": 650000,
       "Lada": 400000,
-      " Renault": 600000,
+      "Renault": 600000,
       "Mitsubishi": 950000,
       "Mazda": 880000,
       "Другая": 500000
@@ -146,6 +200,10 @@ export default function Home() {
     // Documents
     if (calcData.hasDocuments === "no") basePrice *= 0.5;
 
+    // AI Damage Assessment - subtract repair costs
+    const totalDamageCost = damageZones.reduce((sum, d) => sum + d.repairCost, 0);
+    basePrice = Math.max(100000, basePrice - totalDamageCost * 0.7);
+
     // Simulate calculation delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -154,6 +212,10 @@ export default function Home() {
   };
 
   const sendCalculationToTelegram = () => {
+    const damageInfo = damageZones.length > 0 
+      ? damageZones.map(d => `• ${d.zone}: ${d.description} (${d.severity}) - ~${d.repairCost.toLocaleString()} ₽`).join('\n')
+      : 'Не обнаружены';
+    
     const message = `🚗 *Запрос расчета стоимости авто*\n\n` +
       `*Марка:* ${calcData.brand}\n` +
       `*Модель:* ${calcData.model}\n` +
@@ -164,6 +226,7 @@ export default function Home() {
       `*ДТП:* ${calcData.hasAccidents === "yes" ? "Да" : "Нет"}\n` +
       `*Документы:* ${calcData.hasDocuments === "yes" ? "Есть" : "Нет"}\n` +
       `*Фото:* ${photos.length} фото\n\n` +
+      `*AI-анализ повреждений:*\n${damageInfo}\n\n` +
       `*Предварительная цена:* ${estimatedPrice?.toLocaleString()} ₽`;
     
     const encodedMessage = encodeURIComponent(message);
@@ -678,6 +741,7 @@ export default function Home() {
               {/* Photo Upload */}
               <div className="mb-8">
                 <label className="block text-sm text-gray-400 mb-2">
+                  <Camera className="inline w-4 h-4 mr-1" />
                   Фото автомобиля (до 5 фото)
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -712,6 +776,100 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              {/* AI Damage Analysis Button */}
+              {photos.length > 0 && damageZones.length === 0 && !isAnalyzing && (
+                <motion.button
+                  onClick={analyzeDamage}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-800 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-blue-600/30 mb-6 flex items-center justify-center gap-2"
+                >
+                  <Brain className="w-5 h-5" />
+                  AI-анализ повреждений
+                </motion.button>
+              )}
+
+              {/* AI Analysis Loading */}
+              {isAnalyzing && (
+                <div className="mb-6 p-6 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl border border-blue-500/30">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Brain className="w-8 h-8 text-blue-400 animate-pulse" />
+                    <span className="text-blue-400 font-bold">AI анализирует повреждения...</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full animate-progress" style={{ width: '100%' }}></div>
+                  </div>
+                  <div className="text-center text-gray-400 text-sm">
+                    Компьютерное зрение сканирует загруженные изображения
+                  </div>
+                </div>
+              )}
+
+              {/* Damage Zones Results */}
+              {damageZones.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-6 bg-gradient-to-r from-orange-600/20 to-red-600/20 rounded-xl border border-orange-500/30"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <AlertTriangle className="w-6 h-6 text-orange-400" />
+                    <span className="text-orange-400 font-bold text-lg">Обнаруженные повреждения</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {damageZones.map((damage) => (
+                      <div 
+                        key={damage.id}
+                        onClick={() => setSelectedZone(selectedZone === damage.id ? null : damage.id)}
+                        className={`p-4 rounded-xl cursor-pointer transition-all ${
+                          selectedZone === damage.id 
+                            ? 'bg-white/20 border-2 border-orange-500' 
+                            : 'bg-white/5 border border-white/10 hover:border-orange-500/50'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <span className="font-bold">{damage.zone}</span>
+                            <span className={`ml-2 px-2 py-0.5 rounded text-xs font-bold ${
+                              damage.severity === 'minor' ? 'bg-yellow-600' : 
+                              damage.severity === 'moderate' ? 'bg-orange-600' : 'bg-red-600'
+                            }`}>
+                              {damage.severity === 'minor' ? 'Легкое' : 
+                               damage.severity === 'moderate' ? 'Среднее' : 'Тяжелое'}
+                            </span>
+                          </div>
+                          <span className="text-red-400 font-bold">
+                            ~{Math.round(damage.repairCost).toLocaleString()} ₽
+                          </span>
+                        </div>
+                        <div className="text-gray-400 text-sm">{damage.description}</div>
+                        
+                        {selectedZone === damage.id && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mt-3 pt-3 border-t border-white/10"
+                          >
+                            <div className="text-sm text-gray-300">
+                              <strong>Рекомендация:</strong> требуется {damage.description.toLowerCase()}, 
+                              рекомендуется ремонт в автосервисе
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                    <span className="text-gray-400">Всего повреждений: <strong className="text-white">{damageZones.length}</strong></span>
+                    <span className="text-orange-400 font-bold">
+                      Примерный ремонт: ~{damageZones.reduce((s, d) => s + d.repairCost, 0).toLocaleString()} ₽
+                    </span>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Calculate Button */}
               <motion.button
