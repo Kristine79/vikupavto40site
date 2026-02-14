@@ -29,6 +29,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added calculator section** - Multi-parameter car price calculator with photo upload
 - [x] **AI damage assessment** - Calculator now includes AI-powered damage detection simulation
 - [x] **Rossko API integration** - Calculator fetches real auto parts prices from Rossko (Kaluga)
+- [x] **Fixed damage selection** - User now manually selects damaged parts via checkboxes instead of random AI generation
 
 ## Current Structure
 
@@ -87,3 +88,4 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-13 | Updated to black-red gradient, replaced icons with Lucide |
 | 2026-02-13 | Added car price calculator with photo upload |
 | 2026-02-14 | Integrated Rossko API for real auto parts pricing |
+| 2026-02-14 | Fixed damage selection - user selects damaged parts manually via checkboxes |
