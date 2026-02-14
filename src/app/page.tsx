@@ -23,7 +23,8 @@ import {
   Image as ImageIcon,
   Brain,
   Camera,
-  AlertTriangle
+  AlertTriangle,
+  Wrench
 } from "lucide-react";
 
 // Car brands and models database
@@ -159,6 +160,7 @@ export default function Home() {
     repairCost: number;
   }>>([]);
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
+  const [selectedDamages, setSelectedDamages] = useState<string[]>([]);
 
   // Model autocomplete state
   const [modelSuggestions, setModelSuggestions] = useState<string[]>([]);
@@ -316,21 +318,16 @@ export default function Home() {
     }
   };
 
-  // Analyze damage with real cost data
+  // Analyze damage based on user selected parts
   const analyzeDamage = async () => {
     setIsAnalyzing(true);
     setDamageZones([]);
     
     // Simulate API call delay for realistic feel
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Determine number of damage zones based on photos uploaded
-    // More photos = higher chance of more damage zones
-    const numPhotos = photos.length;
-    const baseChance = 0.3 + (numPhotos * 0.1);
-    
-    // Select damage zones based on probability
-    const selectedDamages: Array<{
+    // Use selected damages from the checkbox list
+    const selectedDamagesData: Array<{
       id: number;
       zone: string;
       severity: 'minor' | 'moderate' | 'severe';
@@ -338,17 +335,12 @@ export default function Home() {
       repairCost: number;
     }> = [];
     
-    // Shuffle and select damage zones
-    const shuffled = [...allDamageZones].sort(() => 0.5 - Math.random());
-    
-    for (const zone of shuffled) {
-      if (Math.random() < baseChance && selectedDamages.length < 5) {
-        // Determine severity randomly with weighted probability
-        const severityRand = Math.random();
-        let severity: 'minor' | 'moderate' | 'severe';
-        if (severityRand < 0.5) severity = 'minor';
-        else if (severityRand < 0.8) severity = 'moderate';
-        else severity = 'severe';
+    // Get damage zones that user selected
+    for (const selectedKey of selectedDamages) {
+      const zone = allDamageZones.find(z => z.key === selectedKey);
+      if (zone) {
+        // Use moderate severity as default for user-selected damages
+        const severity: 'minor' | 'moderate' | 'severe' = (zone.defaultSeverity as 'minor' | 'moderate' | 'severe') || 'moderate';
         
         const costs = repairCostDatabase[zone.category as keyof typeof repairCostDatabase];
         const partCosts = costs[zone.key as keyof typeof costs];
@@ -356,8 +348,8 @@ export default function Home() {
         
         const category = zone.category as keyof typeof severityDescriptions;
         
-        selectedDamages.push({
-          id: selectedDamages.length + 1,
+        selectedDamagesData.push({
+          id: selectedDamagesData.length + 1,
           zone: zone.key,
           severity,
           description: severityDescriptions[severity][category] || 'Требует осмотра',
@@ -366,7 +358,7 @@ export default function Home() {
       }
     }
     
-    setDamageZones(selectedDamages);
+    setDamageZones(selectedDamagesData);
     setIsAnalyzing(false);
   };
 
@@ -1066,8 +1058,45 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Manual Damage Selection */}
+              <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <Wrench className="w-5 h-5 text-orange-400" />
+                  <span className="font-bold text-white">Отметьте повреждения</span>
+                </div>
+                <p className="text-sm text-gray-400 mb-3">Выберите все повреждённые элементы автомобиля:</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {allDamageZones.slice(0, 12).map((zone) => (
+                    <label
+                      key={zone.key}
+                      className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all text-sm ${
+                        selectedDamages.includes(zone.key)
+                          ? 'bg-orange-500/20 border border-orange-500 text-orange-400'
+                          : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedDamages.includes(zone.key)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedDamages([...selectedDamages, zone.key]);
+                          } else {
+                            setSelectedDamages(selectedDamages.filter(d => d !== zone.key));
+                          }
+                          // Clear AI damage zones when manually selecting
+                          setDamageZones([]);
+                        }}
+                        className="hidden"
+                      />
+                      <span>{zone.key}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* AI Damage Analysis Button */}
-              {photos.length > 0 && damageZones.length === 0 && !isAnalyzing && (
+              {selectedDamages.length > 0 && damageZones.length === 0 && !isAnalyzing && (
                 <motion.button
                   onClick={analyzeDamage}
                   whileHover={{ scale: 1.02 }}
@@ -1075,7 +1104,7 @@ export default function Home() {
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-800 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-blue-600/30 mb-6 flex items-center justify-center gap-2"
                 >
                   <Brain className="w-5 h-5" />
-                  AI-анализ повреждений
+                  Рассчитать стоимость ремонта
                 </motion.button>
               )}
 
