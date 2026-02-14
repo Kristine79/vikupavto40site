@@ -27,6 +27,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added cities display** - Shows Kaluga, Tula, Obninsk, +200km
 - [x] **Updated Telegram contact** - Now links to @krisdev13
 - [x] **Added calculator section** - Multi-parameter car price calculator with photo upload
+- [x] **AI damage assessment** - Calculator now includes AI-powered damage detection simulation
 
 ## Current Structure
 
