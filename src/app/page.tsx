@@ -114,7 +114,8 @@ export default function Home() {
     setEstimatedPrice(null);
   };
 
-  // Real repair cost database based on Russian market prices (2024)
+  // Estimated repair cost database based on typical Russian market prices (2024)
+  // These are approximate values for demonstration purposes - actual prices vary by service, region, and parts quality
   const repairCostDatabase = {
     // Body parts - average repair costs in Rubles
     bodyParts: {
