@@ -212,6 +212,71 @@ export default function Home() {
   };
 
   // Estimated repair cost database based on typical Russian market prices (2024)
+  // Brand multipliers for repair costs - parts for premium cars cost more
+  const brandRepairMultiplier: Record<string, number> = {
+    // Budget brands - cheaper repairs
+    'Lada (ВАЗ)': 0.7,
+    'ГАЗ': 0.7,
+    'УАЗ': 0.75,
+    'Daewoo': 0.75,
+    'Datsun': 0.75,
+    'Chery': 0.8,
+    'Geely': 0.8,
+    'JAC': 0.8,
+    // Mid-range brands - standard repairs
+    'Kia': 1.0,
+    'Hyundai': 1.0,
+    'Volkswagen': 1.0,
+    'Skoda': 1.0,
+    'Ford': 1.0,
+    'Toyota': 1.1,
+    'Honda': 1.1,
+    'Nissan': 1.1,
+    'Mazda': 1.1,
+    'Mitsubishi': 1.1,
+    'Subaru': 1.1,
+    'Suzuki': 1.0,
+    'Peugeot': 1.0,
+    'Citroen': 1.0,
+    'Renault': 0.9,
+    'SsangYong': 0.9,
+    'Opel': 1.0,
+    'Chevrolet': 0.95,
+    'Fiat': 0.9,
+    'Seat': 1.0,
+    'Daihatsu': 0.85,
+    'Chrysler': 1.1,
+    'Dodge': 1.15,
+    'Jeep': 1.15,
+    'Mini': 1.2,
+    'Smart': 1.3,
+    'Saab': 1.1,
+    // Premium brands - more expensive repairs
+    'Audi': 1.5,
+    'BMW': 1.6,
+    'Mercedes-Benz': 1.7,
+    'Lexus': 1.8,
+    'Porsche': 2.2,
+    'Land Rover': 1.7,
+    'Jaguar': 1.6,
+    'Volvo': 1.4,
+    'Infiniti': 1.6,
+    'Acura': 1.6,
+    'Cadillac': 1.6,
+    'Lincoln': 1.5,
+    'Buick': 1.4,
+    'Alfa Romeo': 1.4,
+    'Maserati': 2.0,
+    'Ferrari': 2.5,
+    'Lamborghini': 2.5,
+    'Aston Martin': 2.3,
+    'Bentley': 2.4,
+    'Rolls-Royce': 2.5,
+    'Genesis': 1.3,
+    // Default for unknown brands
+    'Другая': 1.0,
+  };
+
   // These are approximate values for demonstration purposes - actual prices vary by service, region, and parts quality
   const repairCostDatabase = {
     // Body parts - average repair costs in Rubles
@@ -344,7 +409,10 @@ export default function Home() {
         
         const costs = repairCostDatabase[zone.category as keyof typeof repairCostDatabase];
         const partCosts = costs[zone.key as keyof typeof costs];
-        const repairCost = partCosts[severity];
+        const baseRepairCost = partCosts[severity];
+        // Apply brand multiplier - premium brands have more expensive parts
+        const brandMultiplier = brandRepairMultiplier[calcData.brand] || 1.0;
+        const repairCost = Math.round(baseRepairCost * brandMultiplier);
         
         const category = zone.category as keyof typeof severityDescriptions;
         
