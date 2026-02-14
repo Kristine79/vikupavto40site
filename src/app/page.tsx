@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { 
@@ -25,6 +25,71 @@ import {
   Camera,
   AlertTriangle
 } from "lucide-react";
+
+// Car brands and models database
+const carBrandsAndModels: Record<string, string[]> = {
+  "Acura": ["MDX", "RDX", "TLX", "ILX", "RLX", "NSX"],
+  "Alfa Romeo": ["Giulia", "Stelvio", "Tonale", "4C", "8C"],
+  "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "e-tron", "TT", "R8"],
+  "BMW": ["1 Series", "2 Series", "3 Series", "4 Series", "5 Series", "6 Series", "7 Series", "8 Series", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "XM", "i3", "i4", "iX", "Z4"],
+  "Buick": ["Enclave", "Encore", "Envision", "LaCrosse", "Regal", "Verano"],
+  "Cadillac": ["ATS", "CT4", "CT5", "CTS", "Escalade", "SRX", "XT4", "XT5", "XT6"],
+  "Chery": ["Tiggo 2", "Tiggo 3", "Tiggo 4", "Tiggo 5", "Tiggo 7", "Tiggo 8", "Exeed VX"],
+  "Chevrolet": ["Avalanche", "Camaro", "Captiva", "Colorado", "Cruze", "Equinox", "Impala", "Malibu", "Silverado", "Spark", "Suburban", "Tahoe", "TrailBlazer", "Traverse", "Trax"],
+  "Chrysler": ["200", "300", "Pacifica", "Pacifica Hybrid", "Town & Country", "Voyager"],
+  "Citroen": ["C1", "C3", "C3 Aircross", "C4", "C4 Cactus", "C5 Aircross", "DS4", "DS7", "Berlingo", "Jumper"],
+  "Daewoo": ["Gentra", "Lanos", "Leganza", "Matiz", "Nexia", "Nubira", "Tico"],
+  "Datsun": ["mi-DO", "on-DO", "redi-GO"],
+  "Dodge": ["Challenger", "Charger", "Durango", "Journey", "Ram 1500", "Ram 2500", "Ram 3500"],
+  "FAW": ["Bestune B50", "Bestune B70", "Bestune T77", "Bestune T99", "Oley", "V80"],
+  "Fiat": ["500", "500L", "500X", "Doblo", "Freemont", "Panda", "Punto", "Tipo"],
+  "Ford": ["Bronco", "Bronco Sport", "C-Max", "Edge", "Escape", "Expedition", "Explorer", "F-150", "F-250", "F-350", "Fiesta", "Focus", "Fusion", "Kuga", "Mondeo", "Mustang", "Puma", "Ranger", "S-Max", "Taurus", "Tourneo Connect", "Transit"],
+  "Geely": ["Atlas", "Atlas Pro", "Coolray", "Emgrand EC7", "Emgrand EV", "FYI", "Monjaro", "Okavango", "Tugella"],
+  "Genesis": ["G70", "G80", "G90", "GV60", "GV70", "GV80"],
+  "GMC": ["Acadia", "Canyon", "Sierra", "Terrain", "Yukon", "Yukon XL"],
+  "Great Wall": ["Coolbear", "Deer", "Florid", "Hover", "M4", "Peri", "Poer", "Safe", "Wingle"],
+  "Haval": ["Dargo", "F7", "F7x", "H3", "H5", "H6", "H6 Coupe", "H7", "H8", "H9", "Jolion", "M6", "Monster", "P500"],
+  "Honda": ["Accord", "Civic", "Clarity", "CR-V", "CR-Z", "Element", "Fit", "HR-V", "Insight", "Odyssey", "Passport", "Pilot", "Ridgeline"],
+  "Hyundai": ["Accent", "Creta", "Elantra", "Genesis", "Getz", "Grand Santa Fe", "Grand Starex", "H-1", "Ioniq", "Ioniq 5", "Kona", "Palisade", "Santa Fe", "Sonata", "Starex", "Strix", "Tucson", "Veloster", "Venue", "Veracruz"],
+  "Infiniti": ["EX35", "EX37", "FX35", "FX37", "FX50", "G25", "G35", "G37", "JX35", "M25", "M35", "M37", "Q30", "Q40", "Q50", "Q60", "Q70", "QX30", "QX50", "QX55", "QX60", "QX70", "QX80"],
+  "Jaguar": ["E-PACE", "F-PACE", "F-TYPE", "I-PACE", "XE", "XF", "XJ"],
+  "Jeep": ["Cherokee", "Compass", "Gladiator", "Grand Cherokee", "Grand Cherokee L", "Renegade", "Wrangler"],
+  "Kia": ["Borrego", "Carnival", "Ceed", "Cerato", "K3", "K5", "K7", "K8", "K9", "Mohave", "Niro", "Optima", "Picanto", "Rio", "Seltos", "Sonet", "Sorento", "Soul", "Sportage", "Stinger", "XCeed"],
+  "Lada (ВАЗ)": ["Granta", "Kalina", "Largus", "Niva Legend", "Niva Travel", "Priora", "Vesta", "XRAY"],
+  "Land Rover": ["Defender", "Discovery", "Discovery Sport", "Freelander", "Range Rover", "Range Rover Evoque", "Range Rover Sport", "Range Rover Velar"],
+  "Lexus": ["CT", "ES", "GS", "IS", "LC", "LS", "LX", "NX", "RX", "RZ", "UX"],
+  "Lifan": ["Breez", "Cebrium", "Solano", "X50", "X60", "X70", "X80"],
+  "Lincoln": ["Aviator", "Continental", "Corsair", "MKC", "MKS", "MKT", "MKX", "MKZ", "Nautilus", "Navigator"],
+  "Maserati": ["Ghibli", "GranTurismo", "Levante", "MC20", "Quattroporte"],
+  "Mazda": ["2", "3", "3 Hatchback", "3 Sedan", "6", "CX-3", "CX-30", "CX-4", "CX-5", "CX-50", "CX-60", "CX-7", "CX-8", "CX-9", "MX-5", "MX-30"],
+  "Mercedes": ["A-Class", "B-Class", "C-Class", "CL-Class", "CLA", "CLK", "CLS", "E-Class", "EQC", "EQE", "EQS", "G-Class", "GLA", "GLB", "GLC", "GLE", "GLS", "S-Class", "SL-Class", "SLC", "V-Class", "X-Class"],
+  "Mini": ["Clubman", "Convertible", "Countryman", "Hardtop 2 Door", "Hardtop 4 Door", "John Cooper Works"],
+  "Mitsubishi": ["ASX", "Eclipse Cross", "Galant", "L200", "Lancer", "Mirage", "Montero", "Outlander", "Pajero", "Pajero Sport", "Space Star"],
+  "Nissan": ["Almera", "Altima", "Armada", "Frontier", "Juke", "Kicks", "Leaf", "Maxima", "Micra", "Murano", "Navara", "Note", "Pathfinder", "Patrol", "Qashqai", "Rogue", "Sentra", "Silvia", "Skyline", "Terrano", "Tiida", "Titan", "X-Trail", "Z"],
+  "Opel": ["Adam", "Astra", "Combo", "Corsa", "Crossland X", "Grandland X", "Insignia", "Karl", "Mokka", "Mokka X", "Movano", "Vivaro", "Zafira", "Zafira Life"],
+  "Peugeot": ["108", "2008", "207", "208", "3008", "301", "308", "4008", "5008", "508", "Boxer", "Expert", "Partner", "Rifter", "Traveller"],
+  "Porsche": ["911", "Boxster", "Cayenne", "Cayman", "Macan", "Panamera", "Taycan"],
+  "Ram": ["1500", "1500 Classic", "2500", "3500", "ProMaster"],
+  "Renault": ["Arkana", "Austral", "Captur", "Clio", "Dokker", "Duster", "Espace", "Fluence", "Kadjar", "Kangoo", "Kiger", "Koleos", "Laguna", "Logan", "Master", "Megane", "Modus", "Sandero", "Symbol", "Talisman", "Trafic", "Triber", "Twingo", "Wind"],
+  "Saab": ["9-2X", "9-3", "9-4X", "9-5", "9-7X"],
+  "Seat": ["Alhambra", "Altea", "Arona", "Ateca", "Ibiza", "Leon", "Tarraco", "Toledo"],
+  "Skoda": ["Citigo", "Fabia", "Kamiq", "Karoq", "Kodiaq", "Octavia", "Rapid", "Roomster", "Superb", "Yeti"],
+  "Smart": ["EQ ForFour", "EQ ForTwo", "Fortwo"],
+  "SsangYong": ["Actyon", "Actyon Sports", "Chairman", "Korando", "Kyron", "Musso", "Rexton", "Rexton Sports", "Rodius", "Tivoli", "XLV"],
+  "Subaru": ["Ascent", "BRZ", "Crosstrek", "Forester", "Impreza", "Legacy", "Levorg", "Outback", "Solterra", "Tribeca", "WRX", "XV"],
+  "Suzuki": ["Baleno", "Ciaz", "Ertiga", "Grand Vitara", "Ignis", "Jimny", "Kizashi", "Liana", "S-Cross", "Swift", "SX4", "Vitara", "XL7"],
+  "Tesla": ["Model 3", "Model S", "Model X", "Model Y", "Cybertruck"],
+  "Toyota": ["4Runner", "Alphard", "Auris", "Avalon", "bZ4X", "Camry", "C-HR", "Corolla", "Corolla Cross", "Crown", "FJCruiser", "Fortuner", "GR86", "Highlander", "Hilux", "Innova", "iQ", "Land Cruiser", "Land Cruiser Prado", "Mirai", "Prius", "Prius C", "Prius V", "RAV4", "Sequoia", "Sienna", "Supra", "Tacoma", "Tundra", "Urban Cruiser", "Veloz", "Venza", "Yaris", "Yaris Cross"],
+  "Volkswagen": ["Amarok", "Arteon", "Atlas", "Beetle", "Bora", "Caddy", "Caravelle", "Crafter", "Golf", "Golf GTI", "Golf R", "ID.3", "ID.4", "ID.5", "ID.6", "Jetta", "Multivan", "Passat", "Passat CC", "Polo", "Scirocco", "Sharan", "T-Cross", "T-Roc", "Taos", "Tiguan", "Touareg", "Touran", "Transporter", "Up!"],
+  "Volvo": ["C30", "C40", "S40", "S60", "S60 Cross Country", "S80", "S90", "V40", "V50", "V60", "V60 Cross Country", "V70", "V90", "V90 Cross Country", "XC40", "XC60", "XC70", "XC90"],
+  "ГАЗ": ["Волга", "Газель", "Соболь", "Баргузин"],
+  "УАЗ": ["Hunter", "Patriot", "Pickup", "Profi", "Буханка"],
+  "ЗАЗ": ["Chance", "Forza", "Lanos", "Sens", "Slavuta", "Tavria"],
+  "Другая": []
+};
+
+// All brands list for dropdown
+const allBrands = Object.keys(carBrandsAndModels);
 
 // Review data
 const reviews = [
@@ -94,6 +159,36 @@ export default function Home() {
     repairCost: number;
   }>>([]);
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
+
+  // Model autocomplete state
+  const [modelSuggestions, setModelSuggestions] = useState<string[]>([]);
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [modelInputRef, setModelInputRef] = useState<HTMLInputElement | null>(null);
+
+  // Filter models based on input
+  const filterModels = (input: string) => {
+    if (!calcData.brand || calcData.brand === "Другая") {
+      return [];
+    }
+    const models = carBrandsAndModels[calcData.brand] || [];
+    if (!input) return models.slice(0, 10);
+    const filtered = models.filter(model => 
+      model.toLowerCase().includes(input.toLowerCase())
+    );
+    return filtered.slice(0, 10);
+  };
+
+  const handleModelChange = (value: string) => {
+    setCalcData({ ...calcData, model: value });
+    setModelSuggestions(filterModels(value));
+    setShowModelDropdown(true);
+  };
+
+  const handleModelSelect = (model: string) => {
+    setCalcData({ ...calcData, model: model });
+    setShowModelDropdown(false);
+    setModelSuggestions([]);
+  };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -278,22 +373,76 @@ export default function Home() {
   const calculatePrice = async () => {
     setIsCalculating(true);
     
-    // Base prices by brand
+    // Base prices by brand (comprehensive)
     const basePrices: Record<string, number> = {
-      "BMW": 1500000,
-      "Mercedes": 1600000,
-      "Audi": 1400000,
-      "Toyota": 1200000,
-      "Honda": 1000000,
-      "Nissan": 900000,
-      "Ford": 800000,
-      "Volkswagen": 850000,
-      "Hyundai": 700000,
-      "Kia": 650000,
-      "Lada": 400000,
-      "Renault": 600000,
-      "Mitsubishi": 950000,
-      "Mazda": 880000,
+      // Luxury
+      "Mercedes": 2800000,
+      "BMW": 2700000,
+      "Audi": 2500000,
+      "Lexus": 3200000,
+      "Porsche": 4500000,
+      "Maserati": 3800000,
+      "Jaguar": 2200000,
+      "Land Rover": 3000000,
+      "Infiniti": 2100000,
+      "Acura": 2000000,
+      "Genesis": 2400000,
+      "Alfa Romeo": 2600000,
+      // Japanese
+      "Toyota": 1800000,
+      "Honda": 1500000,
+      "Nissan": 1400000,
+      "Mitsubishi": 1300000,
+      "Mazda": 1200000,
+      "Subaru": 1500000,
+      "Suzuki": 900000,
+      // Korean
+      "Hyundai": 1100000,
+      "Kia": 1000000,
+      // German (non-luxury)
+      "Volkswagen": 1300000,
+      "Opel": 900000,
+      "Peugeot": 850000,
+      "Citroen": 800000,
+      "Fiat": 750000,
+      "Seat": 950000,
+      "Skoda": 1000000,
+      // American
+      "Ford": 1400000,
+      "Chevrolet": 1300000,
+      "Dodge": 2000000,
+      "Jeep": 2200000,
+      "Cadillac": 2500000,
+      "Lincoln": 2300000,
+      "Buick": 1800000,
+      "Chrysler": 1500000,
+      "Tesla": 3500000,
+      "Ram": 1800000,
+      "GMC": 2000000,
+      // Chinese
+      "Geely": 1200000,
+      "Haval": 1400000,
+      "Chery": 1100000,
+      "Changan": 1000000,
+      "FAW": 900000,
+      "Lifan": 700000,
+      "Great Wall": 850000,
+      "Dongfeng": 800000,
+      // Russian
+      "Lada (ВАЗ)": 600000,
+      "ГАЗ": 900000,
+      "УАЗ": 850000,
+      "ЗАЗ": 400000,
+      // Others
+      "Mini": 1500000,
+      "Smart": 1200000,
+      "Saab": 800000,
+      "Volvo": 1800000,
+      "Datsun": 550000,
+      "Daewoo": 450000,
+      // Buses & Trucks
+      "Renault": 1200000,
+      "SsangYong": 1100000,
       "Другая": 500000
     };
 
@@ -745,38 +894,52 @@ export default function Home() {
                   <label className="block text-sm text-gray-400 mb-2">Марка автомобиля</label>
                   <select
                     value={calcData.brand}
-                    onChange={(e) => setCalcData({ ...calcData, brand: e.target.value })}
+                    onChange={(e) => {
+                      setCalcData({ ...calcData, brand: e.target.value, model: "" });
+                      setShowModelDropdown(false);
+                      setModelSuggestions([]);
+                    }}
                     className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
                   >
                     <option value="" className="bg-neutral-900">Выберите марку</option>
-                    <option value="BMW" className="bg-neutral-900">BMW</option>
-                    <option value="Mercedes" className="bg-neutral-900">Mercedes</option>
-                    <option value="Audi" className="bg-neutral-900">Audi</option>
-                    <option value="Toyota" className="bg-neutral-900">Toyota</option>
-                    <option value="Honda" className="bg-neutral-900">Honda</option>
-                    <option value="Nissan" className="bg-neutral-900">Nissan</option>
-                    <option value="Ford" className="bg-neutral-900">Ford</option>
-                    <option value="Volkswagen" className="bg-neutral-900">Volkswagen</option>
-                    <option value="Hyundai" className="bg-neutral-900">Hyundai</option>
-                    <option value="Kia" className="bg-neutral-900">Kia</option>
-                    <option value="Lada" className="bg-neutral-900">Lada (ВАЗ)</option>
-                    <option value="Renault" className="bg-neutral-900">Renault</option>
-                    <option value="Mitsubishi" className="bg-neutral-900">Mitsubishi</option>
-                    <option value="Mazda" className="bg-neutral-900">Mazda</option>
-                    <option value="Другая" className="bg-neutral-900">Другая</option>
+                    {allBrands.map((brand) => (
+                      <option key={brand} value={brand} className="bg-neutral-900">{brand}</option>
+                    ))}
                   </select>
                 </div>
 
-                {/* Model */}
-                <div>
+                {/* Model with autocomplete */}
+                <div className="relative">
                   <label className="block text-sm text-gray-400 mb-2">Модель</label>
                   <input
                     type="text"
-                    placeholder="Например: Camry, X5, Focus"
+                    placeholder={calcData.brand && calcData.brand !== "Другая" ? "Начните вводить модель..." : "Сначала выберите марку"}
                     value={calcData.model}
-                    onChange={(e) => setCalcData({ ...calcData, model: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+                    onChange={(e) => handleModelChange(e.target.value)}
+                    onFocus={() => {
+                      if (calcData.brand && calcData.brand !== "Другая") {
+                        setModelSuggestions(filterModels(calcData.model));
+                        setShowModelDropdown(true);
+                      }
+                    }}
+                    disabled={!calcData.brand || calcData.brand === "Другая"}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   />
+                  {/* Autocomplete dropdown */}
+                  {showModelDropdown && modelSuggestions.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-neutral-900 border border-white/10 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                      {modelSuggestions.map((model, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleModelSelect(model)}
+                          className="w-full px-4 py-2 text-left text-white hover:bg-red-600/30 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                        >
+                          {model}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Year */}
