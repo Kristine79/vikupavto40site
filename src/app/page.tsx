@@ -92,6 +92,7 @@ export default function Home() {
     severity: 'minor' | 'moderate' | 'severe';
     description: string;
     repairCost: number;
+    partsPrice?: number;
   }>>([]);
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
 
@@ -221,6 +222,30 @@ export default function Home() {
     }
   };
 
+  // Fetch real parts prices from Rossko API
+  const fetchPartPrices = async (zone: string, category: string): Promise<number> => {
+    try {
+      const response = await fetch('/api/parts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partName: zone, partCategory: category }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.parts && data.parts.length > 0) {
+          // Use average of available parts prices
+          const prices = data.parts.map((p: { price: number }) => p.price);
+          const avgPrice = prices.reduce((a: number, b: number) => a + b, 0) / prices.length;
+          return Math.round(avgPrice);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching part prices:', error);
+    }
+    return 0; // Return 0 to use fallback
+  };
+
   // Analyze damage with real cost data
   const analyzeDamage = async () => {
     setIsAnalyzing(true);
@@ -241,6 +266,7 @@ export default function Home() {
       severity: 'minor' | 'moderate' | 'severe';
       description: string;
       repairCost: number;
+      partsPrice?: number;
     }> = [];
     
     // Shuffle and select damage zones
@@ -259,6 +285,15 @@ export default function Home() {
         const partCosts = costs[zone.key as keyof typeof costs];
         const repairCost = partCosts[severity];
         
+        // Fetch real parts price from Rossko API
+        const partsPrice = await fetchPartPrices(zone.key, zone.category);
+        
+        // Use real parts price if available, otherwise use fallback
+        // Real parts price + labor (30%)
+        const finalRepairCost = partsPrice > 0 
+          ? Math.round(partsPrice * 1.3) 
+          : repairCost;
+        
         const category = zone.category as keyof typeof severityDescriptions;
         
         selectedDamages.push({
@@ -266,7 +301,8 @@ export default function Home() {
           zone: zone.key,
           severity,
           description: severityDescriptions[severity][category] || 'Требует осмотра',
-          repairCost
+          repairCost: finalRepairCost,
+          partsPrice: partsPrice > 0 ? partsPrice : undefined
         });
       }
     }
@@ -956,9 +992,14 @@ export default function Home() {
                         }`}
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <div>
+                          <div className="flex items-center gap-2">
                             <span className="font-bold">{damage.zone}</span>
-                            <span className={`ml-2 px-2 py-0.5 rounded text-xs font-bold ${
+                            {damage.partsPrice && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-600" title="Цена запчасти по API Rossko">
+                                Rossko
+                              </span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                               damage.severity === 'minor' ? 'bg-yellow-600' : 
                               damage.severity === 'moderate' ? 'bg-orange-600' : 'bg-red-600'
                             }`}>
@@ -970,6 +1011,11 @@ export default function Home() {
                             ~{Math.round(damage.repairCost).toLocaleString()} ₽
                           </span>
                         </div>
+                        {damage.partsPrice && (
+                          <div className="text-xs text-green-400 mb-1">
+                            Цена запчасти: ~{damage.partsPrice.toLocaleString()} ₽ + работа (30%)
+                          </div>
+                        )}
                         <div className="text-gray-400 text-sm">{damage.description}</div>
                         
                         {selectedZone === damage.id && (
