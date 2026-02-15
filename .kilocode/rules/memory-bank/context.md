@@ -44,6 +44,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Fixed ReferenceError: analyzeCarDamage before initialization** - Resolved function initialization order issue by moving dependent functions before useCallback
 - [x] **Integrated SAM (Segment Anything Model)** - Added Python API with SAM for advanced damage detection
 - [x] **Fixed circular imports** - Updated api/__init__.py with lazy imports
+- [x] **Switched to Hugging Face DETR** - Replaced TensorFlow.js with Hugging Face DETR model for better damage detection
 
 ## Current Structure
 
@@ -120,3 +121,4 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-15 | Fixed ReferenceError: analyzeCarDamage before initialization |
 | 2026-02-15 | Integrated SAM for advanced damage detection (requires separate download) |
 | 2026-02-15 | Fixed circular imports in Python API |
+| 2026-02-15 | Switched to Hugging Face DETR for better AI damage detection |

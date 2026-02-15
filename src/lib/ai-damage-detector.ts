@@ -678,3 +678,80 @@ export function useAIDamageDetection() {
     DAMAGE_ZONES,
   };
 }
+
+// Server-side Hugging Face damage detection
+// This provides better detection using DETR (Detection Transformer) from Hugging Face
+
+export interface HFDamageResult {
+  zone: string;
+  key: string;
+  severity: "minor" | "moderate" | "severe";
+  confidence: number;
+  detectedFrom: string;
+}
+
+export async function detectDamageWithHF(imageBase64: string): Promise<HFDamageResult[]> {
+  try {
+    const response = await fetch("/api/damage/detect-base64", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `image_base64=${encodeURIComponent(imageBase64)}`,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.success || !data.damage_analysis || data.damage_analysis.length === 0) {
+      // No damage detected, but let's return a default to ensure something is shown
+      return [];
+    }
+
+    const results: HFDamageResult[] = [];
+    
+    for (const damage of data.damage_analysis) {
+      // Map damage indicators to zones
+      if (damage.damage_indicators && damage.damage_indicators.length > 0) {
+        for (const indicator of damage.damage_indicators) {
+          // Determine zone based on location in the image
+          const bbox = damage.bbox || [0, 0, 100, 100];
+          const zone = determineZoneFromBbox(bbox);
+          
+          results.push({
+            zone,
+            key: zone,
+            severity: indicator.severity as "minor" | "moderate" | "severe",
+            confidence: indicator.confidence,
+            detectedFrom: "Hugging Face DETR",
+          });
+        }
+      }
+    }
+
+    return results;
+  } catch (error) {
+    console.error("Hugging Face damage detection error:", error);
+    return [];
+  }
+}
+
+// Determine car zone from bounding box location
+function determineZoneFromBbox(bbox: number[]): string {
+  const [x1, y1, x2, y2] = bbox;
+  const centerY = (y1 + y2) / 2;
+  
+  // Simplified zone mapping based on vertical position
+  if (centerY < 0.33) {
+    return "Krysha";
+  } else if (centerY < 0.5) {
+    return "Kapot";
+  } else if (centerY < 0.7) {
+    return "Dver voditelya";
+  } else {
+    return "Peredniy bamper";
+  }
+}

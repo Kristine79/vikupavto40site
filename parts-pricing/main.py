@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import os
 import logging
 
-from api.routes import prices, search
+from api.routes import prices, search, damage
 from services.cache import init_redis, close_redis
 from models import init_db
 
@@ -59,6 +59,7 @@ app.add_middleware(
 # Include routers
 app.include_router(prices.router, prefix="/api/parts", tags=["Parts"])
 app.include_router(search.router, prefix="/api/search", tags=["Search"])
+app.include_router(damage.router, prefix="/api/damage", tags=["Damage"])
 
 
 @app.get("/")

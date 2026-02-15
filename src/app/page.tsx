@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 // AI Damage Detection
-import { useAIDamageDetection } from "@/lib/ai-damage-detector";
+import { useAIDamageDetection, detectDamageWithHF } from "@/lib/ai-damage-detector";
 
 // Car brands and models database
 const carBrandsAndModels: Record<string, string[]> = {
@@ -1217,42 +1217,64 @@ export default function Home() {
                         return;
                       }
                       
-                      // Load model and analyze
-                      await loadAIModel();
-                      const detections = await analyzeAllImages(photoPreviews, calcData.brand, (progress) => {
-                        // Progress is handled internally
-                      });
-                      
-                      if (detections.length > 0) {
-                        // Auto-select detected damages
-                        const detectedKeys = detections.map(d => d.zone);
-                        setSelectedDamages(detectedKeys);
+                      setIsAnalyzing(true);
+                      try {
+                        // Use Hugging Face API for better damage detection
+                        const allDetections = [];
                         
-                        // Also calculate costs automatically
-                        const zones = convertToDamageZones(detections, calcData.brand);
-                        setDamageZones(zones);
-                      } else {
-                        alert("Не удалось обнаружить повреждения на изображениях. Пожалуйста, отметьте повреждения вручную.");
+                        for (const preview of photoPreviews) {
+                          // Convert data URL to base64
+                          const base64 = preview.split(',')[1];
+                          
+                          // Call Hugging Face damage detection API
+                          const detections = await detectDamageWithHF(base64);
+                          allDetections.push(...detections);
+                        }
+                        
+                        if (allDetections.length > 0) {
+                          // Auto-select detected damages
+                          const detectedKeys = allDetections.map(d => d.zone);
+                          setSelectedDamages(detectedKeys);
+                          
+                          // Also calculate costs automatically
+                          const zones = convertToDamageZones(allDetections, calcData.brand);
+                          setDamageZones(zones);
+                        } else {
+                          // Fallback to TensorFlow.js if Hugging Face doesn't detect anything
+                          await loadAIModel();
+                          const detections = await analyzeAllImages(photoPreviews, calcData.brand, (progress) => {
+                            // Progress is handled internally
+                          });
+                          
+                          if (detections.length > 0) {
+                            const detectedKeys = detections.map(d => d.zone);
+                            setSelectedDamages(detectedKeys);
+                            const zones = convertToDamageZones(detections, calcData.brand);
+                            setDamageZones(zones);
+                          } else {
+                            alert("Не удалось обнаружить повреждения на изображениях. Пожалуйста, отметьте повреждения вручную.");
+                          }
+                        }
+                      } catch (error) {
+                        console.error("Error in AI analysis:", error);
+                        alert("Ошибка при анализе изображений. Пожалуйста, отметьте повреждения вручную.");
+                      } finally {
+                        setIsAnalyzing(false);
                       }
                     }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    disabled={isModelLoading || isAIAnalyzing}
+                    disabled={isAnalyzing}
                     className={`w-full py-4 rounded-xl font-bold text-lg shadow-2xl mb-4 flex items-center justify-center gap-2 ${
-                      isModelLoading || isAIAnalyzing
+                      isAnalyzing
                         ? 'bg-gray-600 cursor-wait'
                         : 'bg-gradient-to-r from-purple-600 to-blue-600 shadow-purple-600/30'
                     }`}
                   >
-                    {isModelLoading ? (
+                    {isAnalyzing ? (
                       <>
                         <Brain className="w-5 h-5 animate-pulse" />
-                        Загрузка AI модели...
-                      </>
-                    ) : isAIAnalyzing ? (
-                      <>
-                        <Brain className="w-5 h-5 animate-pulse" />
-                        AI анализирует изображения... {Math.round(aiProgress)}%
+                        AI анализирует изображения...
                       </>
                     ) : (
                       <>
