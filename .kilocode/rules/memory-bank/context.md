@@ -30,6 +30,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **AI damage assessment** - Calculator now includes AI-powered damage detection simulation
 - [x] **Rossko API integration** - Calculator fetches real auto parts prices from Rossko (Kaluga)
 - [x] **Fixed damage selection** - User now manually selects damaged parts via checkboxes instead of random AI generation
+- [x] **Rewrote Python parts-pricing to TypeScript** - Created full TypeScript implementation integrated into Next.js
 
 ## Current Structure
 
@@ -38,6 +39,10 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | `src/app/page.tsx` | Landing page with all sections | ✅ Complete |
 | `src/app/layout.tsx` | Root layout with SEO metadata | ✅ Complete |
 | `src/app/globals.css` | Global styles | ✅ Ready |
+| `src/app/api/parts/price/route.ts` | API for part prices | ✅ New |
+| `src/app/api/parts/repair/route.ts` | API for repair estimates | ✅ New |
+| `src/lib/parts-pricing/types.ts` | TypeScript types | ✅ New |
+| `src/lib/parts-pricing/aggregator.ts` | Price aggregation service | ✅ New |
 | `next.config.ts` | Image domains config | ✅ Updated |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
 
