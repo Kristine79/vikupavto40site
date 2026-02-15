@@ -24,8 +24,12 @@ import {
   Brain,
   Camera,
   AlertTriangle,
-  Wrench
+  Wrench,
+  Eye
 } from "lucide-react";
+
+// AI Damage Detection
+import { useAIDamageDetection } from "@/lib/ai-damage-detector";
 
 // Car brands and models database
 const carBrandsAndModels: Record<string, string[]> = {
@@ -125,6 +129,16 @@ const reviews = [
 ];
 
 export default function Home() {
+  // AI Damage Detection hook
+  const {
+    loadModel: loadAIModel,
+    analyzeAllImages,
+    convertToDamageZones,
+    isModelLoading,
+    isAnalyzing: isAIAnalyzing,
+    progress: aiProgress,
+  } = useAIDamageDetection();
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -1192,6 +1206,66 @@ export default function Home() {
                   )}
                 </div>
               </div>
+
+              {/* AI Image Analysis Button */}
+              {photos.length > 0 && (
+                <div className="mb-6">
+                  <motion.button
+                    onClick={async () => {
+                      if (!calcData.brand) {
+                        alert("Пожалуйста, выберите марку автомобиля");
+                        return;
+                      }
+                      
+                      // Load model and analyze
+                      await loadAIModel();
+                      const detections = await analyzeAllImages(photoPreviews, calcData.brand, (progress) => {
+                        // Progress is handled internally
+                      });
+                      
+                      if (detections.length > 0) {
+                        // Auto-select detected damages
+                        const detectedKeys = detections.map(d => d.zone);
+                        setSelectedDamages(detectedKeys);
+                        
+                        // Also calculate costs automatically
+                        const zones = convertToDamageZones(detections, calcData.brand);
+                        setDamageZones(zones);
+                      } else {
+                        alert("Не удалось обнаружить повреждения на изображениях. Пожалуйста, отметьте повреждения вручную.");
+                      }
+                    }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={isModelLoading || isAIAnalyzing}
+                    className={`w-full py-4 rounded-xl font-bold text-lg shadow-2xl mb-4 flex items-center justify-center gap-2 ${
+                      isModelLoading || isAIAnalyzing
+                        ? 'bg-gray-600 cursor-wait'
+                        : 'bg-gradient-to-r from-purple-600 to-blue-600 shadow-purple-600/30'
+                    }`}
+                  >
+                    {isModelLoading ? (
+                      <>
+                        <Brain className="w-5 h-5 animate-pulse" />
+                        Загрузка AI модели...
+                      </>
+                    ) : isAIAnalyzing ? (
+                      <>
+                        <Brain className="w-5 h-5 animate-pulse" />
+                        AI анализирует изображения... {Math.round(aiProgress)}%
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-5 h-5" />
+                        AI анализ изображений
+                      </>
+                    )}
+                  </motion.button>
+                  <p className="text-xs text-gray-500 text-center mb-4">
+                    AI автоматически определит повреждения по загруженным фотографиям
+                  </p>
+                </div>
+              )}
 
               {/* Manual Damage Selection */}
               <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
