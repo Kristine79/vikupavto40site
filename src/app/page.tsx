@@ -28,47 +28,8 @@ import {
   Eye
 } from "lucide-react";
 
-// AI Damage Detection
-import { useAIDamageDetection, detectDamageWithHF } from "@/lib/ai-damage-detector";
-
-// New server-side damage analysis function
-async function analyzeDamageServerSide(imageBase64: string): Promise<{
-  success: boolean;
-  damages: Array<{
-    part: string;
-    confidence: number;
-    severity: 'minor' | 'moderate' | 'severe';
-    bbox: [number, number, number, number];
-  }>;
-  totalDamageScore: number;
-  estimatedRepairCost: number;
-}> {
-  try {
-    const response = await fetch('/api/damage/analyze', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ image: imageBase64 }),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('API error response:', errorData);
-      throw new Error(errorData.error || 'Failed to analyze image');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Server-side analysis error:', error);
-    return {
-      success: false,
-      damages: [],
-      totalDamageScore: 0,
-      estimatedRepairCost: 0,
-    };
-  }
-}
+// AI Damage Detection with TensorFlow.js
+import { detectCarDamage } from "@/lib/tf-damage-detector-client";
 
 // Car brands and models database
 const carBrandsAndModels: Record<string, string[]> = {
@@ -169,14 +130,7 @@ const reviews = [
 
 export default function Home() {
   // AI Damage Detection hook
-  const {
-    loadModel: loadAIModel,
-    analyzeAllImages,
-    convertToDamageZones,
-    isModelLoading,
-    isAnalyzing: isAIAnalyzing,
-    progress: aiProgress,
-  } = useAIDamageDetection();
+  // Removed old AI damage detection hook - now using TensorFlow.js directly
 
   const [formData, setFormData] = useState({
     name: "",
@@ -1258,24 +1212,21 @@ export default function Home() {
                       
                       setIsAnalyzing(true);
                       try {
-                        // Use server-side TensorFlow.js analysis with COCO-SSD
+                        // Use client-side TensorFlow.js analysis with COCO-SSD
                         const allDetections: Array<{zone: string; key: string; severity: 'minor' | 'moderate' | 'severe'; confidence: number; detectedFrom: string}> = [];
                         
                         for (const preview of photoPreviews) {
-                          // Convert data URL to base64
-                          const base64 = preview.split(',')[1];
+                          // Call client-side damage detection with TensorFlow.js
+                          const result = await detectCarDamage(preview);
                           
-                          // Call server-side damage detection API
-                          const result = await analyzeDamageServerSide(base64);
-                          
-                          if (result.success && result.damages.length > 0) {
-                            // Convert server results to detection format
+                          if (result.success && result.carDetected && result.damages.length > 0) {
+                            // Convert results to detection format
                             const detections = result.damages.map(damage => ({
                               zone: damage.part,
                               key: damage.part,
                               severity: damage.severity,
                               confidence: damage.confidence,
-                              detectedFrom: 'server-ai'
+                              detectedFrom: 'tensorflow-ai'
                             }));
                             allDetections.push(...detections);
                           }
@@ -1283,27 +1234,12 @@ export default function Home() {
                         
                         if (allDetections.length > 0) {
                           // Auto-select detected damages
-                          const detectedKeys = allDetections.map(d => d.zone);
+                          const detectedKeys = allDetections.map((d: {zone: string}) => d.zone);
                           setSelectedDamages(detectedKeys);
                           
-                          // Also calculate costs automatically
-                          const zones = convertToDamageZones(allDetections, calcData.brand);
-                          setDamageZones(zones);
+                          alert(`✅ AI обнаружил ${allDetections.length} повреждений! Проверьте выбранные детали.`);
                         } else {
-                          // Fallback to client-side TensorFlow.js if server doesn't detect anything
-                          await loadAIModel();
-                          const detections = await analyzeAllImages(photoPreviews, calcData.brand, (progress) => {
-                            // Progress is handled internally
-                          });
-                          
-                          if (detections.length > 0) {
-                            const detectedKeys = detections.map(d => d.zone);
-                            setSelectedDamages(detectedKeys);
-                            const zones = convertToDamageZones(detections, calcData.brand);
-                            setDamageZones(zones);
-                          } else {
-                            alert("Не удалось обнаружить повреждения на изображениях. Пожалуйста, отметьте повреждения вручную.");
-                          }
+                          alert("⚠️ AI не обнаружил повреждений на изображениях. Пожалуйста, отметьте повреждения вручную.");
                         }
                       } catch (error) {
                         console.error("Error in AI analysis:", error);
