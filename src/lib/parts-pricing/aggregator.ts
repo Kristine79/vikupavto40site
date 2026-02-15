@@ -11,6 +11,7 @@ const SOURCES: { id: PriceSource; name: string; baseUrl: string }[] = [
   { id: 'emex', name: 'Emex', baseUrl: 'https://emex.ru' },
   { id: 'partsreview', name: 'PartsReview', baseUrl: 'https://partsreview.ru' },
   { id: 'abcp', name: 'ABCP', baseUrl: 'https://www.abcp.ru' },
+  { id: 'autoeuro', name: 'AutoEuro', baseUrl: 'https://api.autoeuro.ru' },
 ];
 
 // Простая база данных артикулов запчастей для разных типов кузова
@@ -72,6 +73,11 @@ async function fetchPricesFromSource(
   // Для ABCP используем реальный API
   if (source.id === 'abcp') {
     return fetchAbcpPrice(article, brand);
+  }
+
+  // Для AutoEuro используем реальный API
+  if (source.id === 'autoeuro') {
+    return fetchAutoEuroPrice(article, brand);
   }
 
   // Для остальных источников - симуляция
@@ -203,6 +209,103 @@ function getSimulatedAbcpPrice(article: string, brand: string): PriceRecord[] {
     url: `https://www.abcp.ru/catalog/${brand}/${article}`,
     availability: inStock ? 'in_stock' : 'to_order',
     deliveryDays: inStock ? 2 : 5,
+    scrapedAt: new Date().toISOString(),
+  }];
+}
+
+/**
+ * Получение реальной цены от AutoEuro API
+ * API: https://api.autoeuro.ru/doc/v2
+ * Endpoint: /search/items
+ */
+async function fetchAutoEuroPrice(article: string, brand: string): Promise<PriceRecord[]> {
+  try {
+    const login = 'hU8os9M2V0XlRjkYu5T3m7GiLynqLBmOKe8rq4JsxbPRnhIgN7PEVDwZOsLQ';
+    
+    const params = new URLSearchParams({
+      userkey: login,
+      number: article,
+      ...(brand && { brand }),
+    });
+
+    const apiUrl = `https://api.autoeuro.ru/search/items?${params.toString()}`;
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`AutoEuro API error: ${response.status} ${response.statusText}`);
+      return getSimulatedAutoEuroPrice(article, brand);
+    }
+
+    const data = await response.json();
+    
+    if (!data || !data.items || !Array.isArray(data.items) || data.items.length === 0) {
+      return getSimulatedAutoEuroPrice(article, brand);
+    }
+
+    // Преобразуем ответ AutoEuro в наш формат
+    const records: PriceRecord[] = data.items.slice(0, 3).map((item: any) => ({
+      id: `autoeuro-${item.id || article}-${Date.now()}`,
+      partId: article,
+      article: item.oem || article,
+      brand: item.brand || brand,
+      name: item.name || article,
+      price: item.price || 0,
+      currency: 'RUB' as const,
+      source: 'autoeuro' as const,
+      sourceName: 'AutoEuro',
+      url: `https://api.autoeuro.ru/catalog/${item.brand || brand}/${item.oem || article}`,
+      availability: parseAutoEuroAvailability(item),
+      deliveryDays: item.delivery || null,
+      scrapedAt: new Date().toISOString(),
+    }));
+
+    return records;
+  } catch (error) {
+    console.error('AutoEuro API error:', error);
+    return getSimulatedAutoEuroPrice(article, brand);
+  }
+}
+
+/**
+ * Преобразование статуса наличия AutoEuro в наш формат
+ */
+function parseAutoEuroAvailability(item: any): Availability {
+  // AutoEuro может возвращать различные статусы
+  const stock = item.stock || item.quantity || 0;
+  if (stock > 0) return 'in_stock';
+  if (item.available === true || item.in_stock === true) return 'in_stock';
+  return 'to_order';
+}
+
+/**
+ * Симулированная цена AutoEuro для случаев, когда API недоступен
+ */
+function getSimulatedAutoEuroPrice(article: string, brand: string): PriceRecord[] {
+  const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
+  const basePrice = partInfo?.basePrice || 20000;
+  const variance = 0.88 + Math.random() * 0.24; // 88-112%
+  const price = Math.round(basePrice * variance);
+  const inStock = Math.random() > 0.25;
+
+  return [{
+    id: `autoeuro-${article}-${Date.now()}`,
+    partId: article,
+    article,
+    brand,
+    name: partInfo?.name || article,
+    price,
+    currency: 'RUB',
+    source: 'autoeuro',
+    sourceName: 'AutoEuro',
+    url: `https://api.autoeuro.ru/catalog/${brand}/${article}`,
+    availability: inStock ? 'in_stock' : 'to_order',
+    deliveryDays: inStock ? 1 : 4,
     scrapedAt: new Date().toISOString(),
   }];
 }
