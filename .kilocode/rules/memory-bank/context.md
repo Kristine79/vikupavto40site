@@ -33,6 +33,9 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Rewrote Python parts-pricing to TypeScript** - Created full TypeScript implementation integrated into Next.js
 - [x] **Integrated ABCP API** - Real parts pricing from ABCP (abcp84097.public.api.abcp.ru)
 - [x] **Fixed repair cost calculation** - Now varies by car brand using brand multipliers
+- [x] **Added fallback estimated prices** - When APIs unavailable, shows estimated prices with brand multipliers
+- [x] **Created comprehensive test suite** - 56 tests covering all calculator functions (Jest)
+- [x] **Verified calculator button** - Button works correctly with proper validation
 
 ## Current Structure
 
@@ -41,10 +44,15 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | `src/app/page.tsx` | Landing page with all sections | ✅ Complete |
 | `src/app/layout.tsx` | Root layout with SEO metadata | ✅ Complete |
 | `src/app/globals.css` | Global styles | ✅ Ready |
-| `src/app/api/parts/price/route.ts` | API for part prices | ✅ New |
-| `src/app/api/parts/repair/route.ts` | API for repair estimates | ✅ New |
-| `src/lib/parts-pricing/types.ts` | TypeScript types | ✅ New |
-| `src/lib/parts-pricing/aggregator.ts` | Price aggregation service | ✅ New |
+| `src/app/api/parts/price/route.ts` | API for part prices | ✅ Complete |
+| `src/app/api/parts/repair/route.ts` | API for repair estimates | ✅ Complete |
+| `src/lib/parts-pricing/types.ts` | TypeScript types | ✅ Complete |
+| `src/lib/parts-pricing/aggregator.ts` | Price aggregation service | ✅ Complete |
+| `__tests__/calculator.test.ts` | Calculator unit tests | ✅ New |
+| `__tests__/calculator-button.test.ts` | Button functionality tests | ✅ New |
+| `docs/calculator-testing.md` | Testing documentation | ✅ New |
+| `docs/calculator-check-report.md` | Check report | ✅ New |
+| `jest.config.js` | Jest configuration | ✅ New |
 | `next.config.ts` | Image domains config | ✅ Updated |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
 
@@ -97,3 +105,5 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-14 | Integrated Rossko API for real auto parts pricing |
 | 2026-02-14 | Fixed damage selection - user selects damaged parts manually via checkboxes |
 | 2026-02-15 | Fixed repair cost - now varies by car brand (added brand multipliers to price aggregator) |
+| 2026-02-15 | Added fallback estimated prices when APIs unavailable |
+| 2026-02-15 | Created comprehensive test suite - 56 tests, all passing |
