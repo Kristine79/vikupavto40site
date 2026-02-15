@@ -390,15 +390,67 @@ export default function Home() {
     }
   };
 
-  // Analyze damage based on user selected parts
+  // Analyze damage based on user selected parts using the real API
   const analyzeDamage = async () => {
     setIsAnalyzing(true);
     setDamageZones([]);
     
+    // Prepare damages for API
+    const damagesData = selectedDamages.map(selectedKey => {
+      const zone = allDamageZones.find(z => z.key === selectedKey);
+      if (!zone) return null;
+      
+      return {
+        zone: zone.key,
+        severity: zone.defaultSeverity || 'moderate',
+      };
+    }).filter(Boolean);
+    
+    try {
+      // Call the repair API to get real part prices
+      const response = await fetch('/api/parts/repair', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          brand: calcData.brand,
+          damages: damagesData,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch repair estimate');
+      }
+      
+      const estimate = await response.json();
+      
+      // Transform API response to damage zones format
+      const selectedDamagesData = estimate.parts.map((part: any, index: number) => ({
+        id: index + 1,
+        zone: part.partType,
+        severity: damagesData[index]?.severity || 'moderate',
+        description: getSeverityDescription(part.partType, damagesData[index]?.severity || 'moderate'),
+        repairCost: part.price,
+        source: part.source,
+      }));
+      
+      setDamageZones(selectedDamagesData);
+    } catch (error) {
+      console.error('Error fetching repair estimate:', error);
+      
+      // Fallback to local calculation if API fails
+      await analyzeDamageLocal();
+    }
+    
+    setIsAnalyzing(false);
+  };
+
+  // Local damage analysis fallback
+  const analyzeDamageLocal = async () => {
     // Simulate API call delay for realistic feel
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Use selected damages from the checkbox list
     const selectedDamagesData: Array<{
       id: number;
       zone: string;
@@ -407,17 +459,14 @@ export default function Home() {
       repairCost: number;
     }> = [];
     
-    // Get damage zones that user selected
     for (const selectedKey of selectedDamages) {
       const zone = allDamageZones.find(z => z.key === selectedKey);
       if (zone) {
-        // Use moderate severity as default for user-selected damages
         const severity: 'minor' | 'moderate' | 'severe' = (zone.defaultSeverity as 'minor' | 'moderate' | 'severe') || 'moderate';
         
         const costs = repairCostDatabase[zone.category as keyof typeof repairCostDatabase];
         const partCosts = costs[zone.key as keyof typeof costs];
         const baseRepairCost = partCosts[severity];
-        // Apply brand multiplier - premium brands have more expensive parts
         const brandMultiplier = brandRepairMultiplier[calcData.brand] || 1.0;
         const repairCost = Math.round(baseRepairCost * brandMultiplier);
         
@@ -434,7 +483,18 @@ export default function Home() {
     }
     
     setDamageZones(selectedDamagesData);
-    setIsAnalyzing(false);
+  };
+
+  // Get severity description
+  const getSeverityDescription = (zone: string, severity: string): string => {
+    // Determine category based on zone
+    let category = 'bodyParts';
+    if (zone.includes('стекло') || zone.includes('Стекло')) category = 'glass';
+    else if (zone.includes('Фара') || zone.includes('фара')) category = 'lighting';
+    else if (zone.includes('Зеркало') || zone.includes('зеркало')) category = 'mirrors';
+    else if (zone.includes('Диск') || zone.includes('диск')) category = 'wheels';
+    
+    return severityDescriptions[severity]?.[category] || 'Требует осмотра';
   };
 
   const calculatePrice = async () => {
