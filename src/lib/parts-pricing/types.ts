@@ -3,7 +3,7 @@
  */
 
 // Тип источника цен
-export type PriceSource = 'autodoc' | 'exist' | 'emex' | 'partsreview' | 'umapi';
+export type PriceSource = 'autodoc' | 'exist' | 'emex' | 'partsreview' | 'umapi' | 'abcp';
 
 // Тип доступности
 export type Availability = 'in_stock' | 'out_of_stock' | 'to_order';
