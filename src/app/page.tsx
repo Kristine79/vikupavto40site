@@ -31,6 +31,43 @@ import {
 // AI Damage Detection
 import { useAIDamageDetection, detectDamageWithHF } from "@/lib/ai-damage-detector";
 
+// New server-side damage analysis function
+async function analyzeDamageServerSide(imageBase64: string): Promise<{
+  success: boolean;
+  damages: Array<{
+    part: string;
+    confidence: number;
+    severity: 'minor' | 'moderate' | 'severe';
+    bbox: [number, number, number, number];
+  }>;
+  totalDamageScore: number;
+  estimatedRepairCost: number;
+}> {
+  try {
+    const response = await fetch('/api/damage/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ image: imageBase64 }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to analyze image');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Server-side analysis error:', error);
+    return {
+      success: false,
+      damages: [],
+      totalDamageScore: 0,
+      estimatedRepairCost: 0,
+    };
+  }
+}
+
 // Car brands and models database
 const carBrandsAndModels: Record<string, string[]> = {
   "Acura": ["MDX", "RDX", "TLX", "ILX", "RLX", "NSX"],
@@ -1219,16 +1256,27 @@ export default function Home() {
                       
                       setIsAnalyzing(true);
                       try {
-                        // Use Hugging Face API for better damage detection
-                        const allDetections = [];
+                        // Use server-side TensorFlow.js analysis with COCO-SSD
+                        const allDetections: Array<{zone: string; key: string; severity: 'minor' | 'moderate' | 'severe'; confidence: number; detectedFrom: string}> = [];
                         
                         for (const preview of photoPreviews) {
                           // Convert data URL to base64
                           const base64 = preview.split(',')[1];
                           
-                          // Call Hugging Face damage detection API
-                          const detections = await detectDamageWithHF(base64);
-                          allDetections.push(...detections);
+                          // Call server-side damage detection API
+                          const result = await analyzeDamageServerSide(base64);
+                          
+                          if (result.success && result.damages.length > 0) {
+                            // Convert server results to detection format
+                            const detections = result.damages.map(damage => ({
+                              zone: damage.part,
+                              key: damage.part,
+                              severity: damage.severity,
+                              confidence: damage.confidence,
+                              detectedFrom: 'server-ai'
+                            }));
+                            allDetections.push(...detections);
+                          }
                         }
                         
                         if (allDetections.length > 0) {
@@ -1240,7 +1288,7 @@ export default function Home() {
                           const zones = convertToDamageZones(allDetections, calcData.brand);
                           setDamageZones(zones);
                         } else {
-                          // Fallback to TensorFlow.js if Hugging Face doesn't detect anything
+                          // Fallback to client-side TensorFlow.js if server doesn't detect anything
                           await loadAIModel();
                           const detections = await analyzeAllImages(photoPreviews, calcData.brand, (progress) => {
                             // Progress is handled internally
