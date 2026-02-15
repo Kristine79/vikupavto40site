@@ -38,6 +38,9 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Verified calculator button** - Button works correctly with proper validation
 - [x] **Added real AI image analysis** - TensorFlow.js COCO-SSD model for detecting vehicles in uploaded photos
 - [x] **AI auto-detects damages** - AI analyzes uploaded images and automatically identifies damaged car parts
+- [x] **Rewrote AI damage detector with proper computer vision** - Now uses COCO-SSD to detect car first, determines viewing angle (front/side/rear), analyzes only visible car parts
+- [x] **Fixed incorrect damage detection** - AI no longer detects damage in parts not visible in photo (e.g. rear glass when showing front view)
+- [x] **Updated AI damage detector tests** - 55 tests covering new computer vision architecture, all passing
 
 ## Current Structure
 
@@ -110,3 +113,4 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-15 | Fixed repair cost - now varies by car brand (added brand multipliers to price aggregator) |
 | 2026-02-15 | Added fallback estimated prices when APIs unavailable |
 | 2026-02-15 | Created comprehensive test suite - 56 tests, all passing |
+| 2026-02-15 | Rewrote AI damage detector with proper computer vision using COCO-SSD |
