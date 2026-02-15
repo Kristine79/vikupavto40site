@@ -216,19 +216,25 @@ function getSimulatedAbcpPrice(article: string, brand: string): PriceRecord[] {
 /**
  * Получение реальной цены от AutoEuro API
  * API: https://api.autoeuro.ru/doc/v2
- * Endpoint: /search/items
+ * Endpoint: /api/v2/json/search_items/{apikey}/
+ * Requires: delivery_key from /api/v2/json/get_deliveries/
  */
 async function fetchAutoEuroPrice(article: string, brand: string): Promise<PriceRecord[]> {
   try {
     const login = 'hU8os9M2V0XlRjkYu5T3m7GiLynqLBmOKe8rq4JsxbPRnhIgN7PEVDwZOsLQ';
     
+    // Moscow warehouse delivery key (closest to Kaluga region)
+    const deliveryKey = 'Yxov1KCdAii0deRp3HepSJz8wcxasI6FJzCbgkkDgHbY9hrszkUNTsEuZYBmJUwOEPb2iIb01uSVTJYQWkRv05qrVm4c';
+    
     const params = new URLSearchParams({
-      userkey: login,
-      number: article,
-      ...(brand && { brand }),
+      brand: brand,
+      code: article,
+      delivery_key: deliveryKey,
+      with_offers: '1',
+      with_crosses: '1',
     });
 
-    const apiUrl = `https://api.autoeuro.ru/search/items?${params.toString()}`;
+    const apiUrl = `https://api.autoeuro.ru/api/v2/json/search_items/${login}/?${params.toString()}`;
     
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -244,24 +250,32 @@ async function fetchAutoEuroPrice(article: string, brand: string): Promise<Price
 
     const data = await response.json();
     
-    if (!data || !data.items || !Array.isArray(data.items) || data.items.length === 0) {
+    // AutoEuro returns data in DATA field
+    if (!data || !data.DATA || !Array.isArray(data.DATA) || data.DATA.length === 0) {
       return getSimulatedAutoEuroPrice(article, brand);
     }
 
+    // Filter to only show exact brand match and get top 3 results
+    const exactBrandItems = data.DATA.filter((item: any) => 
+      item.brand && item.brand.toLowerCase() === brand.toLowerCase()
+    );
+    
+    const itemsToUse = exactBrandItems.length > 0 ? exactBrandItems : data.DATA;
+    
     // Преобразуем ответ AutoEuro в наш формат
-    const records: PriceRecord[] = data.items.slice(0, 3).map((item: any) => ({
-      id: `autoeuro-${item.id || article}-${Date.now()}`,
+    const records: PriceRecord[] = itemsToUse.slice(0, 3).map((item: any) => ({
+      id: `autoeuro-${item.product_id || article}-${Date.now()}`,
       partId: article,
-      article: item.oem || article,
+      article: item.code || article,
       brand: item.brand || brand,
       name: item.name || article,
-      price: item.price || 0,
+      price: parseFloat(item.price) || 0,
       currency: 'RUB' as const,
       source: 'autoeuro' as const,
       sourceName: 'AutoEuro',
-      url: `https://api.autoeuro.ru/catalog/${item.brand || brand}/${item.oem || article}`,
+      url: `https://autoeuro.ru/catalog/${item.brand || brand}/${item.code || article}`,
       availability: parseAutoEuroAvailability(item),
-      deliveryDays: item.delivery || null,
+      deliveryDays: parseDeliveryDays(item.delivery_time),
       scrapedAt: new Date().toISOString(),
     }));
 
@@ -273,13 +287,28 @@ async function fetchAutoEuroPrice(article: string, brand: string): Promise<Price
 }
 
 /**
+ * Parse delivery days from AutoEuro response
+ */
+function parseDeliveryDays(deliveryTime: string | undefined): number | null {
+  if (!deliveryTime) return null;
+  try {
+    const deliveryDate = new Date(deliveryTime);
+    const now = new Date();
+    const diffTime = deliveryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 1;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Преобразование статуса наличия AutoEuro в наш формат
  */
 function parseAutoEuroAvailability(item: any): Availability {
-  // AutoEuro может возвращать различные статусы
-  const stock = item.stock || item.quantity || 0;
-  if (stock > 0) return 'in_stock';
-  if (item.available === true || item.in_stock === true) return 'in_stock';
+  // AutoEuro returns amount > 0 when in stock
+  const amount = item.amount || item.stock || 0;
+  if (amount > 0) return 'in_stock';
   return 'to_order';
 }
 
@@ -303,7 +332,7 @@ function getSimulatedAutoEuroPrice(article: string, brand: string): PriceRecord[
     currency: 'RUB',
     source: 'autoeuro',
     sourceName: 'AutoEuro',
-    url: `https://api.autoeuro.ru/catalog/${brand}/${article}`,
+    url: `https://autoeuro.ru/catalog/${brand}/${article}`,
     availability: inStock ? 'in_stock' : 'to_order',
     deliveryDays: inStock ? 1 : 4,
     scrapedAt: new Date().toISOString(),
