@@ -31,6 +31,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Rossko API integration** - Calculator fetches real auto parts prices from Rossko (Kaluga)
 - [x] **Fixed damage selection** - User now manually selects damaged parts via checkboxes instead of random AI generation
 - [x] **Rewrote Python parts-pricing to TypeScript** - Created full TypeScript implementation integrated into Next.js
+- [x] **Integrated ABCP API** - Real parts pricing from ABCP (abcp84097.public.api.abcp.ru)
 
 ## Current Structure
 
