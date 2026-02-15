@@ -1,46 +1,43 @@
 /**
- * Price Aggregator Service - Aggregates prices from multiple sources
+ * Price Aggregator Service - Aggregates prices from real APIs only
+ * Uses ABCP and AutoEuro APIs
  */
 
 import { PriceRecord, PriceResponse, PriceSource, Availability, CACHE_TTL } from './types';
 
-// Источники цен
-const SOURCES: { id: PriceSource; name: string; baseUrl: string }[] = [
-  { id: 'autodoc', name: 'AutoDoc', baseUrl: 'https://autodoc.ru' },
-  { id: 'exist', name: 'Exist.ru', baseUrl: 'https://exist.ru' },
-  { id: 'emex', name: 'Emex', baseUrl: 'https://emex.ru' },
-  { id: 'partsreview', name: 'PartsReview', baseUrl: 'https://partsreview.ru' },
-  { id: 'abcp', name: 'ABCP', baseUrl: 'https://www.abcp.ru' },
-  { id: 'autoeuro', name: 'AutoEuro', baseUrl: 'https://api.autoeuro.ru' },
+// Real API sources only
+const SOURCES: { id: PriceSource; name: string }[] = [
+  { id: 'abcp', name: 'ABCP' },
+  { id: 'autoeuro', name: 'AutoEuro' },
 ];
 
-// Простая база данных артикулов запчастей для разных типов кузова
-const PARTS_DATABASE: Record<string, { article: string; name: string; basePrice: number }> = {
-  'Передний бампер': { article: '51117287350', name: 'Передний бампер', basePrice: 25000 },
-  'Задний бампер': { article: '51127387350', name: 'Задний бампер', basePrice: 22000 },
-  'Капот': { article: '41637132405', name: 'Капот', basePrice: 35000 },
-  'Крышка багажника': { article: '51337487350', name: 'Крышка багажника', basePrice: 28000 },
-  'Крыша': { article: '51417387350', name: 'Крыша', basePrice: 45000 },
-  'Левое крыло': { article: '51317287350', name: 'Левое крыло', basePrice: 18000 },
-  'Правое крыло': { article: '51317287351', name: 'Правое крыло', basePrice: 18000 },
-  'Дверь водителя': { article: '51417287350', name: 'Дверь водителя', basePrice: 22000 },
-  'Дверь пассажира': { article: '51417287351', name: 'Дверь пассажира', basePrice: 22000 },
-  'Задняя дверь': { article: '51427287350', name: 'Задняя дверь', basePrice: 20000 },
-  'Лобовое стекло': { article: ' windshield_1', name: 'Лобовое стекло', basePrice: 15000 },
-  'Заднее стекло': { article: ' windshield_2', name: 'Заднее стекло', basePrice: 12000 },
-  'Боковое стекло': { article: 'windshield_3', name: 'Боковое стекло', basePrice: 8000 },
-  'Фара передняя': { article: '63117287350', name: 'Фара передняя', basePrice: 25000 },
-  'Фара задняя': { article: '63127287350', name: 'Фара задняя', basePrice: 18000 },
-  'Зеркало левое': { article: '51167287350', name: 'Зеркало левое', basePrice: 12000 },
-  'Зеркало правое': { article: '51167287351', name: 'Зеркало правое', basePrice: 12000 },
-  'Диск колесный': { article: '36116757890', name: 'Диск колесный', basePrice: 15000 },
+// Part article mapping (for damage zone to article mapping - not prices)
+const PART_ARTICLE_MAP: Record<string, { article: string; name: string }> = {
+  'Передний бампер': { article: '51117287350', name: 'Передний бампер' },
+  'Задний бампер': { article: '51127387350', name: 'Задний бампер' },
+  'Капот': { article: '41637132405', name: 'Капот' },
+  'Крышка багажника': { article: '51337487350', name: 'Крышка багажника' },
+  'Крыша': { article: '51417387350', name: 'Крыша' },
+  'Левое крыло': { article: '51317287350', name: 'Левое крыло' },
+  'Правое крыло': { article: '51317287351', name: 'Правое крыло' },
+  'Дверь водителя': { article: '51417287350', name: 'Дверь водителя' },
+  'Дверь пассажира': { article: '51417287351', name: 'Дверь пассажира' },
+  'Задняя дверь': { article: '51427287350', name: 'Задняя дверь' },
+  'Лобовое стекло': { article: 'windshield_1', name: 'Лобовое стекло' },
+  'Заднее стекло': { article: 'windshield_2', name: 'Заднее стекло' },
+  'Боковое стекло': { article: 'windshield_3', name: 'Боковое стекло' },
+  'Фара передняя': { article: '63117287350', name: 'Фара передняя' },
+  'Фара задняя': { article: '63127287350', name: 'Фара задняя' },
+  'Зеркало левое': { article: '51167287350', name: 'Зеркало левое' },
+  'Зеркало правое': { article: '51167287351', name: 'Зеркало правое' },
+  'Диск колесный': { article: '36116757890', name: 'Диск колесный' },
 };
 
-// Кэш в памяти
+// In-memory cache
 const memoryCache: Map<string, { data: PriceResponse; expiresAt: number }> = new Map();
 
 /**
- * Получить данные из кэша
+ * Get data from cache
  */
 function getCached(key: string): PriceResponse | null {
   const cached = memoryCache.get(key);
@@ -52,7 +49,7 @@ function getCached(key: string): PriceResponse | null {
 }
 
 /**
- * Сохранить в кэш
+ * Save to cache
  */
 function setCached(key: string, data: PriceResponse): void {
   memoryCache.set(key, {
@@ -62,67 +59,36 @@ function setCached(key: string, data: PriceResponse): void {
 }
 
 /**
- * Симуляция получения цен от разных источников
- * В реальном приложении здесь был бы API-запрос к парсерам
+ * Fetch prices from real API sources only
  */
 async function fetchPricesFromSource(
-  source: { id: PriceSource; name: string; baseUrl: string },
+  source: { id: PriceSource; name: string },
   article: string,
   brand: string
 ): Promise<PriceRecord[]> {
-  // Для ABCP используем реальный API
+  // Use real ABCP API
   if (source.id === 'abcp') {
     return fetchAbcpPrice(article, brand);
   }
 
-  // Для AutoEuro используем реальный API
+  // Use real AutoEuro API
   if (source.id === 'autoeuro') {
     return fetchAutoEuroPrice(article, brand);
   }
 
-  // Для остальных источников - симуляция
-  // Симуляция задержки API
-  await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
-
-  const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
-  const basePrice = partInfo?.basePrice || 20000;
-  const brandMultiplier = getBrandMultiplier(brand);
-
-  // Добавляем вариативность цены для каждого источника
-  const variance = 0.85 + Math.random() * 0.3; // 85-115%
-  const price = Math.round(basePrice * variance * brandMultiplier);
-
-  const inStock = Math.random() > 0.2; // 80% вероятность в наличии
-
-  const record: PriceRecord = {
-    id: `${source.id}-${article}-${Date.now()}`,
-    partId: article,
-    article,
-    brand,
-    name: partInfo?.name || article,
-    price,
-    currency: 'RUB',
-    source: source.id,
-    sourceName: source.name,
-    url: `${source.baseUrl}/catalog/${article}`,
-    availability: inStock ? 'in_stock' : 'to_order',
-    deliveryDays: inStock ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 7) + 3,
-    scrapedAt: new Date().toISOString(),
-  };
-
-  return [record];
+  // Unknown source - return empty
+  return [];
 }
 
 /**
- * Получение реальной цены от ABCP API
+ * Get real price from ABCP API
  * API: https://www.abcp.ru/wiki/API:Docs
  * Endpoint: https://abcp84097.public.api.abcp.ru/search/articles/
  */
 async function fetchAbcpPrice(article: string, brand: string): Promise<PriceRecord[]> {
   try {
-    // ABCP API требует авторизацию через userlogin и userpsw (md5 хеш пароля)
     const login = 'api@abcp84097';
-    const passwordMd5 = 'a0e55fd6065dd4c79d2d08258b274b87'; // Уже MD5
+    const passwordMd5 = 'a0e55fd6065dd4c79d2d08258b274b87';
     
     const params = new URLSearchParams({
       userlogin: login,
@@ -131,7 +97,6 @@ async function fetchAbcpPrice(article: string, brand: string): Promise<PriceReco
       ...(brand && { brand }),
     });
 
-    // Используем боевой API ABCP
     const apiUrl = `https://abcp84097.public.api.abcp.ru/search/articles/?${params.toString()}`;
     
     const response = await fetch(apiUrl, {
@@ -143,16 +108,16 @@ async function fetchAbcpPrice(article: string, brand: string): Promise<PriceReco
 
     if (!response.ok) {
       console.error(`ABCP API error: ${response.status} ${response.statusText}`);
-      return getSimulatedAbcpPrice(article, brand);
+      return [];
     }
 
     const data = await response.json();
     
     if (!Array.isArray(data) || data.length === 0) {
-      return getSimulatedAbcpPrice(article, brand);
+      return [];
     }
 
-    // Преобразуем ответ ABCP в наш формат
+    // Transform ABCP response to our format
     const records: PriceRecord[] = data.slice(0, 3).map((item: any) => ({
       id: `abcp-${item.articleId || article}-${Date.now()}`,
       partId: article,
@@ -172,12 +137,12 @@ async function fetchAbcpPrice(article: string, brand: string): Promise<PriceReco
     return records;
   } catch (error) {
     console.error('ABCP API error:', error);
-    return getSimulatedAbcpPrice(article, brand);
+    return [];
   }
 }
 
 /**
- * Преобразование статуса наличия ABCP в наш формат
+ * Parse ABCP availability status to our format
  */
 function parseAvailability(availability: string | number): Availability {
   const val = parseInt(String(availability), 10);
@@ -187,100 +152,15 @@ function parseAvailability(availability: string | number): Availability {
   return 'to_order';
 }
 
-// Brand multipliers for price calculation
-const BRAND_PRICE_MULTIPLIER: Record<string, number> = {
-  // Premium brands - parts cost more
-  'Mercedes': 1.5,
-  'BMW': 1.45,
-  'Audi': 1.4,
-  'Lexus': 1.55,
-  'Porsche': 1.7,
-  'Land Rover': 1.45,
-  'Genesis': 1.35,
-  'Jaguar': 1.4,
-  'Maserati': 1.65,
-  'Tesla': 1.3,
-  'Volvo': 1.25,
-  'MINI': 1.25,
-  // Budget brands - parts are cheaper
-  'Lada (ВАЗ)': 0.7,
-  'ГАЗ': 0.75,
-  'УАЗ': 0.75,
-  'ЗАЗ': 0.6,
-  'Daewoo': 0.65,
-  // Chinese brands
-  'Geely': 0.85,
-  'Haval': 0.85,
-  'Chery': 0.8,
-  'Exeed': 0.9,
-  'Changan': 0.85,
-  // Korean brands
-  'Hyundai': 0.95,
-  'Kia': 0.95,
-  'Samsung': 0.9,
-  // Japanese brands - standard
-  'Toyota': 1.0,
-  'Honda': 1.0,
-  'Nissan': 1.0,
-  'Mitsubishi': 0.95,
-  'Subaru': 1.0,
-  'Suzuki': 0.9,
-  // American brands
-  'Ford': 1.0,
-  'Chevrolet': 0.95,
-  'Jeep': 1.05,
-  'Dodge': 1.05,
-  // European brands
-  'Volkswagen': 1.1,
-  'Skoda': 0.95,
-  'Peugeot': 0.9,
-  'Citroen': 0.9,
-  'Renault': 0.85,
-};
-
-function getBrandMultiplier(brand: string): number {
-  return BRAND_PRICE_MULTIPLIER[brand] || 1.0;
-}
-
 /**
- * Симулированная цена ABCP для случаев, когда API недоступен
- */
-function getSimulatedAbcpPrice(article: string, brand: string): PriceRecord[] {
-  const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
-  const basePrice = partInfo?.basePrice || 20000;
-  const brandMultiplier = getBrandMultiplier(brand);
-  const variance = 0.90 + Math.random() * 0.2; // 90-110%
-  const price = Math.round(basePrice * variance * brandMultiplier);
-  const inStock = Math.random() > 0.3;
-
-  return [{
-    id: `abcp-${article}-${Date.now()}`,
-    partId: article,
-    article,
-    brand,
-    name: partInfo?.name || article,
-    price,
-    currency: 'RUB',
-    source: 'abcp',
-    sourceName: 'ABCP',
-    url: `https://www.abcp.ru/catalog/${brand}/${article}`,
-    availability: inStock ? 'in_stock' : 'to_order',
-    deliveryDays: inStock ? 2 : 5,
-    scrapedAt: new Date().toISOString(),
-  }];
-}
-
-/**
- * Получение реальной цены от AutoEuro API
+ * Get real price from AutoEuro API
  * API: https://api.autoeuro.ru/doc/v2
- * Endpoint: /api/v2/json/search_items/{apikey}/
- * Requires: delivery_key from /api/v2/json/get_deliveries/
  */
 async function fetchAutoEuroPrice(article: string, brand: string): Promise<PriceRecord[]> {
   try {
     const login = 'hU8os9M2V0XlRjkYu5T3m7GiLynqLBmOKe8rq4JsxbPRnhIgN7PEVDwZOsLQ';
     
-    // Moscow warehouse delivery key (closest to Kaluga region)
+    // Moscow warehouse delivery key
     const deliveryKey = 'Yxov1KCdAii0deRp3HepSJz8wcxasI6FJzCbgkkDgHbY9hrszkUNTsEuZYBmJUwOEPb2iIb01uSVTJYQWkRv05qrVm4c';
     
     const params = new URLSearchParams({
@@ -302,24 +182,24 @@ async function fetchAutoEuroPrice(article: string, brand: string): Promise<Price
 
     if (!response.ok) {
       console.error(`AutoEuro API error: ${response.status} ${response.statusText}`);
-      return getSimulatedAutoEuroPrice(article, brand);
+      return [];
     }
 
     const data = await response.json();
     
     // AutoEuro returns data in DATA field
     if (!data || !data.DATA || !Array.isArray(data.DATA) || data.DATA.length === 0) {
-      return getSimulatedAutoEuroPrice(article, brand);
+      return [];
     }
 
-    // Filter to only show exact brand match and get top 3 results
+    // Filter to exact brand match and get top 3 results
     const exactBrandItems = data.DATA.filter((item: any) => 
       item.brand && item.brand.toLowerCase() === brand.toLowerCase()
     );
     
     const itemsToUse = exactBrandItems.length > 0 ? exactBrandItems : data.DATA;
     
-    // Преобразуем ответ AutoEuro в наш формат
+    // Transform AutoEuro response to our format
     const records: PriceRecord[] = itemsToUse.slice(0, 3).map((item: any) => ({
       id: `autoeuro-${item.product_id || article}-${Date.now()}`,
       partId: article,
@@ -339,7 +219,7 @@ async function fetchAutoEuroPrice(article: string, brand: string): Promise<Price
     return records;
   } catch (error) {
     console.error('AutoEuro API error:', error);
-    return getSimulatedAutoEuroPrice(article, brand);
+    return [];
   }
 }
 
@@ -360,49 +240,20 @@ function parseDeliveryDays(deliveryTime: string | undefined): number | null {
 }
 
 /**
- * Преобразование статуса наличия AutoEuro в наш формат
+ * Parse AutoEuro availability status
  */
 function parseAutoEuroAvailability(item: any): Availability {
-  // AutoEuro returns amount > 0 when in stock
   const amount = item.amount || item.stock || 0;
   if (amount > 0) return 'in_stock';
   return 'to_order';
 }
 
 /**
- * Симулированная цена AutoEuro для случаев, когда API недоступен
- */
-function getSimulatedAutoEuroPrice(article: string, brand: string): PriceRecord[] {
-  const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
-  const basePrice = partInfo?.basePrice || 20000;
-  const brandMultiplier = getBrandMultiplier(brand);
-  const variance = 0.88 + Math.random() * 0.24; // 88-112%
-  const price = Math.round(basePrice * variance * brandMultiplier);
-  const inStock = Math.random() > 0.25;
-
-  return [{
-    id: `autoeuro-${article}-${Date.now()}`,
-    partId: article,
-    article,
-    brand,
-    name: partInfo?.name || article,
-    price,
-    currency: 'RUB',
-    source: 'autoeuro',
-    sourceName: 'AutoEuro',
-    url: `https://autoeuro.ru/catalog/${brand}/${article}`,
-    availability: inStock ? 'in_stock' : 'to_order',
-    deliveryDays: inStock ? 1 : 4,
-    scrapedAt: new Date().toISOString(),
-  }];
-}
-
-/**
- * PriceAggregator - агрегирует цены от нескольких источников
+ * PriceAggregator - aggregates prices from real APIs only
  */
 export class PriceAggregator {
   /**
-   * Получить полную информацию о ценах для запчасти
+   * Get full price information for a part
    */
   async getPriceSummary(
     article: string,
@@ -411,7 +262,7 @@ export class PriceAggregator {
   ): Promise<PriceResponse> {
     const cacheKey = `${article}:${brand}`;
 
-    // Проверяем кэш
+    // Check cache
     if (!forceRefresh) {
       const cached = getCached(cacheKey);
       if (cached) {
@@ -419,12 +270,12 @@ export class PriceAggregator {
       }
     }
 
-    // Получаем цены от всех источников параллельно
+    // Get prices from all sources in parallel
     const results = await Promise.all(
       SOURCES.map(source => fetchPricesFromSource(source, article, brand))
     );
 
-    // Объединяем результаты
+    // Merge results
     const allPrices = results.flat();
 
     if (allPrices.length === 0) {
@@ -446,7 +297,7 @@ export class PriceAggregator {
       return response;
     }
 
-    // Вычисляем статистику
+    // Calculate statistics
     const inStockPrices = allPrices.filter(p => p.availability === 'in_stock');
     const uniqueSources = [...new Set(allPrices.map(p => p.sourceName))];
 
@@ -464,14 +315,21 @@ export class PriceAggregator {
       prices: allPrices,
     };
 
-    // Кэшируем результат
+    // Cache result
     setCached(cacheKey, response);
 
     return response;
   }
 
   /**
-   * Получить лучшую цену (минимальную)
+   * Get article by part type/damage zone
+   */
+  getArticleByPartType(partType: string): { article: string; name: string } | null {
+    return PART_ARTICLE_MAP[partType] || null;
+  }
+
+  /**
+   * Get best (minimum) price
    */
   async getBestPrice(
     article: string,
@@ -498,21 +356,7 @@ export class PriceAggregator {
       current.price < best.price ? current : best
     );
   }
-
-  /**
-   * Поиск артикула по типу запчасти
-   */
-  getArticleByPartType(partType: string): { article: string; name: string; basePrice: number } | null {
-    return PARTS_DATABASE[partType] || null;
-  }
-
-  /**
-   * Получить все доступные типы запчастей
-   */
-  getAvailablePartTypes(): string[] {
-    return Object.keys(PARTS_DATABASE);
-  }
 }
 
-// Экспортируем экземпляр агрегатора
+// Export singleton instance
 export const priceAggregator = new PriceAggregator();
