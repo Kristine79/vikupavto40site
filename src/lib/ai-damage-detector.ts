@@ -223,114 +223,6 @@ export function useAIDamageDetection() {
     }
   }, []);
 
-  // Analyze a single image for damage indicators using proper computer vision
-  const analyzeImage = useCallback(async (
-    imageUrl: string,
-    brand: string
-  ): Promise<DamageDetectionResult[]> => {
-    const results: DamageDetectionResult[] = [];
-
-    try {
-      // Load the AI model if not already loaded
-      const model = await loadModel();
-
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = reject;
-        img.src = imageUrl;
-      });
-
-      // Create canvas for image analysis
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        console.error("Could not get canvas context");
-        return results;
-      }
-
-      canvas.width = img.width || 800;
-      canvas.height = img.height || 600;
-      ctx.drawImage(img, 0, 0);
-
-      // Step 1: Detect car using COCO-SSD
-      const predictions = await model.detect(canvas);
-      const carDetection = predictions.find(pred =>
-        pred.class === "car" && pred.score > 0.3
-      ) as CarDetection | undefined;
-
-      if (!carDetection) {
-        console.log("No car detected in image, skipping damage analysis");
-        return results;
-      }
-
-      // Step 2: Determine viewing angle based on car bounding box
-      const viewingAngle = determineViewingAngle(carDetection.bbox, canvas.width, canvas.height);
-
-      // Step 3: Analyze damage only within car bounding box
-      const damageAnalysis = await analyzeCarDamage(
-        ctx,
-        carDetection.bbox,
-        viewingAngle,
-        canvas.width,
-        canvas.height
-      );
-
-      // Step 4: Convert to detection results
-      for (const damage of damageAnalysis.damageZones) {
-        results.push({
-          zone: damage.zone,
-          key: damage.zone,
-          severity: damage.severity,
-          confidence: damage.confidence,
-          detectedFrom: imageUrl.substring(imageUrl.lastIndexOf("/") + 1),
-        });
-      }
-
-    } catch (error) {
-      console.error("Error analyzing image:", error);
-    }
-
-    return results;
-  }, [loadModel, analyzeCarDamage]);
-
-  // Determine viewing angle based on car bounding box proportions
-  const determineViewingAngle = (
-    bbox: [number, number, number, number],
-    imgWidth: number,
-    imgHeight: number
-  ): ViewingAngle => {
-    const [x, y, w, h] = bbox;
-    const aspectRatio = w / h;
-    const centerX = x + w / 2;
-    const centerY = y + h / 2;
-
-    // Car aspect ratios: front/rear ~1.2-1.8, side ~2.5-4.0
-    if (aspectRatio < 2.0) {
-      // Likely front or rear view
-      // Check if it's more centered (front) or offset (rear)
-      const imgCenterX = imgWidth / 2;
-      const horizontalOffset = Math.abs(centerX - imgCenterX) / imgWidth;
-
-      if (horizontalOffset < 0.1) {
-        return "front"; // Centered, likely front view
-      } else {
-        return "rear"; // Offset, likely rear view
-      }
-    } else {
-      // Likely side view
-      // Check if left or right side based on position
-      const imgCenterX = imgWidth / 2;
-      if (centerX < imgCenterX) {
-        return "side-left";
-      } else {
-        return "side-right";
-      }
-    }
-  };
-
   // Analyze damage within car bounding box
   const analyzeCarDamage = useCallback(async (
     ctx: CanvasRenderingContext2D,
@@ -419,7 +311,7 @@ export function useAIDamageDetection() {
           { name: "bottom", x: 0, y: 0.67, w: 1, h: 0.33 },
         ];
     }
-    
+
     return regions.map(region => {
       const startX = Math.floor(region.x * width);
       const startY = Math.floor(region.y * height);
@@ -600,6 +492,115 @@ export function useAIDamageDetection() {
 
     return damageResults;
   };
+
+  // Analyze a single image for damage indicators using proper computer vision
+  const analyzeImage = useCallback(async (
+    imageUrl: string,
+    brand: string
+  ): Promise<DamageDetectionResult[]> => {
+    const results: DamageDetectionResult[] = [];
+
+    try {
+      // Load the AI model if not already loaded
+      const model = await loadModel();
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = imageUrl;
+      });
+
+      // Create canvas for image analysis
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.error("Could not get canvas context");
+        return results;
+      }
+
+      canvas.width = img.width || 800;
+      canvas.height = img.height || 600;
+      ctx.drawImage(img, 0, 0);
+
+      // Step 1: Detect car using COCO-SSD
+      const predictions = await model.detect(canvas);
+      const carDetection = predictions.find(pred =>
+        pred.class === "car" && pred.score > 0.3
+      ) as CarDetection | undefined;
+
+      if (!carDetection) {
+        console.log("No car detected in image, skipping damage analysis");
+        return results;
+      }
+
+      // Step 2: Determine viewing angle based on car bounding box
+      const viewingAngle = determineViewingAngle(carDetection.bbox, canvas.width, canvas.height);
+
+      // Step 3: Analyze damage only within car bounding box
+      const damageAnalysis = await analyzeCarDamage(
+        ctx,
+        carDetection.bbox,
+        viewingAngle,
+        canvas.width,
+        canvas.height
+      );
+
+      // Step 4: Convert to detection results
+      for (const damage of damageAnalysis.damageZones) {
+        results.push({
+          zone: damage.zone,
+          key: damage.zone,
+          severity: damage.severity,
+          confidence: damage.confidence,
+          detectedFrom: imageUrl.substring(imageUrl.lastIndexOf("/") + 1),
+        });
+      }
+
+    } catch (error) {
+      console.error("Error analyzing image:", error);
+    }
+
+    return results;
+  }, [loadModel, analyzeCarDamage]);
+
+  // Determine viewing angle based on car bounding box proportions
+  const determineViewingAngle = (
+    bbox: [number, number, number, number],
+    imgWidth: number,
+    imgHeight: number
+  ): ViewingAngle => {
+    const [x, y, w, h] = bbox;
+    const aspectRatio = w / h;
+    const centerX = x + w / 2;
+    const centerY = y + h / 2;
+
+    // Car aspect ratios: front/rear ~1.2-1.8, side ~2.5-4.0
+    if (aspectRatio < 2.0) {
+      // Likely front or rear view
+      // Check if it's more centered (front) or offset (rear)
+      const imgCenterX = imgWidth / 2;
+      const horizontalOffset = Math.abs(centerX - imgCenterX) / imgWidth;
+
+      if (horizontalOffset < 0.1) {
+        return "front"; // Centered, likely front view
+      } else {
+        return "rear"; // Offset, likely rear view
+      }
+    } else {
+      // Likely side view
+      // Check if left or right side based on position
+      const imgCenterX = imgWidth / 2;
+      if (centerX < imgCenterX) {
+        return "side-left";
+      } else {
+        return "side-right";
+      }
+    }
+  };
+
   // Analyze all uploaded images
   const analyzeAllImages = useCallback(async (
     imageUrls: string[],
