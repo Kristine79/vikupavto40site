@@ -332,7 +332,7 @@ export function useAIDamageDetection() {
   };
 
   // Analyze damage within car bounding box
-  const analyzeCarDamage = async (
+  const analyzeCarDamage = useCallback(async (
     ctx: CanvasRenderingContext2D,
     carBbox: [number, number, number, number],
     viewingAngle: ViewingAngle,
@@ -356,7 +356,7 @@ export function useAIDamageDetection() {
       bbox: carBbox,
       damageZones
     };
-  };
+  }, []);
 
   // Analyze regions within car bounding box
   const analyzeCarRegions = (
