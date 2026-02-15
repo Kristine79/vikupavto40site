@@ -53,7 +53,9 @@ async function analyzeDamageServerSide(imageBase64: string): Promise<{
     });
     
     if (!response.ok) {
-      throw new Error('Failed to analyze image');
+      const errorData = await response.json().catch(() => ({}));
+      console.error('API error response:', errorData);
+      throw new Error(errorData.error || 'Failed to analyze image');
     }
     
     return await response.json();
