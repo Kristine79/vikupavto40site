@@ -17,7 +17,7 @@ class PriceAggregator:
     """Aggregates and processes prices from multiple sources"""
     
     def __init__(self):
-        self.sources = ["autodoc", "exist", "partsreview"]
+        self.sources = ["autodoc", "exist", "partsreview", "umapi"]
     
     async def get_prices_for_part(
         self, 
