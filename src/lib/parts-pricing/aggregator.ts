@@ -33,6 +33,72 @@ const PART_ARTICLE_MAP: Record<string, { article: string; name: string }> = {
   'Диск колесный': { article: '36116757890', name: 'Диск колесный' },
 };
 
+// Brand multipliers for repair cost estimation (when APIs are unavailable)
+const BRAND_MULTIPLIERS: Record<string, number> = {
+  'BMW': 2.5,
+  'Mercedes': 2.5,
+  'Audi': 2.3,
+  'Volkswagen': 2.0,
+  'Skoda': 1.8,
+  'Toyota': 1.7,
+  'Honda': 1.7,
+  'Nissan': 1.6,
+  'Hyundai': 1.5,
+  'Kia': 1.5,
+  'Ford': 1.6,
+  'Chevrolet': 1.5,
+  'Lada': 1.0,
+  'ВАЗ': 1.0,
+  'default': 1.5,
+};
+
+// Base repair costs (in RUB) - multiplied by brand
+const BASE_REPAIR_COSTS: Record<string, number> = {
+  'Передний бампер': 15000,
+  'Задний бампер': 12000,
+  'Капот': 18000,
+  'Крышка багажника': 14000,
+  'Крыша': 25000,
+  'Левое крыло': 12000,
+  'Правое крыло': 12000,
+  'Дверь водителя': 15000,
+  'Дверь пассажира': 15000,
+  'Задняя дверь': 15000,
+  'Лобовое стекло': 8000,
+  'Заднее стекло': 6000,
+  'Боковое стекло': 5000,
+  'Фара передняя': 12000,
+  'Фара задняя': 10000,
+  'Зеркало левое': 8000,
+  'Зеркало правое': 8000,
+  'Диск колесный': 8000,
+};
+
+/**
+ * Get estimated repair cost when APIs are unavailable
+ */
+function getEstimatedRepairCost(partType: string, brand: string): PriceRecord {
+  const multiplier = BRAND_MULTIPLIERS[brand] || BRAND_MULTIPLIERS['default'];
+  const baseCost = BASE_REPAIR_COSTS[partType] || 10000;
+  const estimatedPrice = Math.round(baseCost * multiplier);
+  
+  return {
+    id: `estimated-${partType}-${brand}-${Date.now()}`,
+    partId: partType,
+    article: 'ESTIMATED',
+    brand,
+    name: partType,
+    price: estimatedPrice,
+    currency: 'RUB',
+    source: 'estimated',
+    sourceName: 'Ориентировочная',
+    url: '',
+    availability: 'in_stock',
+    deliveryDays: null,
+    scrapedAt: new Date().toISOString(),
+  };
+}
+
 // In-memory cache
 const memoryCache: Map<string, { data: PriceResponse; expiresAt: number }> = new Map();
 
@@ -279,19 +345,22 @@ export class PriceAggregator {
     const allPrices = results.flat();
 
     if (allPrices.length === 0) {
+      // Use estimated price as fallback when APIs are unavailable
+      const estimatedPrice = getEstimatedRepairCost(article, brand);
+      
       const response: PriceResponse = {
         partId: article,
         article,
         brand,
-        hasPrices: false,
-        totalSources: 0,
-        inStockSources: 0,
-        bestPrice: null,
-        averagePrice: null,
-        lowestInStock: null,
-        sources: [],
-        prices: [],
-        message: 'Цены не найдены',
+        hasPrices: true,
+        totalSources: 1,
+        inStockSources: 1,
+        bestPrice: estimatedPrice.price,
+        averagePrice: estimatedPrice.price,
+        lowestInStock: estimatedPrice.price,
+        sources: ['Ориентировочная'],
+        prices: [estimatedPrice],
+        message: 'Ориентировочная цена (API недоступны)',
       };
       setCached(cacheKey, response);
       return response;
