@@ -294,7 +294,7 @@ export function useAIDamageDetection() {
     }
 
     return results;
-  }, [loadModel]);
+  }, [loadModel, analyzeCarDamage]);
 
   // Determine viewing angle based on car bounding box proportions
   const determineViewingAngle = (
