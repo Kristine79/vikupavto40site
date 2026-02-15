@@ -234,7 +234,7 @@ async function fetchAutoEuroPrice(article: string, brand: string): Promise<Price
       with_crosses: '1',
     });
 
-    const apiUrl = `https://api.autoeuro.ru/api/v2/json/search_items/${login}/?${params.toString()}`;
+    const apiUrl = `https://api.autoeuro.ru/api/v2/search_items/${login}?${params.toString()}`;
     
     const response = await fetch(apiUrl, {
       method: 'GET',
