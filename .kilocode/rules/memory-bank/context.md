@@ -32,6 +32,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Fixed damage selection** - User now manually selects damaged parts via checkboxes instead of random AI generation
 - [x] **Rewrote Python parts-pricing to TypeScript** - Created full TypeScript implementation integrated into Next.js
 - [x] **Integrated ABCP API** - Real parts pricing from ABCP (abcp84097.public.api.abcp.ru)
+- [x] **Fixed repair cost calculation** - Now varies by car brand using brand multipliers
 
 ## Current Structure
 
@@ -95,3 +96,4 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-13 | Added car price calculator with photo upload |
 | 2026-02-14 | Integrated Rossko API for real auto parts pricing |
 | 2026-02-14 | Fixed damage selection - user selects damaged parts manually via checkboxes |
+| 2026-02-15 | Fixed repair cost - now varies by car brand (added brand multipliers to price aggregator) |
