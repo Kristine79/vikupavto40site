@@ -42,6 +42,8 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Fixed incorrect damage detection** - AI no longer detects damage in parts not visible in photo (e.g. rear glass when showing front view)
 - [x] **Updated AI damage detector tests** - 55 tests covering new computer vision architecture, all passing
 - [x] **Fixed ReferenceError: analyzeCarDamage before initialization** - Resolved function initialization order issue by moving dependent functions before useCallback
+- [x] **Integrated SAM (Segment Anything Model)** - Added Python API with SAM for advanced damage detection
+- [x] **Fixed circular imports** - Updated api/__init__.py with lazy imports
 
 ## Current Structure
 
@@ -116,3 +118,5 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-15 | Created comprehensive test suite - 56 tests, all passing |
 | 2026-02-15 | Rewrote AI damage detector with proper computer vision using COCO-SSD |
 | 2026-02-15 | Fixed ReferenceError: analyzeCarDamage before initialization |
+| 2026-02-15 | Integrated SAM for advanced damage detection (requires separate download) |
+| 2026-02-15 | Fixed circular imports in Python API |
