@@ -86,10 +86,11 @@ async function fetchPricesFromSource(
 
   const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
   const basePrice = partInfo?.basePrice || 20000;
+  const brandMultiplier = getBrandMultiplier(brand);
 
   // Добавляем вариативность цены для каждого источника
   const variance = 0.85 + Math.random() * 0.3; // 85-115%
-  const price = Math.round(basePrice * variance);
+  const price = Math.round(basePrice * variance * brandMultiplier);
 
   const inStock = Math.random() > 0.2; // 80% вероятность в наличии
 
@@ -186,14 +187,70 @@ function parseAvailability(availability: string | number): Availability {
   return 'to_order';
 }
 
+// Brand multipliers for price calculation
+const BRAND_PRICE_MULTIPLIER: Record<string, number> = {
+  // Premium brands - parts cost more
+  'Mercedes': 1.5,
+  'BMW': 1.45,
+  'Audi': 1.4,
+  'Lexus': 1.55,
+  'Porsche': 1.7,
+  'Land Rover': 1.45,
+  'Genesis': 1.35,
+  'Jaguar': 1.4,
+  'Maserati': 1.65,
+  'Tesla': 1.3,
+  'Volvo': 1.25,
+  'MINI': 1.25,
+  // Budget brands - parts are cheaper
+  'Lada (ВАЗ)': 0.7,
+  'ГАЗ': 0.75,
+  'УАЗ': 0.75,
+  'ЗАЗ': 0.6,
+  'Daewoo': 0.65,
+  // Chinese brands
+  'Geely': 0.85,
+  'Haval': 0.85,
+  'Chery': 0.8,
+  'Exeed': 0.9,
+  'Changan': 0.85,
+  // Korean brands
+  'Hyundai': 0.95,
+  'Kia': 0.95,
+  'Samsung': 0.9,
+  // Japanese brands - standard
+  'Toyota': 1.0,
+  'Honda': 1.0,
+  'Nissan': 1.0,
+  'Mitsubishi': 0.95,
+  'Subaru': 1.0,
+  'Suzuki': 0.9,
+  // American brands
+  'Ford': 1.0,
+  'Chevrolet': 0.95,
+  'Jeep': 1.05,
+  'Dodge': 1.05,
+  // European brands
+  'Volkswagen': 1.1,
+  'Skoda': 0.95,
+  'Peugeot': 0.9,
+  'Citroen': 0.9,
+  'Renault': 0.85,
+};
+
+function getBrandMultiplier(brand: string): number {
+  return BRAND_PRICE_MULTIPLIER[brand] || 1.0;
+}
+
 /**
  * Симулированная цена ABCP для случаев, когда API недоступен
  */
 function getSimulatedAbcpPrice(article: string, brand: string): PriceRecord[] {
   const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
   const basePrice = partInfo?.basePrice || 20000;
+  const brandMultiplier = getBrandMultiplier(brand);
   const variance = 0.90 + Math.random() * 0.2; // 90-110%
-  const price = Math.round(basePrice * variance);
+  const price = Math.round(basePrice * variance * brandMultiplier);
   const inStock = Math.random() > 0.3;
 
   return [{
@@ -318,8 +375,9 @@ function parseAutoEuroAvailability(item: any): Availability {
 function getSimulatedAutoEuroPrice(article: string, brand: string): PriceRecord[] {
   const partInfo = Object.values(PARTS_DATABASE).find(p => p.article === article);
   const basePrice = partInfo?.basePrice || 20000;
+  const brandMultiplier = getBrandMultiplier(brand);
   const variance = 0.88 + Math.random() * 0.24; // 88-112%
-  const price = Math.round(basePrice * variance);
+  const price = Math.round(basePrice * variance * brandMultiplier);
   const inStock = Math.random() > 0.25;
 
   return [{
