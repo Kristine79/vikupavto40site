@@ -25,6 +25,23 @@ export interface DamageDetectionResult {
   detectedFrom: string;
 }
 
+// Car detection result
+interface CarDetection {
+  bbox: [number, number, number, number]; // [x, y, width, height]
+  score: number;
+  class: string;
+}
+
+// Viewing angle determination
+type ViewingAngle = "front" | "rear" | "side-left" | "side-right" | "unknown";
+
+// Damage analysis within car bounding box
+interface CarDamageAnalysis {
+  angle: ViewingAngle;
+  bbox: [number, number, number, number];
+  damageZones: DamageResult[];
+}
+
 // Region analysis result
 interface RegionAnalysis {
   region: string;
@@ -206,17 +223,20 @@ export function useAIDamageDetection() {
     }
   }, []);
 
-  // Analyze a single image for damage indicators using image processing
+  // Analyze a single image for damage indicators using proper computer vision
   const analyzeImage = useCallback(async (
     imageUrl: string,
     brand: string
   ): Promise<DamageDetectionResult[]> => {
     const results: DamageDetectionResult[] = [];
-    
+
     try {
+      // Load the AI model if not already loaded
+      const model = await loadModel();
+
       const img = new Image();
       img.crossOrigin = "anonymous";
-      
+
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
         img.onerror = reject;
@@ -230,23 +250,36 @@ export function useAIDamageDetection() {
         console.error("Could not get canvas context");
         return results;
       }
-      
+
       canvas.width = img.width || 800;
       canvas.height = img.height || 600;
       ctx.drawImage(img, 0, 0);
-      
-      // Get image data for analysis
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      
-      // Analyze different regions of the image
-      const regions = analyzeImageRegions(data, canvas.width, canvas.height);
-      
-      // Map regions to damage zones based on position
-      const detectedDamage = mapRegionsToDamage(regions, img.width || 800, img.height || 600);
-      
-      // Add detected damage to results
-      for (const damage of detectedDamage) {
+
+      // Step 1: Detect car using COCO-SSD
+      const predictions = await model.detect(canvas);
+      const carDetection = predictions.find(pred =>
+        pred.class === "car" && pred.score > 0.3
+      ) as CarDetection | undefined;
+
+      if (!carDetection) {
+        console.log("No car detected in image, skipping damage analysis");
+        return results;
+      }
+
+      // Step 2: Determine viewing angle based on car bounding box
+      const viewingAngle = determineViewingAngle(carDetection.bbox, canvas.width, canvas.height);
+
+      // Step 3: Analyze damage only within car bounding box
+      const damageAnalysis = await analyzeCarDamage(
+        ctx,
+        carDetection.bbox,
+        viewingAngle,
+        canvas.width,
+        canvas.height
+      );
+
+      // Step 4: Convert to detection results
+      for (const damage of damageAnalysis.damageZones) {
         results.push({
           zone: damage.zone,
           key: damage.zone,
@@ -255,107 +288,185 @@ export function useAIDamageDetection() {
           detectedFrom: imageUrl.substring(imageUrl.lastIndexOf("/") + 1),
         });
       }
-      
-      // If no damage detected from variance analysis, use edge detection
-      if (results.length === 0) {
-        const edgeDamage = detectDamageFromEdges(ctx, canvas.width, canvas.height);
-        for (const d of edgeDamage) {
-          results.push({
-            zone: d.zone,
-            key: d.zone,
-            severity: d.severity,
-            confidence: d.confidence,
-            detectedFrom: imageUrl.substring(imageUrl.lastIndexOf("/") + 1),
-          });
-        }
-      }
-      
-      // If still no damage detected, assume common damage zones
-      // User uploaded photos for damage analysis, so there's likely damage
-      if (results.length === 0) {
-        const assumedDamage = assumeCommonDamage(regions, img.width || 800, img.height || 600);
-        for (const d of assumedDamage) {
-          results.push({
-            zone: d.zone,
-            key: d.zone,
-            severity: d.severity,
-            confidence: d.confidence,
-            detectedFrom: imageUrl.substring(imageUrl.lastIndexOf("/") + 1),
-          });
-        }
-      }
+
     } catch (error) {
       console.error("Error analyzing image:", error);
     }
-    
-    return results;
-  }, []);
 
-  // Analyze image regions for damage indicators
-  const analyzeImageRegions = (
+    return results;
+  }, [loadModel]);
+
+  // Determine viewing angle based on car bounding box proportions
+  const determineViewingAngle = (
+    bbox: [number, number, number, number],
+    imgWidth: number,
+    imgHeight: number
+  ): ViewingAngle => {
+    const [x, y, w, h] = bbox;
+    const aspectRatio = w / h;
+    const centerX = x + w / 2;
+    const centerY = y + h / 2;
+
+    // Car aspect ratios: front/rear ~1.2-1.8, side ~2.5-4.0
+    if (aspectRatio < 2.0) {
+      // Likely front or rear view
+      // Check if it's more centered (front) or offset (rear)
+      const imgCenterX = imgWidth / 2;
+      const horizontalOffset = Math.abs(centerX - imgCenterX) / imgWidth;
+
+      if (horizontalOffset < 0.1) {
+        return "front"; // Centered, likely front view
+      } else {
+        return "rear"; // Offset, likely rear view
+      }
+    } else {
+      // Likely side view
+      // Check if left or right side based on position
+      const imgCenterX = imgWidth / 2;
+      if (centerX < imgCenterX) {
+        return "side-left";
+      } else {
+        return "side-right";
+      }
+    }
+  };
+
+  // Analyze damage within car bounding box
+  const analyzeCarDamage = async (
+    ctx: CanvasRenderingContext2D,
+    carBbox: [number, number, number, number],
+    viewingAngle: ViewingAngle,
+    imgWidth: number,
+    imgHeight: number
+  ): Promise<CarDamageAnalysis> => {
+    const [carX, carY, carW, carH] = carBbox;
+
+    // Get image data only within car bounding box
+    const imageData = ctx.getImageData(carX, carY, carW, carH);
+    const data = imageData.data;
+
+    // Analyze regions within the car
+    const regions = analyzeCarRegions(data, carW, carH, viewingAngle);
+
+    // Map regions to damage zones based on viewing angle
+    const damageZones = mapCarDamageToZones(regions, viewingAngle);
+
+    return {
+      angle: viewingAngle,
+      bbox: carBbox,
+      damageZones
+    };
+  };
+
+  // Analyze regions within car bounding box
+  const analyzeCarRegions = (
     data: Uint8ClampedArray,
     width: number,
-    height: number
+    height: number,
+    viewingAngle: ViewingAngle
   ): RegionAnalysis[] => {
-    const regions = [
-      { name: "top-left", x: 0, y: 0, w: 0.5, h: 0.5 },
-      { name: "top-right", x: 0.5, y: 0, w: 0.5, h: 0.5 },
-      { name: "bottom-left", x: 0, y: 0.5, w: 0.5, h: 0.5 },
-      { name: "bottom-right", x: 0.5, y: 0.5, w: 0.5, h: 0.5 },
-      { name: "center", x: 0.25, y: 0.25, w: 0.5, h: 0.5 },
-      { name: "top", x: 0, y: 0, w: 1, h: 0.33 },
-      { name: "bottom", x: 0, y: 0.67, w: 1, h: 0.33 },
-      { name: "left", x: 0, y: 0, w: 0.33, h: 1 },
-      { name: "right", x: 0.67, y: 0, w: 0.33, h: 1 },
-    ];
+    // Define regions based on viewing angle
+    let regions: { name: string; x: number; y: number; w: number; h: number }[] = [];
+
+    switch (viewingAngle) {
+      case "front":
+        regions = [
+          { name: "hood", x: 0.2, y: 0.1, w: 0.6, h: 0.4 }, // Kapot
+          { name: "front-bumper", x: 0.1, y: 0.7, w: 0.8, h: 0.2 }, // Peredniy bamper
+          { name: "front-left-wing", x: 0.05, y: 0.3, w: 0.25, h: 0.4 }, // Levoe krylo
+          { name: "front-right-wing", x: 0.7, y: 0.3, w: 0.25, h: 0.4 }, // Pravoe krylo
+          { name: "windshield", x: 0.25, y: 0.05, w: 0.5, h: 0.15 }, // Lobovoe steklo
+          { name: "front-left-headlight", x: 0.1, y: 0.5, w: 0.15, h: 0.15 }, // Fara perednyaya levaya
+          { name: "front-right-headlight", x: 0.75, y: 0.5, w: 0.15, h: 0.15 }, // Fara perednyaya pravaya
+        ];
+        break;
+
+      case "rear":
+        regions = [
+          { name: "trunk", x: 0.2, y: 0.1, w: 0.6, h: 0.4 }, // Kryshka bagazhnika
+          { name: "rear-bumper", x: 0.1, y: 0.7, w: 0.8, h: 0.2 }, // Zadniy bamper
+          { name: "rear-window", x: 0.25, y: 0.05, w: 0.5, h: 0.15 }, // Zadnee steklo
+          { name: "rear-left-taillight", x: 0.1, y: 0.5, w: 0.15, h: 0.15 }, // Fara zadnyaya levaya
+          { name: "rear-right-taillight", x: 0.75, y: 0.5, w: 0.15, h: 0.15 }, // Fara zadnyaya pravaya
+        ];
+        break;
+
+      case "side-left":
+        regions = [
+          { name: "left-front-door", x: 0.3, y: 0.2, w: 0.3, h: 0.4 }, // Dver voditelya
+          { name: "left-rear-door", x: 0.6, y: 0.2, w: 0.3, h: 0.4 }, // Zadnyaya dver
+          { name: "left-wing", x: 0.1, y: 0.3, w: 0.25, h: 0.4 }, // Levoe krylo
+          { name: "left-mirror", x: 0.05, y: 0.15, w: 0.1, h: 0.1 }, // Zerkalo levoe
+          { name: "left-wheels", x: 0.05, y: 0.7, w: 0.2, h: 0.2 }, // Kolesa levye
+        ];
+        break;
+
+      case "side-right":
+        regions = [
+          { name: "right-front-door", x: 0.4, y: 0.2, w: 0.3, h: 0.4 }, // Dver passazhira
+          { name: "right-rear-door", x: 0.1, y: 0.2, w: 0.3, h: 0.4 }, // Zadnyaya dver
+          { name: "right-wing", x: 0.65, y: 0.3, w: 0.25, h: 0.4 }, // Pravoe krylo
+          { name: "right-mirror", x: 0.85, y: 0.15, w: 0.1, h: 0.1 }, // Zerkalo pravoe
+          { name: "right-wheels", x: 0.75, y: 0.7, w: 0.2, h: 0.2 }, // Kolesa pravye
+        ];
+        break;
+
+      default:
+        // Fallback to general regions
+        regions = [
+          { name: "top", x: 0, y: 0, w: 1, h: 0.33 },
+          { name: "middle", x: 0, y: 0.33, w: 1, h: 0.34 },
+          { name: "bottom", x: 0, y: 0.67, w: 1, h: 0.33 },
+        ];
+    }
     
     return regions.map(region => {
       const startX = Math.floor(region.x * width);
       const startY = Math.floor(region.y * height);
       const regionW = Math.floor(region.w * width);
       const regionH = Math.floor(region.h * height);
-      
+
       let totalBrightness = 0;
       let totalDarkness = 0;
       let pixelCount = 0;
       let edgeCount = 0;
       const brightnessValues: number[] = [];
-      
+
       for (let y = startY; y < startY + regionH && y < height - 1; y += 2) {
         for (let x = startX; x < startX + regionW && x < width - 1; x += 2) {
           const idx = (y * width + x) * 4;
           const r = data[idx];
           const g = data[idx + 1];
           const b = data[idx + 2];
-          
+
           // Calculate brightness (0-255)
           const brightness = (r + g + b) / 3;
           brightnessValues.push(brightness);
-          
+
           if (brightness > 200) totalBrightness++;
           if (brightness < 50) totalDarkness++;
-          
-          // Simple edge detection - compare with neighboring pixels
+
+          // Enhanced edge detection - compare with neighboring pixels
           if (x < width - 2 && y < height - 2) {
             const nextIdx = ((y + 1) * width + (x + 1)) * 4;
             const nextBrightness = (data[nextIdx] + data[nextIdx + 1] + data[nextIdx + 2]) / 3;
-            if (Math.abs(brightness - nextBrightness) > 50) {
+            if (Math.abs(brightness - nextBrightness) > 40) {
               edgeCount++;
             }
           }
-          
+
           pixelCount++;
         }
       }
-      
+
       // Calculate variance
-      const mean = brightnessValues.length > 0 
-        ? brightnessValues.reduce((a, b) => a + b, 0) / brightnessValues.length 
+      const mean = brightnessValues.length > 0
+        ? brightnessValues.reduce((a, b) => a + b, 0) / brightnessValues.length
         : 128;
       const variance = brightnessValues.length > 0
         ? brightnessValues.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / brightnessValues.length
         : 0;
-      
+
       return {
         region: region.name,
         variance: Math.sqrt(variance),
@@ -366,96 +477,115 @@ export function useAIDamageDetection() {
     });
   };
 
-  // Map analyzed regions to car damage zones
-  const mapRegionsToDamage = (
+  // Map car regions to damage zones based on viewing angle
+  const mapCarDamageToZones = (
     regions: RegionAnalysis[],
-    imgWidth: number,
-    imgHeight: number
+    viewingAngle: ViewingAngle
   ): DamageResult[] => {
     const damageResults: DamageResult[] = [];
-    
-    // Determine if image is landscape or portrait
-    const isLandscape = imgWidth > imgHeight;
-    
+
     for (const region of regions) {
-      // Lowered thresholds for better detection
-      // Variance > 500 indicates surface irregularities
-      // Darkness > 0.05 indicates shadows (possible dents)
-      // Brightness > 0.1 indicates reflections (possible scratches)
-      // Edge count > 100 indicates many edges (possible damage)
-      
-      const hasAnomaly = region.variance > 500 || region.darkness > 0.05 || region.brightness > 0.1 || region.edgeCount > 100;
-      
+      // Lower thresholds for better detection within car
+      const hasAnomaly = region.variance > 300 || region.darkness > 0.03 || region.brightness > 0.08 || region.edgeCount > 50;
+
       if (hasAnomaly) {
         let zone: string = "Kapot";
         let severity: "minor" | "moderate" | "severe" = "moderate";
-        
-        // Map region to car zone based on typical car photo angles
-        if (isLandscape) {
-          // Landscape - likely front or side view
-          switch (region.region) {
-            case "left":
-              zone = "Levoe krylo";
-              severity = region.variance > 1000 ? "severe" : region.variance > 500 ? "moderate" : "minor";
-              break;
-            case "right":
-              zone = "Pravoe krylo";
-              severity = region.variance > 1000 ? "severe" : region.variance > 500 ? "moderate" : "minor";
-              break;
-            case "top":
-              zone = "Krysha";
-              severity = region.variance > 1000 ? "severe" : "moderate";
-              break;
-            case "bottom":
-              zone = "Peredniy bamper";
-              severity = region.darkness > 0.1 ? "severe" : region.variance > 500 ? "moderate" : "minor";
-              break;
-            case "top-left":
-              zone = region.darkness > 0.05 ? "Kapot" : "Dver voditelya";
-              break;
-            case "top-right":
-              zone = region.darkness > 0.05 ? "Kapot" : "Dver passazhira";
-              break;
-            case "bottom-left":
-              zone = "Zadnyaya dver";
-              break;
-            case "bottom-right":
-              zone = "Kryshka bagazhnika";
-              break;
-            case "center":
-              zone = "Kapot";
-              break;
-            default:
-              zone = "Kapot";
-          }
-        } else {
-          // Portrait - likely rear or close-up
-          switch (region.region) {
-            case "left":
-              zone = "Dver voditelya";
-              break;
-            case "right":
-              zone = "Dver passazhira";
-              break;
-            case "top":
-              zone = "Lobovoe steklo";
-              break;
-            case "bottom":
-              zone = "Zadniy bamper";
-              severity = region.darkness > 0.1 ? "severe" : region.variance > 500 ? "moderate" : "minor";
-              break;
-            case "center":
-              zone = "Kapot";
-              break;
-            default:
-              zone = "Kryshka bagazhnika";
-          }
+
+        // Map region to specific car zone based on viewing angle
+        switch (viewingAngle) {
+          case "front":
+            switch (region.region) {
+              case "hood":
+                zone = "Kapot";
+                severity = region.variance > 600 ? "severe" : region.variance > 400 ? "moderate" : "minor";
+                break;
+              case "front-bumper":
+                zone = "Peredniy bamper";
+                severity = region.darkness > 0.08 ? "severe" : region.variance > 400 ? "moderate" : "minor";
+                break;
+              case "front-left-wing":
+                zone = "Levoe krylo";
+                break;
+              case "front-right-wing":
+                zone = "Pravoe krylo";
+                break;
+              case "windshield":
+                zone = "Lobovoe steklo";
+                severity = region.edgeCount > 150 ? "severe" : region.edgeCount > 80 ? "moderate" : "minor";
+                break;
+              case "front-left-headlight":
+              case "front-right-headlight":
+                zone = "Fara perednyaya";
+                break;
+            }
+            break;
+
+          case "rear":
+            switch (region.region) {
+              case "trunk":
+                zone = "Kryshka bagazhnika";
+                break;
+              case "rear-bumper":
+                zone = "Zadniy bamper";
+                severity = region.darkness > 0.08 ? "severe" : region.variance > 400 ? "moderate" : "minor";
+                break;
+              case "rear-window":
+                zone = "Zadnee steklo";
+                severity = region.edgeCount > 150 ? "severe" : region.edgeCount > 80 ? "moderate" : "minor";
+                break;
+              case "rear-left-taillight":
+              case "rear-right-taillight":
+                zone = "Fara zadnyaya";
+                break;
+            }
+            break;
+
+          case "side-left":
+            switch (region.region) {
+              case "left-front-door":
+                zone = "Dver voditelya";
+                break;
+              case "left-rear-door":
+                zone = "Zadnyaya dver";
+                break;
+              case "left-wing":
+                zone = "Levoe krylo";
+                break;
+              case "left-mirror":
+                zone = "Zerkalo levoe";
+                break;
+              case "left-wheels":
+                zone = "Disk kolesnyy";
+                break;
+            }
+            break;
+
+          case "side-right":
+            switch (region.region) {
+              case "right-front-door":
+                zone = "Dver passazhira";
+                break;
+              case "right-rear-door":
+                zone = "Zadnyaya dver";
+                break;
+              case "right-wing":
+                zone = "Pravoe krylo";
+                break;
+              case "right-mirror":
+                zone = "Zerkalo pravoe";
+                break;
+              case "right-wheels":
+                zone = "Disk kolesnyy";
+                break;
+            }
+            break;
         }
-        
-        // Adjust confidence based on anomaly strength
-        const anomalyStrength = Math.min((region.variance / 2000) + (region.darkness * 3) + (region.brightness * 3) + (region.edgeCount / 500), 1);
-        const confidence = 0.5 + anomalyStrength * 0.4;
-        
+
+        // Calculate confidence based on anomaly strength
+        const anomalyStrength = Math.min((region.variance / 1000) + (region.darkness * 5) + (region.brightness * 5) + (region.edgeCount / 300), 1);
+        const confidence = 0.6 + anomalyStrength * 0.35;
+
         // Check if zone already added with higher confidence
         const existingIndex = damageResults.findIndex(d => d.zone === zone);
         if (existingIndex === -1 || damageResults[existingIndex].confidence < confidence) {
@@ -467,178 +597,9 @@ export function useAIDamageDetection() {
         }
       }
     }
-    
+
     return damageResults;
   };
-
-  // Detect damage from edge analysis
-  const detectDamageFromEdges = (
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number
-  ): DamageResult[] => {
-    const results: DamageResult[] = [];
-    
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const data = imageData.data;
-    
-    // Count edges in different regions
-    const edgeCounts: { region: string; count: number }[] = [];
-    const regionDefs = [
-      { name: "top", x: 0, y: 0, w: 1, h: 0.33 },
-      { name: "bottom", x: 0, y: 0.67, w: 1, h: 0.33 },
-      { name: "left", x: 0, y: 0, w: 0.33, h: 1 },
-      { name: "right", x: 0.67, y: 0, w: 0.33, h: 1 },
-      { name: "center", x: 0.33, y: 0.33, w: 0.34, h: 0.34 },
-    ];
-    
-    for (const regionDef of regionDefs) {
-      const startX = Math.floor(regionDef.x * width);
-      const startY = Math.floor(regionDef.y * height);
-      const regionW = Math.floor(regionDef.w * width);
-      const regionH = Math.floor(regionDef.h * height);
-      
-      let edgeCount = 0;
-      
-      for (let y = startY; y < startY + regionH && y < height - 1; y += 3) {
-        for (let x = startX; x < startX + regionW && x < width - 1; x += 3) {
-          const idx = (y * width + x) * 4;
-          const nextIdx = ((y + 1) * width + (x + 1)) * 4;
-          
-          const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
-          const nextBrightness = (data[nextIdx] + data[nextIdx + 1] + data[nextIdx + 2]) / 3;
-          
-          if (Math.abs(brightness - nextBrightness) > 40) {
-            edgeCount++;
-          }
-        }
-      }
-      
-      edgeCounts.push({ region: regionDef.name, count: edgeCount });
-    }
-    
-    // Find region with most edges (likely damage area)
-    const maxEdges = Math.max(...edgeCounts.map(e => e.count));
-    if (maxEdges > 50) {
-      const maxRegion = edgeCounts.find(e => e.count === maxEdges);
-      if (maxRegion) {
-        const isLandscape = width > height;
-        let zone: string;
-        
-        switch (maxRegion.region) {
-          case "top":
-            zone = isLandscape ? "Kapot" : "Lobovoe steklo";
-            break;
-          case "bottom":
-            zone = isLandscape ? "Peredniy bamper" : "Zadniy bamper";
-            break;
-          case "left":
-            zone = isLandscape ? "Levoe krylo" : "Dver voditelya";
-            break;
-          case "right":
-            zone = isLandscape ? "Pravoe krylo" : "Dver passazhira";
-            break;
-          case "center":
-            zone = "Kapot";
-            break;
-          default:
-            zone = "Peredniy bamper";
-        }
-        
-        results.push({
-          zone,
-          severity: maxEdges > 200 ? "severe" : maxEdges > 100 ? "moderate" : "minor",
-          confidence: 0.5 + Math.min(maxEdges / 500, 0.35),
-        });
-      }
-    }
-    
-    return results;
-  };
-
-  // Assume common damage zones based on image analysis
-  const assumeCommonDamage = (
-    regions: RegionAnalysis[],
-    imgWidth: number,
-    imgHeight: number
-  ): DamageResult[] => {
-    const results: DamageResult[] = [];
-    
-    // Find the region with highest variance (most likely damaged)
-    const maxVarianceRegion = regions.reduce((max, r) => r.variance > max.variance ? r : max, regions[0]);
-    const maxEdgeRegion = regions.reduce((max, r) => r.edgeCount > max.edgeCount ? r : max, regions[0]);
-    
-    const isLandscape = imgWidth > imgHeight;
-    
-    // Use the region with most activity
-    const targetRegion = maxVarianceRegion.variance > maxEdgeRegion.edgeCount / 10 ? maxVarianceRegion : maxEdgeRegion;
-    
-    // Map to damage zone
-    let zone: string;
-    let severity: "minor" | "moderate" | "severe" = "moderate";
-    
-    if (isLandscape) {
-      switch (targetRegion.region) {
-        case "top":
-        case "top-left":
-        case "top-right":
-          zone = "Kapot";
-          break;
-        case "bottom":
-        case "bottom-left":
-        case "bottom-right":
-          zone = "Peredniy bamper";
-          break;
-        case "left":
-          zone = "Levoe krylo";
-          break;
-        case "right":
-          zone = "Pravoe krylo";
-          break;
-        case "center":
-          zone = "Kapot";
-          break;
-        default:
-          zone = "Peredniy bamper";
-      }
-    } else {
-      switch (targetRegion.region) {
-        case "top":
-          zone = "Lobovoe steklo";
-          break;
-        case "bottom":
-          zone = "Zadniy bamper";
-          break;
-        case "left":
-          zone = "Dver voditelya";
-          break;
-        case "right":
-          zone = "Dver passazhira";
-          break;
-        case "center":
-          zone = "Kapot";
-          break;
-        default:
-          zone = "Peredniy bamper";
-      }
-    }
-    
-    // Determine severity based on variance
-    if (targetRegion.variance > 1000 || targetRegion.edgeCount > 200) {
-      severity = "severe";
-    } else if (targetRegion.variance > 500 || targetRegion.edgeCount > 100) {
-      severity = "moderate";
-    } else {
-      severity = "minor";
-    }
-    
-    const confidence = 0.5 + Math.min(targetRegion.variance / 2000, 0.3);
-    
-    results.push({ zone, severity, confidence });
-    
-    return results;
-  };
-
   // Analyze all uploaded images
   const analyzeAllImages = useCallback(async (
     imageUrls: string[],
@@ -647,18 +608,15 @@ export function useAIDamageDetection() {
   ): Promise<DamageDetectionResult[]> => {
     setIsAnalyzing(true);
     setProgress(0);
-    
+
     const allResults: DamageDetectionResult[] = [];
     const uniqueZones = new Map<string, DamageDetectionResult>();
-    
+
     try {
-      // Load model first
-      const loadedModel = await loadModel();
-      
       for (let i = 0; i < imageUrls.length; i++) {
         const imageUrl = imageUrls[i];
         const results = await analyzeImage(imageUrl, brand);
-        
+
         // Merge results, keeping highest confidence for each zone
         for (const result of results) {
           const existing = uniqueZones.get(result.zone);
@@ -666,20 +624,20 @@ export function useAIDamageDetection() {
             uniqueZones.set(result.zone, result);
           }
         }
-        
+
         setProgress(((i + 1) / imageUrls.length) * 100);
         onProgress?.(((i + 1) / imageUrls.length) * 100);
       }
-      
+
       allResults.push(...uniqueZones.values());
     } catch (error) {
       console.error("Error in analyzeAllImages:", error);
     } finally {
       setIsAnalyzing(false);
     }
-    
+
     return allResults;
-  }, [loadModel, analyzeImage]);
+  }, [analyzeImage]);
 
   // Convert detection results to damage zones with costs
   const convertToDamageZones = useCallback((
