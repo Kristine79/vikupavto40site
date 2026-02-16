@@ -28,8 +28,8 @@ import {
   Eye
 } from "lucide-react";
 
-// AI Damage Detection - Simple image analysis
-import { detectCarDamage } from "@/lib/simple-damage-detector";
+// AI Damage Detection - Roboflow AI (with fallback to simple detector)
+import { detectCarDamageRoboflow } from "@/lib/roboflow-damage-detector";
 
 // Car brands and models database
 const carBrandsAndModels: Record<string, string[]> = {
@@ -1217,7 +1217,7 @@ export default function Home() {
                         
                         for (const preview of photoPreviews) {
                           // Call client-side damage detection
-                          const result = await detectCarDamage(preview);
+                          const result = await detectCarDamageRoboflow(preview);
                           
                           if (result.success && result.carDetected && result.damages.length > 0) {
                             // Convert results to detection format
