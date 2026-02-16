@@ -50,6 +50,9 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Implemented TensorFlow.js client-side AI** - Created tf-damage-detector-client.ts with COCO-SSD for real vehicle detection and pixel-based damage analysis
 - [x] **Replaced TensorFlow.js with simple image analysis** - TensorFlow.js COCO-SSD requires browser environment and was causing issues. Created simple-damage-detector.ts using pure Canvas API pixel analysis (no ML dependencies, works reliably)
 - [x] **Integrated Roboflow AI for damage detection** - Created roboflow-damage-detector.ts using Roboflow API with fallback to simple detector. Uses environment variables NEXT_PUBLIC_ROBOFLOW_API_KEY and NEXT_PUBLIC_ROBOFLOW_MODEL_NAME
+- [x] **Made menu responsive** - Added hamburger menu for mobile devices with animated overlay navigation
+- [x] **Replaced dollar sign with ruble** - Changed DollarSign icon to ₽ symbol in advantages section
+- [x] **Fixed images loading** - Added unoptimized prop to all Image components (services and review avatars)
 
 ## Current Structure
 

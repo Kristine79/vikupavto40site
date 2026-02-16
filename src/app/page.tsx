@@ -8,7 +8,6 @@ import {
   Bike, 
   Truck, 
   Zap, 
-  DollarSign, 
   Clock, 
   Truck as TruckDelivery, 
   Star, 
@@ -25,7 +24,8 @@ import {
   Camera,
   AlertTriangle,
   Wrench,
-  Eye
+  Eye,
+  Menu
 } from "lucide-react";
 
 // AI Damage Detection - Roboflow AI (with fallback to simple detector)
@@ -173,6 +173,7 @@ export default function Home() {
   const [modelSuggestions, setModelSuggestions] = useState<string[]>([]);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [modelInputRef, setModelInputRef] = useState<HTMLInputElement | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Filter models based on input
   const filterModels = (input: string) => {
@@ -691,6 +692,8 @@ export default function Home() {
             </div>
             <span className="text-xl font-bold">АвтоВыкуп<span className="text-red-500">40</span></span>
           </motion.div>
+          
+          {/* Desktop Navigation */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -702,16 +705,83 @@ export default function Home() {
             <a href="#reviews" className="hover:text-red-400 transition-colors font-medium">Отзывы</a>
             <a href="#contact" className="hover:text-red-400 transition-colors font-medium">Контакты</a>
           </motion.div>
+          
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 text-white"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Меню"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+          
           <motion.a 
             href="#contact"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ scale: 1.05 }}
-            className="bg-gradient-to-r from-red-600 to-red-900 px-6 py-2 rounded-full font-semibold shadow-lg shadow-red-600/30"
+            className="hidden md:inline-flex bg-gradient-to-r from-red-600 to-red-900 px-6 py-2 rounded-full font-semibold shadow-lg shadow-red-600/30"
           >
             Связаться
           </motion.a>
         </nav>
+        
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-neutral-900/95 backdrop-blur-lg border-t border-white/10"
+            >
+              <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
+                <a 
+                  href="#services" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Услуги
+                </a>
+                <a 
+                  href="#calculator" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Калькулятор
+                </a>
+                <a 
+                  href="#advantages" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Преимущества
+                </a>
+                <a 
+                  href="#reviews" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Отзывы
+                </a>
+                <a 
+                  href="#contact" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Контакты
+                </a>
+                <a 
+                  href="#contact" 
+                  className="bg-gradient-to-r from-red-600 to-red-900 px-6 py-3 rounded-full font-semibold text-center mt-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Связаться
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Hero Section */}
@@ -862,6 +932,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&h=400&fit=crop" 
                   alt="Автомобили премиум класса"
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
@@ -891,6 +962,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1558981806-ec527fa84c3d?w=600&h=400&fit=crop" 
                   alt="Мотоциклы"
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
@@ -920,6 +992,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=400&fit=crop" 
                   alt="Спецтехника"
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
@@ -963,7 +1036,7 @@ export default function Home() {
                 desc: "Онлайн-оценка за 5 минут. Выезд оценщика в любую точку области"
               },
               {
-                icon: <DollarSign className="w-8 h-8" />,
+                icon: <><span className="text-3xl">₽</span></>,
                 title: "Честные цены",
                 desc: "Платим реальную рыночную стоимость. Без скрытых комиссий"
               },
@@ -1492,6 +1565,7 @@ export default function Home() {
                       src={review.avatar} 
                       alt={review.name}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
