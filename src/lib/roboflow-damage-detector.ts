@@ -171,8 +171,8 @@ export async function detectWithRoboflow(
     : 'YOUR_API_KEY';
   
   const modelName = typeof window !== 'undefined'
-    ? (process.env.NEXT_PUBLIC_ROBOFLOW_MODEL_NAME || 'car-damage-detection/1')
-    : 'car-damage-detection/1';
+    ? (process.env.NEXT_PUBLIC_ROBOFLOW_MODEL_NAME || 'car-damage-detection-5ioys-445wh')
+    : 'car-damage-detection-5ioys-445wh';
   
   // Check if API key is configured
   if (apiKey === 'YOUR_API_KEY' || !apiKey) {
