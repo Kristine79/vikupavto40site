@@ -929,14 +929,14 @@ export default function Home() {
             >
               <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&h=400&fit=crop" 
-                  alt="Автомобили премиум класса"
+                  src="https://images.unsplash.com/photo-1618843479313-40f8afb481b6?w=600&h=400&fit=crop" 
+                  alt="Легковые автомобили"
                   fill
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold">BMW, Mercedes, Audi</div>
+                <div className="absolute bottom-3 left-3 text-white font-bold">Все марки и модели</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Легковые авто</h3>
               <ul className="space-y-2 text-gray-400">
@@ -959,14 +959,14 @@ export default function Home() {
             >
               <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1558981806-ec527fa84c3d?w=600&h=400&fit=crop" 
-                  alt="Мотоциклы"
+                  src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&h=400&fit=crop" 
+                  alt="Мотоциклы и мототехника"
                   fill
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold">Kawasaki, Honda, Yamaha</div>
+                <div className="absolute bottom-3 left-3 text-white font-bold">Мотоциклы, скутеры</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Мотоциклы</h3>
               <ul className="space-y-2 text-gray-400">
@@ -989,14 +989,14 @@ export default function Home() {
             >
               <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=400&fit=crop" 
-                  alt="Спецтехника"
+                  src="https://images.unsplash.com/photo-1584473463819-993a426fbf0a?w=600&h=400&fit=crop" 
+                  alt="Спецтехника и строительная техника"
                   fill
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold">Экскаваторы, погрузчики</div>
+                <div className="absolute bottom-3 left-3 text-white font-bold">Строительная техника</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Спецтехника</h3>
               <ul className="space-y-2 text-gray-400">
