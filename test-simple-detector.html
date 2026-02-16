@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple Damage Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
+            color: #fff;
+        }
+        .container {
+            background: rgba(42, 42, 42, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        h1 {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 20px 0;
+            padding: 15px;
+            background: #3a3a3a;
+            border: 2px dashed #ef4444;
+            border-radius: 10px;
+            color: #fff;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        input[type="file"]:hover {
+            border-color: #dc2626;
+            background: #4a4a4a;
+        }
+        button {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.02);
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        #preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            border: 2px solid #ef4444;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        #results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log {
+            margin: 8px 0;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+        .success { 
+            color: #10b981; 
+            border-left-color: #10b981;
+        }
+        .error { 
+            color: #ef4444; 
+            border-left-color: #ef4444;
+        }
+        .info { 
+            color: #3b82f6; 
+            border-left-color: #3b82f6;
+        }
+        .warning { 
+            color: #f59e0b; 
+            border-left-color: #f59e0b;
+        }
+        .damage-list {
+            margin-top: 15px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        .damage-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #1a1a1a;
+            border-radius: 5px;
+            border-left: 3px solid #ef4444;
+        }
+        .severity-minor { border-left-color: #10b981; }
+        .severity-moderate { border-left-color: #f59e0b; }
+        .severity-severe { border-left-color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Тест Детектора Повреждений</h1>
+        <p class="subtitle">Анализ изображений без ML библиотек</p>
+        
+        <input type="file" id="imageInput" accept="image/*" placeholder="Выберите изображение автомобиля">
+        
+        <div id="preview"></div>
+        
+        <button id="analyzeBtn" disabled>🔍 Анализировать повреждения</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script type="module">
+        let selectedImage = null;
+
+        const log = (message, type = 'info') => {
+            const results = document.getElementById('results');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML = `<strong>[${time}]</strong> ${message}`;
+            results.appendChild(logDiv);
+            results.scrollTop = results.scrollHeight;
+        };
+
+        // Handle image selection
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                selectedImage = event.target.result;
+                const preview = document.getElementById('preview');
+                preview.innerHTML = `<img src="${selectedImage}" alt="Preview">`;
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('results').innerHTML = '';
+                log('📷 Изображение загружено', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Simple damage detection function (inline version)
+        async function detectDamage(imageSrc) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    try {
+                        log(`📐 Размер изображения: ${img.width}x${img.height}`, 'info');
+                        
+                        // Create canvas
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const pixels = imageData.data;
+                        
+                        log('🔬 Анализ пикселей...', 'info');
+                        
+                        // Divide into 9 regions
+                        const regionWidth = canvas.width / 3;
+                        const regionHeight = canvas.height / 3;
+                        
+                        const regionScores = {
+                            'top-left': 0, 'top-center': 0, 'top-right': 0,
+                            'middle-left': 0, 'middle-center': 0, 'middle-right': 0,
+                            'bottom-left': 0, 'bottom-center': 0, 'bottom-right': 0,
+                        };
+                        
+                        // Analyze pixels
+                        for (let i = 0; i < pixels.length; i += 4) {
+                            const r = pixels[i];
+                            const g = pixels[i + 1];
+                            const b = pixels[i + 2];
+                            
+                            const pixelIndex = i / 4;
+                            const x = pixelIndex % canvas.width;
+                            const y = Math.floor(pixelIndex / canvas.width);
+                            
+                            const regionX = Math.floor(x / regionWidth);
+                            const regionY = Math.floor(y / regionHeight);
+                            const regionKey = `${regionY === 0 ? 'top' : regionY === 1 ? 'middle' : 'bottom'}-${regionX === 0 ? 'left' : regionX === 1 ? 'center' : 'right'}`;
+                            
+                            const brightness = (r + g + b) / 3;
+                            const colorVariance = Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r);
+                            
+                            if (brightness < 40) regionScores[regionKey] += 0.002;
+                            if (brightness < 20) regionScores[regionKey] += 0.005;
+                            if (colorVariance > 120) regionScores[regionKey] += 0.001;
+                            if (colorVariance > 180) regionScores[regionKey] += 0.003;
+                        }
+                        
+                        // Find damaged regions
+                        const damageRegions = [];
+                        let totalScore = 0;
+                        
+                        Object.entries(regionScores).forEach(([region, score]) => {
+                            const normalizedScore = Math.min(score, 1);
+                            totalScore += normalizedScore;
+                            if (normalizedScore > 0.15) {
+                                damageRegions.push({ region, score: normalizedScore });
+                            }
+                        });
+                        
+                        totalScore = Math.min(totalScore / 9, 1);
+                        
+                        resolve({
+                            success: true,
+                            damageRegions,
+                            totalScore,
+                        });
+                        
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = imageSrc;
+            });
+        }
+
+        // Analyze button
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            if (!selectedImage) {
+                log('⚠️ Изображение не выбрано', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('analyzeBtn');
+            btn.disabled = true;
+            btn.textContent = '🔄 Анализ...';
+
+            try {
+                log('🚀 Начинаем анализ повреждений...', 'info');
+                
+                const result = await detectDamage(selectedImage);
+                
+                log(`📊 Общая оценка повреждений: ${(result.totalScore * 100).toFixed(1)}%`, 'info');
+                
+                if (result.damageRegions.length === 0) {
+                    log('✅ Серьезных повреждений не обнаружено', 'success');
+                } else {
+                    log(`⚠️ Обнаружено повреждений в ${result.damageRegions.length} регионах:`, 'warning');
+                    
+                    const damageList = document.createElement('div');
+                    damageList.className = 'damage-list';
+                    
+                    result.damageRegions.forEach((damage, i) => {
+                        const severity = damage.score > 0.6 ? 'severe' : damage.score > 0.35 ? 'moderate' : 'minor';
+                        const severityText = severity === 'severe' ? 'Серьезное' : severity === 'moderate' ? 'Среднее' : 'Легкое';
+                        
+                        const item = document.createElement('div');
+                        item.className = `damage-item severity-${severity}`;
+                        item.innerHTML = `
+                            <strong>${i + 1}. Регион: ${damage.region}</strong><br>
+                            Оценка: ${(damage.score * 100).toFixed(1)}% | Серьезность: ${severityText}
+                        `;
+                        damageList.appendChild(item);
+                    });
+                    
+                    document.getElementById('results').appendChild(damageList);
+                }
+                
+                log('✅ Анализ завершен', 'success');
+
+            } catch (error) {
+                log(`❌ Ошибка: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 Анализировать повреждения';
+            }
+        });
+    </script>
+</body>
+</html>

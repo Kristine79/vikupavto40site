@@ -28,8 +28,8 @@ import {
   Eye
 } from "lucide-react";
 
-// AI Damage Detection with TensorFlow.js
-import { detectCarDamage } from "@/lib/tf-damage-detector-client";
+// AI Damage Detection - Simple image analysis
+import { detectCarDamage } from "@/lib/simple-damage-detector";
 
 // Car brands and models database
 const carBrandsAndModels: Record<string, string[]> = {
@@ -1212,11 +1212,11 @@ export default function Home() {
                       
                       setIsAnalyzing(true);
                       try {
-                        // Use client-side TensorFlow.js analysis with COCO-SSD
+                        // Use client-side image analysis for damage detection
                         const allDetections: Array<{zone: string; key: string; severity: 'minor' | 'moderate' | 'severe'; confidence: number; detectedFrom: string}> = [];
                         
                         for (const preview of photoPreviews) {
-                          // Call client-side damage detection with TensorFlow.js
+                          // Call client-side damage detection
                           const result = await detectCarDamage(preview);
                           
                           if (result.success && result.carDetected && result.damages.length > 0) {
@@ -1226,7 +1226,7 @@ export default function Home() {
                               key: damage.part,
                               severity: damage.severity,
                               confidence: damage.confidence,
-                              detectedFrom: 'tensorflow-ai'
+                              detectedFrom: 'image-analysis'
                             }));
                             allDetections.push(...detections);
                           }
