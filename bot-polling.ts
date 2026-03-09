@@ -73,23 +73,35 @@ async function answerCallbackQuery(callbackQueryId: string, text?: string) {
   }
 }
 
+// Main menu keyboard - without URLs, with callback buttons and contact request
 function getMainKeyboard() {
   return {
     inline_keyboard: [
       [
-        { text: "🚗 Услуги", url: "https://vikupavto40.ru/#services" },
-        { text: "🧮 Калькулятор", url: "https://vikupavto40.ru/#calculator" }
+        { text: "🚗 Услуги", callback_data: "services" },
+        { text: "🧮 Калькулятор", callback_data: "calculator" }
       ],
       [
-        { text: "⭐ Преимущества", url: "https://vikupavto40.ru/#advantages" },
-        { text: "💬 Отзывы", url: "https://vikupavto40.ru/#reviews" }
+        { text: "⭐ Преимущества", callback_data: "advantages" },
+        { text: "💬 Отзывы", callback_data: "reviews" }
       ],
       [
         { text: "📱 Отправить телефон", request_contact: true },
-        { text: "📞 Позвонить нам", url: `tel:${PHONE_LINK}` }
+        { text: "📞 Позвоните мне", callback_data: "call_me" }
       ],
       [
-        { text: "📍 Контакты", url: "https://vikupavto40.ru/#contact" }
+        { text: "📍 Контакты", callback_data: "contacts" }
+      ]
+    ]
+  };
+}
+
+// Call me keyboard - requests contact
+function getCallMeKeyboard() {
+  return {
+    inline_keyboard: [
+      [
+        { text: "📱 Отправить мой телефон", request_contact: true }
       ]
     ]
   };
@@ -99,20 +111,85 @@ function getCallKeyboard() {
   return {
     inline_keyboard: [
       [
-        { text: `📞 Позвонить нам ${PHONE_NUMBER}`, url: `tel:${PHONE_LINK}` }
-      ],
-      [
-        { text: "📱 Заказать звонок", url: "https://t.me/AvtoVikup40_bot?text=Перезвоните+мне" }
+        { text: `📞 Позвонить ${PHONE_NUMBER}`, url: `tel:${PHONE_LINK}` }
       ]
     ]
   };
 }
 
+// Text descriptions for each section
+const sectionDescriptions: Record<string, string> = {
+  services: `🚗 *Услуги автовыкупа*
+
+Мы выкупаем:
+• Легковые автомобили (любые марки и модели)
+• Битые и аварийные авто
+• Авто после ДТП
+• Машины с проблемными документами
+• Коммерческий транспорт
+
+📍 *Район:* Калуга, Тула, Обнинск и область до 200км
+
+⏱️ *Срок:* Оценка за 15 минут, выкуп за 1 час
+
+💰 *Гарантия:* Честная оценка без скрытых платежей`,
+
+  calculator: `🧮 *Калькулятор оценки авто*
+
+Вы можете рассчитать примерную стоимость вашего автомобиля прямо на сайте.
+
+Для точной оценки:
+1. Укажите марку и год выпуска
+2. Выберите состояние авто
+3. Загрузите фото (опционально)
+4. Получите предварительную оценку
+
+📱 Для заказа бесплатной оценки нажмите "Отправить телефон" и наш менеджер свяжется с вами!`,
+
+  advantages: `⭐ *Преимущества АвтоВыкуп40*
+
+✅ Оценка за 15 минут
+✅ Выкуп за 1 час
+✅ Честные цены без посредников
+✅ Бесплатная эвакуация
+✅ Работаем 24/7
+✅ Документы оформляем сами
+✅ Безопасная сделка
+
+💯 Выкупляем авто в любом состоянии!`,
+
+  reviews: `💬 *Отзывы клиентов*
+
+⭐⭐⭐⭐⭐ "Очень быстро оценили и выкупили машину. Деньги получил сразу. Рекомендую!"
+— Алексей, Калуга
+
+⭐⭐⭐⭐⭐ "Всё чётко и профессионально. Сделка заняла 40 минут."
+— Сергей, Тула
+
+⭐⭐⭐⭐⭐ "Выкупили битый Ауди за хорошую цену. Спасибо!"
+— Марина, Обнинск
+
+⭐⭐⭐⭐⭐ "Отличный сервис! Всё сделали быстро и без проблем."
+— Дмитрий, Калужская область`,
+
+  contacts: `📍 *Контакты АвтоВыкуп40*
+
+📱 *Telegram:* @AvtoVikup40Bot
+📱 *WhatsApp:* ${PHONE_NUMBER}
+📞 *Телефон:* ${PHONE_NUMBER}
+
+📍 *Адрес:* Калуга, Тула, Обнинск
+
+⏱️ *Время работы:* Круглосуточно 24/7
+
+💬 Напишите нам в Telegram для быстрой связи!`
+};
+
 async function handleMessage(update: any) {
   const message = update.message;
   const callbackQuery = update.callback_query;
   
-  // Handle callback queries
+  // Handle callback queries (button clicks without URLs)
   if (callbackQuery) {
     const chatId = callbackQuery.message?.chat?.id;
     const data = callbackQuery.data;
@@ -120,11 +197,15 @@ async function handleMessage(update: any) {
     if (chatId && data) {
       await answerCallbackQuery(callbackQuery.id);
       
-      // Handle callback data
-      if (data === "call") {
-        await sendMessage(chatId, `📞 *Позвоните нам:*\n\n${PHONE_NUMBER}`, getCallKeyboard());
-      } else if (data === "contact") {
-        await sendMessage(chatId, "📱 Нажмите кнопку ниже, чтобы отправить свой номер телефона:", getMainKeyboard());
+      // Send description based on button clicked
+      if (sectionDescriptions[data]) {
+        await sendMessage(chatId, sectionDescriptions[data], getMainKeyboard());
+      } else if (data === "call_me") {
+        await sendMessage(
+          chatId, 
+          `📞 *Заказать звонок*\n\nНажмите кнопку ниже, чтобы отправить свой номер телефона. Мы перезвоним вам в течение 5 минут!\n\n📞 Телефон: ${PHONE_NUMBER}`,
+          getCallMeKeyboard()
+        );
       }
     }
     return;
@@ -156,7 +237,8 @@ async function handleMessage(update: any) {
 🧮 *Калькулятор* - рассчитать стоимость авто
 ⭐ *Преимущества* - почему выбирают нас
 💬 *Отзывы* - отзывы клиентов
-📞 *Контакты* - связаться с нами
+📞 *Позвоните мне* - заказать звонок
+📍 *Контакты* - связаться с нами
 
 📱 *Отправить телефон* - чтобы мы перезвонили
 
@@ -196,7 +278,7 @@ async function handleMessage(update: any) {
   
   // Handle /call command
   if (text === "/call") {
-    await sendMessage(chatId, `📞 *Позвоните нам:*\n\n${PHONE_NUMBER}\n\nИли оставьте заявку на обратный звонок!`, getCallKeyboard());
+    await sendMessage(chatId, `📞 *Позвоните нам:*\n\n${PHONE_NUMBER}\n\nИли нажмите кнопку ниже для заказа звонка:`, getCallMeKeyboard());
     return;
   }
   
@@ -212,7 +294,7 @@ async function handleMessage(update: any) {
   if (text) {
     const responseMessage = `Спасибо за сообщение, ${firstName}! 
 
-Для быстрого доступа к разделу используйте кнопки ниже или команды:
+Для быстрого доступа к разделу используйте кнопки меню или команды:
 /menu - Показать меню
 /services - Услуги
 /contacts - Контакты`;

@@ -1773,7 +1773,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 py-8 border-t border-white/10">
         <div className="container mx-auto px-4 text-center text-gray-500">
-          <p>© 2024 АвтоВыкуп. Все права защищены.</p>
+          <p>© 2026 АвтоВыкуп. Все права защищены.</p>
         </div>
       </footer>
     </main>
