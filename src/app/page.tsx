@@ -1738,7 +1738,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">WhatsApp</div>
-                  <div className="text-gray-400 text-sm">8 910 595-46</div>
+                  <div className="text-gray-400 text-sm">79105954668</div>
                 </div>
               </a>
 
@@ -1751,7 +1751,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">Телефон</div>
-                  <div className="text-gray-400 text-sm">8 910 595-46</div>
+                  <div className="text-gray-400 text-sm">79105954668</div>
                 </div>
               </a>
             </motion.div>
