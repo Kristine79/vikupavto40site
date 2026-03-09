@@ -25,7 +25,8 @@ import {
   AlertTriangle,
   Wrench,
   Eye,
-  Menu
+  Menu,
+  Bot
 } from "lucide-react";
 
 // AI Damage Detection - Roboflow AI (with fallback to simple detector)
@@ -1694,8 +1695,23 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mt-12 grid md:grid-cols-3 gap-6"
+              className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
+              <a 
+                href="https://t.me/AvtoVykup40Bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+              >
+                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                  <Bot className="w-7 h-7" />
+                </div>
+                <div>
+                  <div className="font-bold">Telegram бот</div>
+                  <div className="text-gray-400 text-sm">@AvtoVykup40Bot</div>
+                </div>
+              </a>
+
               <a 
                 href="https://t.me/krisdev13"
                 target="_blank"
@@ -1742,6 +1758,17 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Floating Telegram Bot Button */}
+      <a
+        href="https://t.me/AvtoVykup40Bot"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-red-600 to-red-800 p-4 rounded-full shadow-2xl shadow-red-600/30 hover:scale-110 transition-transform"
+        title="Telegram бот"
+      >
+        <Bot className="w-7 h-7 text-white" />
+      </a>
 
       {/* Footer */}
       <footer className="relative z-10 py-8 border-t border-white/10">
