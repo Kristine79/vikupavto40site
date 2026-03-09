@@ -55,6 +55,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Fixed images loading** - Added unoptimized prop to all Image components (services and review avatars)
 - [x] **Fixed repair API error handling** - Now properly reads JSON response before throwing error
 - [x] **Added blob URL support** - Both Roboflow and simple damage detectors now handle blob URLs from file uploads
+- [x] **Added Telegram bot button** - Floating button in bottom-right + contact section with link to @AvtoVykup40Bot
 
 ## Current Structure
 
@@ -141,3 +142,4 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-15 | Fixed API error handling with better error messages |
 | 2026-02-15 | Implemented TensorFlow.js client-side AI - COCO-SSD for vehicle detection + pixel analysis for damage |
 | 2026-02-15 | Replaced TensorFlow.js with simple-damage-detector.ts - Pure Canvas API pixel analysis (no ML dependencies, reliable, works in all browsers) |
+| 2026-03-09 | Added Telegram bot button - Floating button in bottom-right + contact section with link to @AvtoVykup40Bot |
