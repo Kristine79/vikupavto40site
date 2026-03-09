@@ -1698,7 +1698,7 @@ export default function Home() {
               className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
               <a 
-                href="https://t.me/AvtoVykup40Bot"
+                href="https://t.me/AvtoVikup40_bot"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
@@ -1708,7 +1708,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">Telegram бот</div>
-                  <div className="text-gray-400 text-sm">@AvtoVykup40Bot</div>
+                  <div className="text-gray-400 text-sm">@AvtoVikup40_bot</div>
                 </div>
               </a>
 
@@ -1761,7 +1761,7 @@ export default function Home() {
 
       {/* Floating Telegram Bot Button */}
       <a
-        href="https://t.me/AvtoVykup40Bot"
+        href="https://t.me/AvtoVikup40_bot"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-red-600 to-red-800 p-4 rounded-full shadow-2xl shadow-red-600/30 hover:scale-110 transition-transform"
