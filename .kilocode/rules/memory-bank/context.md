@@ -58,6 +58,9 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added Telegram bot button** - Floating button in bottom-right + contact section with link to @AvtoVikup40_bot
 - [x] **Complete SEO optimization** - JSON-LD LocalBusiness, Twitter Cards, canonical URLs, extended metadata
 - [x] **Added Telegram bot webhook** - Created /api/telegram/webhook for handling /start and menu commands
+- [x] **Added phone collection to Telegram bot** - Users can now send phone numbers via button or text, bot recognizes Russian phone format
+- [x] **Added call buttons in Telegram** - Added "Отправить телефон", "Позвонить нам", and /call command
+- [x] **Updated phone number on site** - Changed from +7 (4842) 55-55-55 to 8 (910) 595-46 everywhere (contacts, metadata, JSON-LD)
 
 ## Current Structure
 
@@ -147,3 +150,5 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-02-15 | Replaced TensorFlow.js with simple-damage-detector.ts - Pure Canvas API pixel analysis (no ML dependencies, reliable, works in all browsers) |
 | 2026-03-09 | Added Telegram bot button - Floating button in bottom-right + contact section with link to @AvtoVykup40Bot |
 | 2026-03-09 | Complete SEO optimization - JSON-LD LocalBusiness, Twitter Cards, canonical URLs, extended metadata |
+| 2026-03-09 | Added Telegram bot with phone collection - Users can send phone via button or text, added call buttons |
+| 2026-03-09 | Updated phone number to 8 (910) 595-46 - Changed everywhere on site and in bot |
