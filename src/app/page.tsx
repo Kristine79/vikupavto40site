@@ -130,15 +130,28 @@ const reviews = [
 ];
 
 export default function Home() {
-  // AI Damage Detection hook
-  // Removed old AI damage detection hook - now using TensorFlow.js directly
+  const handleFormPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newPhotos = Array.from(e.target.files);
+      const newPreviews = newPhotos.map(file => URL.createObjectURL(file));
+      setFormData({ ...formData, photos: [...formData.photos, ...newPhotos].slice(0, 3) });
+      setFormPhotoPreviews([...formPhotoPreviews, ...newPreviews].slice(0, 3));
+    }
+  };
+
+  const removeFormPhoto = (index: number) => {
+    setFormData({ ...formData, photos: formData.photos.filter((_, i) => i !== index) });
+    setFormPhotoPreviews(formPhotoPreviews.filter((_, i) => i !== index));
+  };
 
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    vehicleType: "auto",
-    message: ""
+    year: "",
+    message: "",
+    photos: [] as File[]
   });
+  const [formPhotoPreviews, setFormPhotoPreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -652,8 +665,10 @@ export default function Home() {
     // Create message for Telegram
     const telegramMessage = `🚗 *Новая заявка на выкуп авто*\n\n` +
       `*Имя:* ${formData.name}\n` +
+      `*Имя:* ${formData.name}\n` +
       `*Телефон:* ${formData.phone}\n` +
-      `*Тип ТС:* ${formData.vehicleType === 'auto' ? 'Легковой автомобиль' : formData.vehicleType === 'motorcycle' ? 'Мотоцикл' : 'Спецтехника'}\n` +
+      `*Год выпуска:* ${formData.year || 'Не указан'}\n` +
+      `*Фотографий:* ${formData.photos.length}\n` +
       `*Сообщение:* ${formData.message || 'Не указано'}`;
     
     // Encode message for URL
@@ -666,7 +681,8 @@ export default function Home() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSubmitting(false);
     setSubmitSuccess(true);
-    setFormData({ name: "", phone: "", vehicleType: "auto", message: "" });
+    setFormData({ name: "", phone: "", year: "", message: "", photos: [] });
+    setFormPhotoPreviews([]);
   };
 
   return (
@@ -687,12 +703,36 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-900 rounded-lg flex items-center justify-center shadow-lg shadow-red-600/30">
-              <span className="text-xl font-bold">АВ</span>
-            </div>
-            <span className="text-xl font-bold">АвтоВыкуп<span className="text-red-500">40</span></span>
+            {/* Beautiful Animated Logo */}
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: 3 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="relative w-12 h-12"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 via-red-700 to-red-900 rounded-xl shadow-lg shadow-red-600/40"></div>
+              <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-xl flex items-center justify-center overflow-hidden">
+                <div className="relative">
+                  <Car className="w-6 h-6 text-red-500" />
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring" }}
+                    className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
+                  />
+                </div>
+              </div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1 rounded"
+              >
+                40
+              </motion.div>
+            </motion.div>
+            <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">АвтоВыкуп<span className="text-red-500">40</span></span>
           </motion.div>
           
           {/* Desktop Navigation */}
@@ -1650,15 +1690,46 @@ export default function Home() {
                         required
                       />
                     </div>
-                    <select
-                      value={formData.vehicleType}
-                      onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
-                      className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl text-white focus:outline-none focus:border-red-500 transition-colors appearance-none"
-                    >
-                      <option value="auto" className="bg-neutral-900">Легковой автомобиль</option>
-                      <option value="motorcycle" className="bg-neutral-900">Мотоцикл</option>
-                      <option value="special" className="bg-neutral-900">Спецтехника</option>
-                    </select>
+                    <input
+                      type="text"
+                      placeholder="Год выпуска (например: 2018)"
+                      value={formData.year}
+                      onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                      className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+                    />
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id="form-photo-upload"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFormPhotoUpload}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="form-photo-upload"
+                        className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl text-gray-400 focus:outline-none focus:border-red-500 transition-colors flex items-center justify-center gap-2 cursor-pointer hover:bg-white/15 hover:text-white"
+                      >
+                        <Upload className="w-5 h-5" />
+                        Прикрепить фото автомобиля
+                      </label>
+                    </div>
+                    {formPhotoPreviews.length > 0 && (
+                      <div className="flex gap-2 flex-wrap">
+                        {formPhotoPreviews.map((preview, index) => (
+                          <div key={index} className="relative">
+                            <img src={preview} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                            <button
+                              type="button"
+                              onClick={() => removeFormPhoto(index)}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-white text-xs"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <textarea
                       placeholder="Сообщение (марка, модель, год выпуска, состояние)"
                       value={formData.message}

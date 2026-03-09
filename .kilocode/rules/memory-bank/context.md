@@ -63,6 +63,8 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Updated phone number on site** - Changed from +7 (4842) 55-55-55 to 8 (910) 595-46 everywhere (contacts, metadata, JSON-LD)
 - [x] **Created bot-polling.ts** - Alternative long polling bot script that works without webhooks
 - [x] **Updated phone number to 79105954668** - Changed everywhere on site and in bot scripts
+- [x] **Removed vehicle type field from contact form** - Replaced with year field and photo upload
+- [x] **Added beautiful animated logo** - New gradient logo with Car icon and "40" badge, hover effects
 
 ## Current Structure
 
@@ -155,3 +157,5 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-03-09 | Complete SEO optimization - JSON-LD LocalBusiness, Twitter Cards, canonical URLs, extended metadata |
 | 2026-03-09 | Added Telegram bot with phone collection - Users can send phone via button or text, added call buttons |
 | 2026-03-09 | Updated phone number to 8 (910) 595-46 - Changed everywhere on site and in bot |
+| 2026-03-09 | Updated contact form - removed vehicle type, added year and photo upload |
+| 2026-03-09 | Created beautiful animated logo with gradient and hover effects |
