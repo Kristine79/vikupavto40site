@@ -6,8 +6,8 @@
 const BOT_TOKEN = "8522898159:AAEIcLvy1DE8U-R-BTGh3FnFL-CD_6NHsb0";
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-const PHONE_NUMBER = "8 910 595-46";
-const PHONE_LINK = "+791059546";
+const PHONE_NUMBER = "8 910 595-46-68";
+const PHONE_LINK = "+79105954668";
 
 interface TelegramUpdate {
   message?: {

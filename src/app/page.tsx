@@ -1728,7 +1728,7 @@ export default function Home() {
               </a>
 
               <a 
-                href="https://wa.me/791059546"
+                href="https://wa.me/79105954668"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
@@ -1743,7 +1743,7 @@ export default function Home() {
               </a>
 
               <a 
-                href="tel:+791059546"
+                href="tel:+79105954668"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">

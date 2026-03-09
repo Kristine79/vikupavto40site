@@ -71,7 +71,7 @@ const jsonLd = {
   "alternateName": "АвтоВыкуп Калуга",
   "description": "Срочный выкуп автомобилей, мотоциклов и спецтехники в Калуге, Туле и Обнинске",
   "url": "https://vikupavto40.ru",
-  "telephone": "+791059546",
+  "telephone": "+79105954668",
   "priceRange": "₽₽₽₽",
   "address": {
     "@type": "PostalAddress",
