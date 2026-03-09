@@ -687,7 +687,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white overflow-x-hidden">
-      {/* Animated Background */}
+      {/* Animated Background with Floating Particles */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 via-neutral-950 to-black"></div>
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-red-600/10 rounded-full blur-[120px] animate-pulse"></div>
@@ -695,6 +695,53 @@ export default function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-red-600/5 via-red-800/5 to-red-600/5 rounded-full blur-[100px]"></div>
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(220,38,38,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(220,38,38,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+        
+        {/* Floating particles */}
+        <motion.div 
+          animate={{ 
+            y: [0, -20, 0],
+            x: [0, 10, 0],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-2 h-2 bg-red-500 rounded-full blur-sm"
+        />
+        <motion.div 
+          animate={{ 
+            y: [0, 30, 0],
+            x: [0, -15, 0],
+            opacity: [0.2, 0.5, 0.2]
+          }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          className="absolute top-1/3 right-1/3 w-3 h-3 bg-red-400 rounded-full blur-sm"
+        />
+        <motion.div 
+          animate={{ 
+            y: [0, -25, 0],
+            x: [0, 20, 0],
+            opacity: [0.3, 0.7, 0.3]
+          }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-red-600 rounded-full blur-sm"
+        />
+        <motion.div 
+          animate={{ 
+            y: [0, 35, 0],
+            x: [0, -10, 0],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+          className="absolute top-1/2 right-1/4 w-2.5 h-2.5 bg-red-300 rounded-full blur-sm"
+        />
+        <motion.div 
+          animate={{ 
+            y: [0, -15, 0],
+            x: [0, 25, 0],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-1/4 right-1/3 w-1.5 h-1.5 bg-red-500 rounded-full blur-sm"
+        />
       </div>
 
       {/* Header */}
@@ -705,29 +752,42 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3"
           >
-            {/* Beautiful Animated Logo */}
+            {/* Beautiful Animated Logo with Glow Effects */}
             <motion.div 
-              whileHover={{ scale: 1.1, rotate: 3 }}
+              whileHover={{ scale: 1.15, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="relative w-12 h-12"
+              className="relative w-14 h-14 group cursor-pointer"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-600 via-red-700 to-red-900 rounded-xl shadow-lg shadow-red-600/40"></div>
-              <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-xl flex items-center justify-center overflow-hidden">
+              {/* Glow ring */}
+              <motion.div 
+                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.2, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 bg-red-500 rounded-2xl blur-xl opacity-50"
+              />
+              {/* Main icon container */}
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 via-red-700 to-red-900 rounded-2xl shadow-2xl shadow-red-600/50"></div>
+              <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="relative">
-                  <Car className="w-6 h-6 text-red-500" />
+                  <motion.div
+                    animate={{ y: [-2, 2, -2] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <Car className="w-7 h-7 text-red-500" />
+                  </motion.div>
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.3, type: "spring" }}
-                    className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"
                   />
                 </div>
               </div>
+              {/* Animated 40 badge */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5 }}
-                className="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-bold px-1 rounded"
+                className="absolute -top-2 -right-2 bg-gradient-to-r from-red-600 to-red-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-lg"
               >
                 40
               </motion.div>
@@ -942,6 +1002,143 @@ export default function Home() {
         </div>
       </section>
 
+      {/* How It Works Section - Infographics */}
+      <section className="relative z-10 py-24 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                КАК МЫ РАБОТАЕМ
+              </span>
+            </h2>
+            <p className="text-gray-400 text-lg">Простой процесс за 4 шага</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-4 gap-6">
+            {[
+              {
+                step: 1,
+                icon: <Camera className="w-10 h-10" />,
+                title: "Отправьте фото",
+                desc: "Загрузите фото автомобиля через сайт или Telegram бот",
+                color: "from-blue-500 to-blue-700"
+              },
+              {
+                step: 2,
+                icon: <Brain className="w-10 h-10" />,
+                title: "AI оценка",
+                desc: "Искусственный интеллект анализирует состояние за 2 минуты",
+                color: "from-purple-500 to-purple-700"
+              },
+              {
+                step: 3,
+                icon: <Calculator className="w-10 h-10" />,
+                title: "Получите цену",
+                desc: "Мы называем справедливую рыночную стоимость",
+                color: "from-green-500 to-green-700"
+              },
+              {
+                step: 4,
+                icon: <TruckDelivery className="w-10 h-10" />,
+                title: "Получите деньги",
+                desc: "Забираем авто и выплачиваем деньги на месте",
+                color: "from-red-500 to-red-700"
+              }
+            ].map((item, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                className="relative"
+              >
+                {/* Connector line */}
+                {i < 3 && (
+                  <div className="hidden md:block absolute top-16 left-1/2 w-full h-0.5 bg-gradient-to-r from-red-500/50 to-transparent -z-10"></div>
+                )}
+                
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors text-center group"
+                >
+                  {/* Step number */}
+                  <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-r ${item.color} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                    {item.step}
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className={`w-20 h-20 mx-auto mb-4 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                    {item.icon}
+                  </div>
+                  
+                  <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                  <p className="text-gray-400 text-sm">{item.desc}</p>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Process infographic cards */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16 grid md:grid-cols-3 gap-6"
+          >
+            <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-2xl border border-blue-500/30">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">15 минут</div>
+                  <div className="text-blue-400 text-sm">Среднее время сделки</div>
+                </div>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-2">
+                <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 p-6 rounded-2xl border border-green-500/30">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+                  <span className="text-2xl">₽</span>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">До 95%</div>
+                  <div className="text-green-400 text-sm">Рыночной стоимости</div>
+                </div>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-2">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: '95%' }}></div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-600/20 to-orange-600/20 p-6 rounded-2xl border border-red-500/30">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
+                  <TruckDelivery className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">Бесплатно</div>
+                  <div className="text-red-400 text-sm">Эвакуатор по области</div>
+                </div>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-2">
+                <div className="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Services Section */}
       <section id="services" className="relative z-10 py-24 bg-black/20">
         <div className="container mx-auto px-4">
@@ -969,7 +1166,7 @@ export default function Home() {
               whileHover={{ y: -10 }}
               className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group overflow-hidden"
             >
-              <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+              <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
                   src="https://images.unsplash.com/photo-1618843479313-40f8afb481b6?w=600&h=400&fit=crop" 
                   alt="Легковые автомобили"
@@ -977,8 +1174,12 @@ export default function Home() {
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold">Все марки и модели</div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 text-white font-bold text-lg">Все марки и модели</div>
+                {/* Badge */}
+                <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  Популярно
+                </div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Легковые авто</h3>
               <ul className="space-y-2 text-gray-400">
@@ -999,7 +1200,7 @@ export default function Home() {
               whileHover={{ y: -10 }}
               className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group overflow-hidden"
             >
-              <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+              <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
                   src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&h=400&fit=crop" 
                   alt="Мотоциклы и мототехника"
@@ -1007,8 +1208,8 @@ export default function Home() {
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold">Мотоциклы, скутеры</div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 text-white font-bold text-lg">Мотоциклы, скутеры</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Мотоциклы</h3>
               <ul className="space-y-2 text-gray-400">
@@ -1029,7 +1230,7 @@ export default function Home() {
               whileHover={{ y: -10 }}
               className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-colors group overflow-hidden"
             >
-              <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+              <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
                   src="https://images.unsplash.com/photo-1584473463819-993a426fbf0a?w=600&h=400&fit=crop" 
                   alt="Спецтехника и строительная техника"
@@ -1037,8 +1238,8 @@ export default function Home() {
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold">Строительная техника</div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <div className="absolute bottom-3 left-3 text-white font-bold text-lg">Строительная техника</div>
               </div>
               <h3 className="text-2xl font-bold mb-4">Спецтехника</h3>
               <ul className="space-y-2 text-gray-400">
@@ -1050,6 +1251,70 @@ export default function Home() {
               </ul>
             </motion.div>
           </div>
+
+          {/* Additional Services Grid */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {/* Additional service 1 - damaged cars */}
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-br from-orange-600/20 to-red-600/20 p-6 rounded-xl border border-orange-500/30"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-orange-600/30 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-orange-500" />
+                </div>
+                <h4 className="font-bold">Битые авто</h4>
+              </div>
+              <p className="text-gray-400 text-sm">Выкупаем автомобили после ДТП любой сложности</p>
+            </motion.div>
+
+            {/* Additional service 2 - not running */}
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-xl border border-blue-500/30"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-blue-600/30 rounded-lg flex items-center justify-center">
+                  <Wrench className="w-6 h-6 text-blue-500" />
+                </div>
+                <h4 className="font-bold">Неисправные</h4>
+              </div>
+              <p className="text-gray-400 text-sm">Авто с неработающим двигателем, коробкой и другими поломками</p>
+            </motion.div>
+
+            {/* Additional service 3 - without documents */}
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 p-6 rounded-xl border border-green-500/30"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-green-600/30 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-500" />
+                </div>
+                <h4 className="font-bold">Без документов</h4>
+              </div>
+              <p className="text-gray-400 text-sm">Выкупаем авто без ПТС, СТС и других документов</p>
+            </motion.div>
+
+            {/* Additional service 4 - foreign plates */}
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 p-6 rounded-xl border border-purple-500/30"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-purple-600/30 rounded-lg flex items-center justify-center">
+                  <Car className="w-6 h-6 text-purple-500" />
+                </div>
+                <h4 className="font-bold">Иномарки</h4>
+              </div>
+              <p className="text-gray-400 text-sm">Автомобили из США, Европы, Японии и других стран</p>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
