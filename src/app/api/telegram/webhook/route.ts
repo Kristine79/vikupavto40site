@@ -6,11 +6,15 @@
 const BOT_TOKEN = "8522898159:AAEIcLvy1DE8U-R-BTGh3FnFL-CD_6NHsb0";
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+const PHONE_NUMBER = "8 910 595-46";
+const PHONE_LINK = "+791059546";
+
 interface TelegramUpdate {
   message?: {
     chat: { id: number };
-    from?: { first_name?: string };
+    from?: { first_name?: string; phone_number?: string };
     text?: string;
+    contact?: { phone_number: string };
   };
   callback_query?: {
     message?: { chat: { id: number } };
@@ -42,6 +46,8 @@ export async function POST(request: Request) {
 ⭐ *Преимущества* - почему выбирают нас
 💬 *Отзывы* - отзывы клиентов
 📞 *Контакты* - связаться с нами
+
+📱 *Отправить телефон* - чтобы мы перезвонили
 
 Или нажмите /menu для показа кнопок меню`;
 
@@ -76,6 +82,7 @@ export async function POST(request: Request) {
 /advantages - Преимущества
 /reviews - Отзывы
 /contacts - Контакты
+/call - Позвонить нам
 /help - Помощь
 
 Или просто напишите свой вопрос!`;
@@ -86,6 +93,39 @@ export async function POST(request: Request) {
         body: JSON.stringify({
           chat_id: chatId,
           text: helpMessage,
+          parse_mode: "Markdown"
+        })
+      });
+    }
+    
+    // Handle /call command
+    else if (text === "/call") {
+      await sendCallButton(chatId);
+    }
+    
+    // Handle phone number messages (Russian format: +7 xxx xxx-xx-xx or 8 xxx xxx-xx-xx)
+    else if (text && /^(\+7|8)[\s\-]?\d{3}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/.test(text.trim())) {
+      const phone = text.trim();
+      // Forward phone to admin
+      await fetch(`${BASE_URL}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: `Спасибо! Мы получили ваш номер телефона: ${phone}
+
+Наш менеджер перезвонит вам в течение 5 минут! 📞`,
+          parse_mode: "Markdown"
+        })
+      });
+      
+      // Also notify admin (same chat for now - in production would be separate admin chat)
+      await fetch(`${BASE_URL}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: `📱 *Новый запрос на звонок!*\n\nОт: ${firstName}\nТелефон: ${phone}\n\nID чата: ${chatId}`,
           parse_mode: "Markdown"
         })
       });
@@ -132,7 +172,11 @@ async function sendMainMenu(chatId: number) {
         { text: "💬 Отзывы", url: "https://vikupavto40.ru/#reviews" }
       ],
       [
-        { text: "📞 Контакты", url: "https://vikupavto40.ru/#contact" }
+        { text: "📱 Отправить телефон", request_contact: true },
+        { text: "📞 Позвонить нам", url: `tel:${PHONE_LINK}` }
+      ],
+      [
+        { text: "📍 Контакты", url: "https://vikupavto40.ru/#contact" }
       ]
     ]
   };
@@ -143,6 +187,30 @@ async function sendMainMenu(chatId: number) {
     body: JSON.stringify({
       chat_id: chatId,
       text: "📋 *Выберите раздел:*",
+      reply_markup: keyboard,
+      parse_mode: "Markdown"
+    })
+  });
+}
+
+async function sendCallButton(chatId: number) {
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: "📞 Позвонить нам ${PHONE_NUMBER}", url: `tel:${PHONE_LINK}` }
+      ],
+      [
+        { text: "📱 Заказать звонок", url: "https://t.me/AvtoVikup40_bot?text=Перезвоните+мне" }
+      ]
+    ]
+  };
+
+  await fetch(`${BASE_URL}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: `📞 *Позвоните нам:*\n\n${PHONE_NUMBER}\n\nИли оставьте заявку на обратный звонок!`,
       reply_markup: keyboard,
       parse_mode: "Markdown"
     })

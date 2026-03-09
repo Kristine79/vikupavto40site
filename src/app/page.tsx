@@ -1728,7 +1728,7 @@ export default function Home() {
               </a>
 
               <a 
-                href="https://wa.me/74842555555"
+                href="https://wa.me/791059546"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
@@ -1738,12 +1738,12 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">WhatsApp</div>
-                  <div className="text-gray-400 text-sm">+7 4842 55-55-55</div>
+                  <div className="text-gray-400 text-sm">8 910 595-46</div>
                 </div>
               </a>
 
               <a 
-                href="tel:+74842555555"
+                href="tel:+791059546"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
@@ -1751,7 +1751,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">Телефон</div>
-                  <div className="text-gray-400 text-sm">+7 4842 55-55-55</div>
+                  <div className="text-gray-400 text-sm">8 910 595-46</div>
                 </div>
               </a>
             </motion.div>
