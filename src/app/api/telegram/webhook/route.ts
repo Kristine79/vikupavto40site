@@ -1,271 +1,529 @@
 /**
- * Telegram Bot Webhook Handler
- * Handles incoming messages from Telegram
+ * Telegram Bot Webhook Handler - Дмитрий Оценщик
+ * Conversational bot for car buyout estimation
+ * Follows the scenario: photo request -> qualification -> price offer -> close deal
  */
 
 const BOT_TOKEN = "8522898159:AAEIcLvy1DE8U-R-BTGh3FnFL-CD_6NHsb0";
 const BASE_URL = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 const PHONE_NUMBER = "79105954668";
-const PHONE_LINK = "+79105954668";
+const ADMIN_CHAT_ID = 1194984806; // Admin chat ID for notifications
+
+// User state machine
+type UserState = 
+  | 'start'
+  | 'waiting_photos_brand'
+  | 'waiting_year'
+  | 'waiting_accidents'
+  | 'waiting_price'
+  | 'processing'
+  | 'waiting_location_phone'
+  | 'finished';
+
+interface UserSession {
+  state: UserState;
+  brand?: string;
+  year?: string;
+  accidents?: string;
+  desiredPrice?: string;
+  photos: string[]; // Photo file IDs
+  name?: string;
+}
+
+// In-memory session storage (in production, use Redis or database)
+const userSessions: Map<number, UserSession> = new Map();
+
+// Year options for buttons
+const yearButtons = [
+  ["2010 и ранее", "2011", "2012", "2013"],
+  ["2014", "2015", "2016", "2017"],
+  ["2018", "2019", "2020", "2021"],
+  ["2022", "2023", "2024", "2025"]
+];
+
+// Price options for buttons
+const priceButtons = [
+  ["до 300 000 ₽", "300 000 - 400 000 ₽", "400 000 - 500 000 ₽"],
+  ["500 000 - 700 000 ₽", "700 000 - 1 000 000 ₽", "1 000 000 - 1 500 000 ₽"],
+  ["1 500 000 - 2 000 000 ₽", "свыше 2 000 000 ₽"]
+];
+
+// Yes/No buttons
+const yesNoKeyboard = {
+  inline_keyboard: [
+    [{ text: "✅ Да", callback_data: "ans_yes" }, { text: "❌ Нет", callback_data: "ans_no" }]
+  ]
+};
+
+// Location/Phone request keyboard
+const locationPhoneKeyboard = {
+  keyboard: [
+    [{ text: "📍 Отправить геолокацию", request_location: true }],
+    [{ text: "📱 Отправить телефон", request_contact: true }],
+    ["❌ Отмена"]
+  ],
+  resize_keyboard: true,
+  one_time_keyboard: true
+};
 
 interface TelegramUpdate {
   message?: {
     chat: { id: number };
-    from?: { first_name?: string; phone_number?: string };
+    from?: { first_name?: string; id?: number };
     text?: string;
+    photo?: Array<{ file_id: string }>;
     contact?: { phone_number: string };
+    location?: { latitude: number; longitude: number };
   };
   callback_query?: {
     id: string;
-    message?: { chat: { id: number } };
+    message?: { chat: { id: number }; message_id: number };
     data?: string;
   };
 }
 
-// Text descriptions for each section
-const sectionDescriptions: Record<string, string> = {
-  services: `🚗 *Услуги автовыкупа*
+// Keyboard builders
+function getYearKeyboard() {
+  return {
+    inline_keyboard: yearButtons.map(row => row.map(year => ({ text: year, callback_data: `year_${year}` })))
+  };
+}
 
-Мы выкупаем:
-• Легковые автомобили (любые марки и модели)
-• Битые и аварийные авто
-• Авто после ДТП
-• Машины с проблемными документами
-• Коммерческий транспорт
-
-📍 *Район:* Калуга, Тула, Обнинск и область до 200км
-
-⏱️ *Срок:* Оценка за 15 минут, выкуп за 1 час
-
-💰 *Гарантия:* Честная оценка без скрытых платежей`,
-
-  calculator: `🧮 *Калькулятор оценки авто*
-
-Вы можете рассчитать примерную стоимость вашего автомобиля прямо на сайте.
-
-Для точной оценки:
-1. Укажите марку и год выпуска
-2. Выберите состояние авто
-3. Загрузите фото (опционально)
-4. Получите предварительную оценку
-
-📱 Для заказа бесплатной оценки нажмите "Отправить телефон" и наш менеджер свяжется с вами!`,
-
-  advantages: `⭐ *Преимущества АвтоВыкуп40*
-
-✅ Оценка за 15 минут
-✅ Выкуп за 1 час
-✅ Честные цены без посредников
-✅ Бесплатная эвакуация
-✅ Работаем 24/7
-✅ Документы оформляем сами
-✅ Безопасная сделка
-
-💯 Выкупляем авто в любом состоянии!`,
-
-  reviews: `💬 *Отзывы клиентов*
-
-⭐⭐⭐⭐⭐ "Очень быстро оценили и выкупили машину. Деньги получил сразу. Рекомендую!"
-— Алексей, Калуга
-
-⭐⭐⭐⭐⭐ "Всё чётко и профессионально. Сделка заняла 40 минут."
-— Сергей, Тула
-
-⭐⭐⭐⭐⭐ "Выкупили битый Ауди за хорошую цену. Спасибо!"
-— Марина, Обнинск
-
-⭐⭐⭐⭐⭐ "Отличный сервис! Всё сделали быстро и без проблем."
-— Дмитрий, Калужская область`,
-
-  contacts: `📍 *Контакты АвтоВыкуп40*
-
-📱 *Telegram:* @AvtoVikup40Bot
-📱 *WhatsApp:* ${PHONE_NUMBER}
-📞 *Телефон:* ${PHONE_NUMBER}
-
-📍 *Адрес:* Калуга, Тула, Обнинск
-
-⏱️ *Время работы:* Круглосуточно 24/7
-
-💬 Напишите нам в Telegram для быстрой связи!`
-};
+function getPriceKeyboard() {
+  return {
+    inline_keyboard: priceButtons.map(row => row.map(price => ({ text: price, callback_data: `price_${price}` })))
+  };
+}
 
 export async function POST(request: Request) {
   try {
     const update: TelegramUpdate = await request.json();
     
     const chatId = update.message?.chat?.id;
+    const userId = update.message?.from?.id;
     const text = update.message?.text;
     const firstName = update.message?.from?.first_name || "друг";
+    const photos = update.message?.photo;
     
-    // Handle callback queries (button clicks without URLs)
+    // Handle callback queries (button clicks)
     const callbackQuery = update.callback_query;
     if (callbackQuery) {
       const callbackChatId = callbackQuery.message?.chat?.id;
       const callbackData = callbackQuery.data;
       
       if (callbackChatId && callbackData) {
-        // Answer the callback query to remove loading state
+        // Answer callback to stop loading
         await fetch(`${BASE_URL}/answerCallbackQuery`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            callback_query_id: callbackQuery.id
-          })
+          body: JSON.stringify({ callback_query_id: callbackQuery.id })
         });
         
-        // Send description based on button clicked
-        if (sectionDescriptions[callbackData]) {
+        const session = userSessions.get(callbackChatId);
+        
+        // Handle year selection
+        if (callbackData.startsWith('year_') && session) {
+          const year = callbackData.replace('year_', '');
+          session.year = year;
+          session.state = 'waiting_accidents';
+          
           await fetch(`${BASE_URL}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               chat_id: callbackChatId,
-              text: sectionDescriptions[callbackData],
-              parse_mode: "Markdown",
-              reply_markup: getMainKeyboard()
+              text: `Понял, ${year} года выпуска. А теперь последний вопрос:`,
+              parse_mode: "Markdown"
             })
           });
-        } else if (callbackData === "call_me") {
+          
           await fetch(`${BASE_URL}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               chat_id: callbackChatId,
-              text: `📞 *Заказать звонок*\n\nНажмите кнопку ниже, чтобы отправить свой номер телефона. Мы перезвоним вам в течение 5 минут!\n\n📞 Телефон: ${PHONE_NUMBER}`,
+              text: "🚨 *Были ли серьёзные ДТП?*\n\n(Аварии с повреждением кузова, двигателя или несущих элементов)",
               parse_mode: "Markdown",
-              reply_markup: getCallMeKeyboard()
+              reply_markup: yesNoKeyboard
             })
           });
         }
+        
+        // Handle price selection
+        else if (callbackData.startsWith('price_') && session) {
+          const price = callbackData.replace('price_', '');
+          session.desiredPrice = price;
+          session.state = 'processing';
+          
+          // Calculate offer (in production, this would use real data)
+          const basePrice = parsePrice(price);
+          const offerMin = Math.round(basePrice * 0.85);
+          const offerMax = Math.round(basePrice * 0.95);
+          
+          // Send processing message
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: callbackChatId,
+              text: "⏳ *Отлично! Сейчас вычислю стоимость...*\n\nЭто займёт всего пару минут.",
+              parse_mode: "Markdown"
+            })
+          });
+          
+          // Simulate processing delay
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Send price offer
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: callbackChatId,
+              text: `💰 *Готов сделать вам предложение!*\n\nЯ готов предложить вам сумму *от ${offerMin.toLocaleString()} до ${offerMax.toLocaleString()} рублей* в зависимости от состояния автомобиля.\n\nКак вам такая цена?`,
+              parse_mode: "Markdown",
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: "✅ Устраивает", callback_data: "offer_accept" }, { text: "❌ Не устраивает", callback_data: "offer_reject" }]
+                ]
+              }
+            })
+          });
+        }
+        
+        // Handle offer acceptance
+        else if (callbackData === 'offer_accept' && session) {
+          session.state = 'waiting_location_phone';
+          
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: callbackChatId,
+              text: `✅ *Отлично!*\n\nЯ готов выехать к вам в любой район Калуги или области.\n\nПожалуйста, скиньте свою геолокацию и номер телефона для связи:`,
+              parse_mode: "Markdown",
+              reply_markup: locationPhoneKeyboard
+            })
+          });
+          
+          // Notify admin
+          await notifyAdmin(session, callbackChatId);
+        }
+        
+        // Handle offer rejection
+        else if (callbackData === 'offer_reject' && session) {
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: callbackChatId,
+              text: "😔 *Понимаю, что цена может не устроить.*\n\nЕсли хотите, я могу пересчитать с учётом дополнительных факторов. Или вы можете оставить заявку на будущее!",
+              parse_mode: "Markdown",
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: "🔄 Пересчитать", callback_data: "recalculate" }, { text: "📝 Оставить заявку", callback_data: "leave_request" }]
+                ]
+              }
+            })
+          });
+        }
+        
+        // Handle recalculate
+        else if (callbackData === 'recalculate' && session) {
+          session.state = 'waiting_price';
+          
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: callbackChatId,
+              text: "📊 *Давайте пересчитаем*\n\nКакую сумму вы хотите получить за автомобиль?",
+              parse_mode: "Markdown",
+              reply_markup: getPriceKeyboard()
+            })
+          });
+        }
+        
+        // Handle leave request
+        else if (callbackData === 'leave_request' && session) {
+          session.state = 'finished';
+          
+          // Save to waiting list notification to admin
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: ADMIN_CHAT_ID,
+              text: `📝 *Новая заявка на будущее!*\n\nМарка: ${session.brand || 'не указана'}\nГод: ${session.year || 'не указан'}\nДТП: ${session.accidents || 'не указано'}\nЖелаемая цена: ${session.desiredPrice || 'не указана'}\n\nID клиента: ${callbackChatId}`,
+              parse_mode: "Markdown"
+            })
+          });
+          
+          await fetch(`${BASE_URL}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: callbackChatId,
+              text: "✅ *Ваша заявка сохранена!*\n\nСпасибо за обращение! Если у вас возникнут вопросы или вы захотите продать автомобиль позже, просто напишите мне.",
+              parse_mode: "Markdown"
+            })
+          });
+        }
+        
+        // Handle start/reset
+        else if (callbackData === 'start_over') {
+          userSessions.delete(callbackChatId);
+          await sendWelcome(callbackChatId, firstName);
+        }
+        
+        return Response.json({ ok: true });
       }
-      
-      return Response.json({ ok: true });
     }
     
     if (!chatId) {
       return Response.json({ ok: true });
     }
     
-    // Handle /start command
+    // Get or create session
+    let session = userSessions.get(chatId);
+    
+    // Handle /start command - reset and start fresh
     if (text === "/start") {
-      const welcomeMessage = `Привет, ${firstName}! 🚗
-
-Я бот АвтоВыкуп40 - сервис выкупа автомобилей в Калуге, Туле и Обнинске.
-
-Выберите раздел:
-🚗 *Услуги* - что мы выкупаем
-🧮 *Калькулятор* - рассчитать стоимость авто
-⭐ *Преимущества* - почему выбирают нас
-💬 *Отзывы* - отзывы клиентов
-📞 *Позвоните мне* - заказать звонок
-📍 *Контакты* - связаться с нами
-
-📱 *Отправить телефон* - чтобы мы перезвонили
-
-Или нажмите /menu для показа кнопок меню`;
-
-      await fetch(`${BASE_URL}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: welcomeMessage,
-          parse_mode: "Markdown"
-        })
-      });
-      
-      // Also send the main menu keyboard
-      await sendMainMenu(chatId);
+      userSessions.delete(chatId);
+      await sendWelcome(chatId, firstName);
+      return Response.json({ ok: true });
     }
     
     // Handle /menu command
-    else if (text === "/menu" || text === "/services" || text === "/calculator" || 
-             text === "/advantages" || text === "/reviews" || text === "/contacts") {
+    if (text === "/menu") {
       await sendMainMenu(chatId);
+      return Response.json({ ok: true });
     }
     
     // Handle /help command
-    else if (text === "/help") {
-      const helpMessage = `📋 *Доступные команды:*
-
-/start - Главное меню
-/menu - Показать кнопки
-/services - Наши услуги
-/calculator - Калькулятор
-/advantages - Преимущества
-/reviews - Отзывы
-/contacts - Контакты
-/call - Позвонить нам
-/help - Помощь
-
-Или просто напишите свой вопрос!`;
-
+    if (text === "/help") {
+      const helpText = `📋 *Помощь*\n\n/start - Начать оценку автомобиля\n/menu - Показать меню\n/reset - Начать заново\n\nПросто отправьте мне 3 фото вашего авто и его марку!`;
+      
       await fetch(`${BASE_URL}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: helpMessage,
+          text: helpText,
           parse_mode: "Markdown"
         })
       });
+      return Response.json({ ok: true });
     }
     
-    // Handle /call command
-    else if (text === "/call") {
-      await sendCallMeButton(chatId);
+    // Handle /reset command
+    if (text === "/reset") {
+      userSessions.delete(chatId);
+      await sendWelcome(chatId, firstName);
+      return Response.json({ ok: true });
     }
     
-    // Handle phone number messages (Russian format: +7 xxx xxx-xx-xx or 8 xxx xxx-xx-xx)
-    else if (text && /^(\+7|8)[\s\-]?\d{3}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/.test(text.trim())) {
-      const phone = text.trim();
-      // Forward phone to admin
+    // Handle photo messages
+    if (photos && photos.length > 0) {
+      if (!session) {
+        session = { state: 'waiting_photos_brand', photos: [] };
+        userSessions.set(chatId, session);
+      }
+      
+      // Collect photo file IDs
+      const photoIds = photos.map(p => p.file_id);
+      session.photos = [...session.photos, ...photoIds].slice(0, 3);
+      
+      if (session.state === 'waiting_photos_brand') {
+        // Just received first photos, ask for brand
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: `📸 *Спасибо! Я принял ваши фото (${session.photos.length}/3)*\n\nТеперь укажите, пожалуйста, *марку* вашего автомобиля (например: Toyota, BMW, Lada)`,
+            parse_mode: "Markdown"
+          })
+        });
+        
+        session.state = 'waiting_year';
+      }
+      
+      return Response.json({ ok: true });
+    }
+    
+    // Handle text messages based on current state
+    if (text && session) {
+      // Handle brand input (when waiting for year)
+      if (session.state === 'waiting_year' && !text.startsWith('/')) {
+        session.brand = text;
+        session.state = 'waiting_accidents';
+        
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: `✅ *Отлично! ${text}*\n\nТеперь скажите, пожалуйста:`,
+            parse_mode: "Markdown"
+          })
+        });
+        
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: "📅 *Какой год выпуска вашего автомобиля?*",
+            parse_mode: "Markdown",
+            reply_markup: getYearKeyboard()
+          })
+        });
+        
+        return Response.json({ ok: true });
+      }
+      
+      // Handle accidents answer (when waiting for price)
+      if (session.state === 'waiting_accidents' && !text.startsWith('/')) {
+        const isYes = text.toLowerCase().includes('да') || text.toLowerCase().includes('yes') || text === "✅ Да";
+        session.accidents = isYes ? 'Да' : 'Нет';
+        
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: `✅ *Понял${isYes ? ', были ДТП' : ', без серьёзных ДТП'}*\n\nИ последний вопрос:`,
+            parse_mode: "Markdown"
+          })
+        });
+        
+        session.state = 'waiting_price';
+        
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: "💰 *Какую сумму вы хотите получить за автомобиль?*",
+            parse_mode: "Markdown",
+            reply_markup: getPriceKeyboard()
+          })
+        });
+        
+        return Response.json({ ok: true });
+      }
+      
+      // Handle location
+      if (session.state === 'waiting_location_phone' && text === "📍 Отправить геолокацию") {
+        // User clicked location button - they need to actually share location
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: "📍 Нажмите кнопку ниже для отправки геолокации",
+            reply_markup: { keyboard: [[{ text: "📍 Отправить геолокацию", request_location: true }], ["❌ Отмена"]], resize_keyboard: true }
+          })
+        });
+        return Response.json({ ok: true });
+      }
+      
+      // Handle contact
+      if (session.state === 'waiting_location_phone' && text === "📱 Отправить телефон") {
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: "📱 Нажмите кнопку ниже для отправки телефона",
+            reply_markup: { keyboard: [[{ text: "📱 Отправить телефон", request_contact: true }], ["❌ Отмена"]], resize_keyboard: true }
+          })
+        });
+        return Response.json({ ok: true });
+      }
+      
+      // Handle cancel
+      if (text === "❌ Отмена") {
+        session.state = 'finished';
+        
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: "❌ *Отменено*\n\nСпасибо за обращение! Если передумаете, просто напишите /start",
+            parse_mode: "Markdown"
+          })
+        });
+        return Response.json({ ok: true });
+      }
+    }
+    
+    // Handle location message
+    if (update.message?.location && session) {
+      const lat = update.message.location.latitude;
+      const lon = update.message.location.longitude;
+      
       await fetch(`${BASE_URL}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `Спасибо! Мы получили ваш номер телефона: ${phone}
-
-Наш менеджер перезвонит вам в течение 5 минут! 📞`,
+          text: `📍 *Геолокация получена!*\n\nШирота: ${lat}\nДолгота: ${lon}\n\nТеперь отправьте номер телефона:`,
+          parse_mode: "Markdown",
+          reply_markup: { keyboard: [[{ text: "📱 Отправить телефон", request_contact: true }], ["❌ Отмена"]], resize_keyboard: true }
+        })
+      });
+      return Response.json({ ok: true });
+    }
+    
+    // Handle contact message
+    if (update.message?.contact && session) {
+      const phone = update.message.contact.phone_number;
+      
+      // Notify admin about complete lead
+      await fetch(`${BASE_URL}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: ADMIN_CHAT_ID,
+          text: `🎉 *НОВЫЙ КЛИЕНТ!*\n\nМарка: ${session.brand || 'не указана'}\nГод: ${session.year || 'не указан'}\nДТП: ${session.accidents || 'не указано'}\nЖелаемая цена: ${session.desiredPrice || 'не указана'}\nТелефон: ${phone}\nID клиента: ${chatId}\n\nФото: ${session.photos.length} шт.`,
           parse_mode: "Markdown"
         })
       });
       
-      // Also notify admin (same chat for now - in production would be separate admin chat)
+      session.state = 'finished';
+      userSessions.delete(chatId);
+      
       await fetch(`${BASE_URL}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `📱 *Новый запрос на звонок!*\n\nОт: ${firstName}\nТелефон: ${phone}\n\nID чата: ${chatId}`,
-          parse_mode: "Markdown"
-        })
-      });
-    }
-    
-    // Handle text messages - respond with main menu
-    else if (text) {
-      const responseMessage = `Спасибо за сообщение, ${firstName}! 
-
-Для быстрого доступа к разделу используйте кнопки меню или команды:
-/menu - Показать меню
-/services - Услуги
-/contacts - Контакты`;
-
-      await fetch(`${BASE_URL}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: responseMessage,
+          text: `✅ *Спасибо! Заявка оформлена!*\n\nМы свяжемся с вами в течение 15 минут!\n\n📞 Телефон: ${phone}\n📍 Локация сохранена\n\nДо скорой встречи! 👋`,
           parse_mode: "Markdown"
         })
       });
       
-      await sendMainMenu(chatId);
+      return Response.json({ ok: true });
+    }
+    
+    // Default response - start the conversation
+    if (!session || session.state === 'finished') {
+      await sendWelcome(chatId, firstName);
+    } else {
+      // In progress - remind of current step
+      await fetch(`${BASE_URL}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: "Пожалуйста, ответьте на текущий вопрос или нажмите /start для начала заново",
+          parse_mode: "Markdown"
+        })
+      });
     }
     
     return Response.json({ ok: true });
@@ -275,38 +533,27 @@ export async function POST(request: Request) {
   }
 }
 
-// Main menu keyboard - without URLs, with callback buttons and contact request
-function getMainKeyboard() {
-  return {
-    inline_keyboard: [
-      [
-        { text: "🚗 Услуги", callback_data: "services" },
-        { text: "🧮 Калькулятор", callback_data: "calculator" }
-      ],
-      [
-        { text: "⭐ Преимущества", callback_data: "advantages" },
-        { text: "💬 Отзывы", callback_data: "reviews" }
-      ],
-      [
-        { text: "📱 Отправить телефон", request_contact: true },
-        { text: "📞 Позвоните мне", callback_data: "call_me" }
-      ],
-      [
-        { text: "📍 Контакты", callback_data: "contacts" }
-      ]
-    ]
-  };
-}
+async function sendWelcome(chatId: number, firstName: string) {
+  const welcomeMessage = `Привет, ${firstName}! 👋
 
-// Call me keyboard - requests contact
-function getCallMeKeyboard() {
-  return {
-    inline_keyboard: [
-      [
-        { text: "📱 Отправить мой телефон", request_contact: true }
-      ]
-    ]
-  };
+Я *Дмитрий*, старший оценщик в компании «Выкупавто40».
+
+Здесь вы можете узнать реальную стоимость вашего автомобиля без звонков и спама. 
+
+Просто отправьте мне *3 фото* вашего авто и его *марку*!`;
+
+  await fetch(`${BASE_URL}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: welcomeMessage,
+      parse_mode: "Markdown"
+    })
+  });
+  
+  // Start session
+  userSessions.set(chatId, { state: 'waiting_photos_brand', photos: [] });
 }
 
 async function sendMainMenu(chatId: number) {
@@ -315,31 +562,45 @@ async function sendMainMenu(chatId: number) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: "📋 *Выберите раздел:*",
-      reply_markup: getMainKeyboard(),
+      text: "📋 *Меню*\n\n/start - Начать оценку автомобиля\n/reset - Начать заново\n/help - Помощь",
       parse_mode: "Markdown"
     })
   });
 }
 
-async function sendCallMeButton(chatId: number) {
+async function notifyAdmin(session: UserSession, chatId: number) {
+  const message = `🎯 *Новая заявка на выкуп!*\n\n🚗 *Автомобиль:* ${session.brand || 'не указана'}\n📅 *Год:* ${session.year || 'не указан'}\n💥 *ДТП:* ${session.accidents || 'не указано'}\n💰 *Желаемая цена:* ${session.desiredPrice || 'не указана'}\n📸 *Фото получено:* ${session.photos.length} шт.\n\n🆔 *ID клиента:* ${chatId}`;
+  
   await fetch(`${BASE_URL}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chat_id: chatId,
-      text: `📞 *Заказать звонок*\n\nНажмите кнопку ниже, чтобы отправить свой номер телефона. Мы перезвоним вам в течение 5 минут!\n\n📞 Телефон: ${PHONE_NUMBER}`,
-      reply_markup: getCallMeKeyboard(),
+      chat_id: ADMIN_CHAT_ID,
+      text: message,
       parse_mode: "Markdown"
     })
   });
 }
 
-// Add GET for webhook verification
+function parsePrice(priceStr: string): number {
+  // Parse price string to number (in thousands)
+  if (priceStr.includes('до 300')) return 250000;
+  if (priceStr.includes('300 000 - 400 000')) return 350000;
+  if (priceStr.includes('400 000 - 500 000')) return 450000;
+  if (priceStr.includes('500 000 - 700 000')) return 600000;
+  if (priceStr.includes('700 000 - 1 000 000')) return 850000;
+  if (priceStr.includes('1 000 000 - 1 500 000')) return 1250000;
+  if (priceStr.includes('1 500 000 - 2 000 000')) return 1750000;
+  if (priceStr.includes('свыше 2 000 000')) return 2500000;
+  return 500000; // default
+}
+
+// GET handler for webhook verification
 export async function GET() {
   return Response.json({ 
     status: "Bot is running!",
     webhook: "Set up at /api/telegram/webhook",
-    commands: ["/start", "/menu", "/services", "/calculator", "/advantages", "/reviews", "/contacts", "/help"]
+    version: "2.0 - Дмитрий Оценщик",
+    commands: ["/start", "/menu", "/help", "/reset"]
   });
 }
