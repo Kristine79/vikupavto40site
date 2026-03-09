@@ -53,6 +53,8 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Made menu responsive** - Added hamburger menu for mobile devices with animated overlay navigation
 - [x] **Replaced dollar sign with ruble** - Changed DollarSign icon to ₽ symbol in advantages section
 - [x] **Fixed images loading** - Added unoptimized prop to all Image components (services and review avatars)
+- [x] **Fixed repair API error handling** - Now properly reads JSON response before throwing error
+- [x] **Added blob URL support** - Both Roboflow and simple damage detectors now handle blob URLs from file uploads
 
 ## Current Structure
 
