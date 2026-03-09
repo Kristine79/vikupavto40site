@@ -55,7 +55,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Fixed images loading** - Added unoptimized prop to all Image components (services and review avatars)
 - [x] **Fixed repair API error handling** - Now properly reads JSON response before throwing error
 - [x] **Added blob URL support** - Both Roboflow and simple damage detectors now handle blob URLs from file uploads
-- [x] **Added Telegram bot button** - Floating button in bottom-right + contact section with link to @AvtoVykup40Bot
+- [x] **Added Telegram bot button** - Floating button in bottom-right + contact section with link to @AvtoVikup40_bot
 
 ## Current Structure
 
