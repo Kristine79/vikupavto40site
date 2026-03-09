@@ -301,6 +301,29 @@ export async function POST(request: Request) {
       return Response.json({ ok: true });
     }
     
+    // Handle /call command - show call button
+    if (text === "/call") {
+      await fetch(`${BASE_URL}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: `📞 *Позвонить нам:*
+
+Вы можете позвонить нам прямо сейчас:
+
+*Телефон:* ${PHONE_NUMBER}
+
+Или нажмите кнопку ниже для быстрого звонка:`,
+          parse_mode: "Markdown",
+          reply_markup: {
+            inline_keyboard: [[{ text: "📞 Позвонить", url: `tel:${PHONE_NUMBER}` }]]
+          }
+        })
+      });
+      return Response.json({ ok: true });
+    }
+    
     // Handle /help command
     if (text === "/help") {
       const helpText = `📋 *Помощь*\n\n/start - Начать оценку автомобиля\n/menu - Показать меню\n/reset - Начать заново\n\nПросто отправьте мне 3 фото вашего авто и его марку!`;
@@ -355,6 +378,36 @@ export async function POST(request: Request) {
     
     // Handle text messages based on current state
     if (text && session) {
+      // Handle phone number as text (Russian format)
+      if (session.state === 'waiting_location_phone' && text && isRussianPhone(text)) {
+        const phone = normalizePhone(text);
+        
+        // Notify admin about complete lead
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: ADMIN_CHAT_ID,
+            text: `🎉 *НОВЫЙ КЛИЕНТ!*\n\nМарка: ${session.brand || 'не указана'}\nГод: ${session.year || 'не указан'}\nДТП: ${session.accidents || 'не указано'}\nЖелаемая цена: ${session.desiredPrice || 'не указана'}\nТелефон: ${phone}\nID клиента: ${chatId}\n\nФото: ${session.photos.length} шт.`,
+            parse_mode: "Markdown"
+          })
+        });
+        
+        session.state = 'finished';
+        userSessions.delete(chatId);
+        
+        await fetch(`${BASE_URL}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: `✅ *Спасибо! Заявка оформлена!*\n\nМы свяжемся с вами в течение 15 минут!\n\n📞 Телефон: ${phone}\n\nДо скорой встречи! 👋`,
+            parse_mode: "Markdown"
+          })
+        });
+        return Response.json({ ok: true });
+      }
+      
       // Handle brand input (when waiting for year)
       if (session.state === 'waiting_year' && !text.startsWith('/')) {
         session.brand = text;
@@ -562,8 +615,11 @@ async function sendMainMenu(chatId: number) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: "📋 *Меню*\n\n/start - Начать оценку автомобиля\n/reset - Начать заново\n/help - Помощь",
-      parse_mode: "Markdown"
+      text: "📋 *Меню*\n\n/start - Начать оценку автомобиля\n/call - Позвонить нам\n/help - Помощь",
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: [[{ text: "📞 Позвонить", url: `tel:${PHONE_NUMBER}` }]]
+      }
     })
   });
 }
@@ -580,6 +636,28 @@ async function notifyAdmin(session: UserSession, chatId: number) {
       parse_mode: "Markdown"
     })
   });
+}
+
+function isRussianPhone(text: string): boolean {
+  // Check if text looks like a Russian phone number
+  const cleaned = text.replace(/[\s\-\(\)]/g, '');
+  // Match patterns like: +79105954668, 89105954668, 9105954668, +7 (910) 595-46-68
+  return /^[\+]?7\d{10}$/.test(cleaned) || /^8\d{10}$/.test(cleaned);
+}
+
+function normalizePhone(text: string): string {
+  // Normalize Russian phone to format: +7 (910) 595-46-68
+  const cleaned = text.replace(/[\s\-\(\)]/g, '');
+  let digits = cleaned.replace(/^\+/, '');
+  
+  if (digits.startsWith('8')) {
+    digits = '7' + digits.substring(1);
+  }
+  
+  if (digits.length === 11) {
+    return `+7 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7, 9)}-${digits.substring(9)}`;
+  }
+  return text;
 }
 
 function parsePrice(priceStr: string): number {
