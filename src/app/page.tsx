@@ -1026,21 +1026,21 @@ export default function Home() {
                 icon: <Camera className="w-10 h-10" />,
                 title: "Отправьте фото",
                 desc: "Загрузите фото автомобиля через сайт или Telegram бот",
-                color: "from-blue-500 to-blue-700"
+                color: "from-red-500 to-red-700"
               },
               {
                 step: 2,
                 icon: <Brain className="w-10 h-10" />,
                 title: "AI оценка",
                 desc: "Искусственный интеллект анализирует состояние за 2 минуты",
-                color: "from-purple-500 to-purple-700"
+                color: "from-red-500 to-red-700"
               },
               {
                 step: 3,
                 icon: <Calculator className="w-10 h-10" />,
                 title: "Получите цену",
                 desc: "Мы называем справедливую рыночную стоимость",
-                color: "from-green-500 to-green-700"
+                color: "from-red-500 to-red-700"
               },
               {
                 step: 4,
@@ -1093,7 +1093,7 @@ export default function Home() {
           >
             <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-2xl border border-blue-500/30">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -1102,13 +1102,13 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                <div className="bg-gradient-to-r from-red-500 to-red-700 h-2 rounded-full" style={{ width: '100%' }}></div>
               </div>
             </div>
 
             <div className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 p-6 rounded-2xl border border-green-500/30">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                   <span className="text-2xl">₽</span>
                 </div>
                 <div>
@@ -1117,7 +1117,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: '95%' }}></div>
+                <div className="bg-gradient-to-r from-red-500 to-red-700 h-2 rounded-full" style={{ width: '95%' }}></div>
               </div>
             </div>
 
@@ -1262,11 +1262,11 @@ export default function Home() {
             {/* Additional service 1 - damaged cars */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-orange-600/20 to-red-600/20 p-6 rounded-xl border border-orange-500/30"
+              className="bg-gradient-to-br from-red-600/20 to-orange-600/20 p-6 rounded-xl border border-red-500/30"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-orange-600/30 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-orange-500" />
+                <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-500" />
                 </div>
                 <h4 className="font-bold">Битые авто</h4>
               </div>
@@ -1276,11 +1276,11 @@ export default function Home() {
             {/* Additional service 2 - not running */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-xl border border-blue-500/30"
+              className="bg-gradient-to-br from-red-600/20 to-orange-600/20 p-6 rounded-xl border border-red-500/30"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-blue-600/30 rounded-lg flex items-center justify-center">
-                  <Wrench className="w-6 h-6 text-blue-500" />
+                <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center">
+                  <Wrench className="w-6 h-6 text-red-500" />
                 </div>
                 <h4 className="font-bold">Неисправные</h4>
               </div>
@@ -1290,11 +1290,11 @@ export default function Home() {
             {/* Additional service 3 - without documents */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 p-6 rounded-xl border border-green-500/30"
+              className="bg-gradient-to-br from-red-600/20 to-orange-600/20 p-6 rounded-xl border border-red-500/30"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-green-600/30 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-green-500" />
+                <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-red-500" />
                 </div>
                 <h4 className="font-bold">Без документов</h4>
               </div>
@@ -1304,11 +1304,11 @@ export default function Home() {
             {/* Additional service 4 - foreign plates */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 p-6 rounded-xl border border-purple-500/30"
+              className="bg-gradient-to-br from-red-600/20 to-orange-600/20 p-6 rounded-xl border border-red-500/30"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-purple-600/30 rounded-lg flex items-center justify-center">
-                  <Car className="w-6 h-6 text-purple-500" />
+                <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center">
+                  <Car className="w-6 h-6 text-red-500" />
                 </div>
                 <h4 className="font-bold">Иномарки</h4>
               </div>
@@ -1658,7 +1658,7 @@ export default function Home() {
               {/* Manual Damage Selection */}
               <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-center gap-2 mb-3">
-                  <Wrench className="w-5 h-5 text-orange-400" />
+                  <Wrench className="w-5 h-5 text-red-400" />
                   <span className="font-bold text-white">Отметьте повреждения</span>
                 </div>
                 <p className="text-sm text-gray-400 mb-3">Выберите все повреждённые элементы автомобиля:</p>
@@ -1668,7 +1668,7 @@ export default function Home() {
                       key={zone.key}
                       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all text-sm ${
                         selectedDamages.includes(zone.key)
-                          ? 'bg-orange-500/20 border border-orange-500 text-orange-400'
+                          ? 'bg-red-500/20 border border-red-500 text-red-400'
                           : 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10'
                       }`}
                     >
@@ -1698,7 +1698,7 @@ export default function Home() {
                   onClick={analyzeDamage}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-800 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-blue-600/30 mb-6 flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-red-600 to-red-800 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-red-600/30 mb-6 flex items-center justify-center gap-2"
                 >
                   <Brain className="w-5 h-5" />
                   Рассчитать стоимость ремонта
@@ -1707,10 +1707,10 @@ export default function Home() {
 
               {/* AI Analysis Loading */}
               {isAnalyzing && (
-                <div className="mb-6 p-6 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl border border-blue-500/30">
+                <div className="mb-6 p-6 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-xl border border-red-500/30">
                   <div className="flex items-center justify-center gap-3 mb-4">
-                    <Brain className="w-8 h-8 text-blue-400 animate-pulse" />
-                    <span className="text-blue-400 font-bold">AI анализирует повреждения...</span>
+                    <Brain className="w-8 h-8 text-red-400 animate-pulse" />
+                    <span className="text-red-400 font-bold">AI анализирует повреждения...</span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full animate-progress" style={{ width: '100%' }}></div>
@@ -1726,11 +1726,11 @@ export default function Home() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-6 bg-gradient-to-r from-orange-600/20 to-red-600/20 rounded-xl border border-orange-500/30"
+                  className="mb-6 p-6 bg-gradient-to-r from-red-600/20 to-orange-600/20 rounded-xl border border-red-500/30"
                 >
                   <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle className="w-6 h-6 text-orange-400" />
-                    <span className="text-orange-400 font-bold text-lg">Обнаруженные повреждения</span>
+                    <AlertTriangle className="w-6 h-6 text-red-400" />
+                    <span className="text-red-400 font-bold text-lg">Обнаруженные повреждения</span>
                   </div>
                   
                   <div className="space-y-3">
@@ -1740,16 +1740,16 @@ export default function Home() {
                         onClick={() => setSelectedZone(selectedZone === damage.id ? null : damage.id)}
                         className={`p-4 rounded-xl cursor-pointer transition-all ${
                           selectedZone === damage.id 
-                            ? 'bg-white/20 border-2 border-orange-500' 
-                            : 'bg-white/5 border border-white/10 hover:border-orange-500/50'
+                            ? 'bg-white/20 border-2 border-red-500' 
+                            : 'bg-white/5 border border-white/10 hover:border-red-500/50'
                         }`}
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-2">
                             <span className="font-bold">{damage.zone}</span>
                             <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                              damage.severity === 'minor' ? 'bg-yellow-600' : 
-                              damage.severity === 'moderate' ? 'bg-orange-600' : 'bg-red-600'
+                              damage.severity === 'minor' ? 'bg-red-600' : 
+                              damage.severity === 'moderate' ? 'bg-red-700' : 'bg-red-800'
                             }`}>
                               {damage.severity === 'minor' ? 'Легкое' : 
                                damage.severity === 'moderate' ? 'Среднее' : 'Тяжелое'}
@@ -1779,7 +1779,7 @@ export default function Home() {
                   
                   <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
                     <span className="text-gray-400">Всего повреждений: <strong className="text-white">{damageZones.length}</strong></span>
-                    <span className="text-orange-400 font-bold">
+                    <span className="text-red-400 font-bold">
                       Примерный ремонт: ~{damageZones.reduce((s, d) => s + d.repairCost, 0).toLocaleString()} ₽
                     </span>
                   </div>
