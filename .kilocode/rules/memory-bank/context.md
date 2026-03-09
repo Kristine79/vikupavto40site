@@ -65,6 +65,10 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Updated phone number to 79105954668** - Changed everywhere on site and in bot scripts
 - [x] **Removed vehicle type field from contact form** - Replaced with year field and photo upload
 - [x] **Added beautiful animated logo** - New gradient logo with Car icon and "40" badge, hover effects
+- [x] **Enhanced animated logo** - Added glow effects, floating car animation, better hover states
+- [x] **Added infographics section** - New "How it works" section with 4-step process icons and progress bars
+- [x] **Added more service photos** - Added badges and additional service cards (битые авто, неисправные, без документов, иномарки)
+- [x] **Added floating particle effects** - Animated background particles for trendy visual effect
 
 ## Current Structure
 
@@ -159,3 +163,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 | 2026-03-09 | Updated phone number to 8 (910) 595-46 - Changed everywhere on site and in bot |
 | 2026-03-09 | Updated contact form - removed vehicle type, added year and photo upload |
 | 2026-03-09 | Created beautiful animated logo with gradient and hover effects |
+| 2026-03-09 | Enhanced animated logo with glow effects and floating car animation |
+| 2026-03-09 | Added infographics section with 4-step process and progress bars |
+| 2026-03-09 | Added more service photos with badges and additional service cards |
+| 2026-03-09 | Added floating particle effects for trendy visual appeal |
