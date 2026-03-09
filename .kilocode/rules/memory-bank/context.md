@@ -61,12 +61,15 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added phone collection to Telegram bot** - Users can now send phone numbers via button or text, bot recognizes Russian phone format
 - [x] **Added call buttons in Telegram** - Added "Отправить телефон", "Позвонить нам", and /call command
 - [x] **Updated phone number on site** - Changed from +7 (4842) 55-55-55 to 8 (910) 595-46 everywhere (contacts, metadata, JSON-LD)
+- [x] **Created bot-polling.ts** - Alternative long polling bot script that works without webhooks
+- [x] **Updated phone number to 79105954668** - Changed everywhere on site and in bot scripts
 
 ## Current Structure
 
 | File/Directory | Purpose | Status |
 |----------------|---------|--------|
-| `src/app/api/telegram/webhook/route.ts` | Telegram bot webhook handler | ✅ New |
+| `bot-polling.ts` | Long polling bot script (runs without webhooks) | ✅ New |
+| `src/app/api/telegram/webhook/route.ts` | Telegram bot webhook handler | ✅ Complete |
 | `src/app/page.tsx` | Landing page with all sections | ✅ Complete |
 | `src/app/layout.tsx` | Root layout with SEO metadata | ✅ Complete |
 | `src/app/globals.css` | Global styles | ✅ Ready |
