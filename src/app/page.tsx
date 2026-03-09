@@ -427,11 +427,12 @@ export default function Home() {
         }),
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch repair estimate');
-      }
-      
       const estimate = await response.json();
+      
+      if (!response.ok) {
+        console.error('Repair API error:', estimate);
+        throw new Error(estimate.error || 'Failed to fetch repair estimate');
+      }
       
       // Transform API response to damage zones format
       const selectedDamagesData = estimate.parts.map((part: any, index: number) => ({

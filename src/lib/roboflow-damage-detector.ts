@@ -151,6 +151,41 @@ export function analyzeRoboflowPredictions(
 }
 
 /**
+ * Convert any image source to base64 data URL
+ */
+async function convertToBase64(source: File | string): Promise<string> {
+  if (source instanceof File) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(source);
+    });
+  } else if (source.startsWith('blob:')) {
+    // Convert blob URL to base64
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg'));
+      };
+      img.onerror = () => reject(new Error('Failed to load blob URL'));
+      img.src = source;
+    });
+  } else {
+    return source.startsWith('data:') ? source : `data:image/jpeg;base64,${source}`;
+  }
+}
+
+/**
  * Send image to Roboflow API for damage detection
  * 
  * You need to:
@@ -245,7 +280,7 @@ export async function detectCarDamageRoboflow(source: File | string): Promise<{
   console.log('🤖 Starting Roboflow AI damage detection...');
   
   try {
-    // Convert source to base64
+    // Convert source to base64 (handles blob URLs, Files, etc.)
     let imageBase64: string;
     
     if (source instanceof File) {
@@ -256,6 +291,25 @@ export async function detectCarDamageRoboflow(source: File | string): Promise<{
         reader.readAsDataURL(source);
       });
       imageBase64 = reader;
+    } else if (source.startsWith('blob:')) {
+      // Convert blob URL to base64
+      imageBase64 = await new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg'));
+        };
+        img.onerror = () => reject(new Error('Failed to load blob URL'));
+        img.src = source;
+      });
     } else {
       imageBase64 = source.startsWith('data:') ? source : `data:image/jpeg;base64,${source}`;
     }

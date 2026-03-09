@@ -32,18 +32,23 @@ const CAR_PARTS_BY_REGION = {
 };
 
 /**
- * Load image from File or base64 string
+ * Load image from File or base64 string or blob URL
  */
 async function loadImage(source: File | string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error('Failed to load image'));
     
     if (typeof source === 'string') {
-      img.src = source.startsWith('data:') ? source : `data:image/jpeg;base64,${source}`;
+      // Handle blob URLs - don't set crossOrigin for blob URLs
+      if (source.startsWith('blob:')) {
+        img.src = source;
+      } else {
+        img.crossOrigin = 'anonymous';
+        img.src = source.startsWith('data:') ? source : `data:image/jpeg;base64,${source}`;
+      }
     } else {
       const reader = new FileReader();
       reader.onload = (e) => {
