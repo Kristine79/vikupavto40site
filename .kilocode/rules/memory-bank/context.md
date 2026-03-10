@@ -70,6 +70,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added more service photos** - Added badges and additional service cards (битые авто, неисправные, без документов, иномарки)
 - [x] **Added floating particle effects** - Animated background particles for trendy visual effect
 - [x] **Enhanced Telegram bot** - Added /call command, phone number text recognition (Russian format), call button in menu
+- [x] **Unified 15 minutes section colors** - Changed from blue/green gradients to red theme matching site design
 
 ## Current Structure
 
