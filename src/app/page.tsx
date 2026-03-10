@@ -1168,7 +1168,7 @@ export default function Home() {
             >
               <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1618843479313-40f8afb481b6?w=600&h=400&fit=crop" 
+                  src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&h=400&fit=crop"
                   alt="Легковые автомобили"
                   fill
                   unoptimized
@@ -1232,7 +1232,7 @@ export default function Home() {
             >
               <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1584473463819-993a426fbf0a?w=600&h=400&fit=crop" 
+                  src="https://images.unsplash.com/photo-1625043484555-17d1d2e2bc52?w=600&h=400&fit=crop"
                   alt="Спецтехника и строительная техника"
                   fill
                   unoptimized
