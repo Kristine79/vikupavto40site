@@ -57,6 +57,7 @@ A selling landing page for car, motorcycle and special equipment buyout services
 - [x] **Added blob URL support** - Both Roboflow and simple damage detectors now handle blob URLs from file uploads
 - [x] **Added Telegram bot button** - Floating button in bottom-right + contact section with link to @AvtoVikup40_bot
 - [x] **Complete SEO optimization** - JSON-LD LocalBusiness, Twitter Cards, canonical URLs, extended metadata
+- [x] **Unified 15 minutes section colors** - Changed all three cards to red theme (from mixed blue/green to consistent red)
 - [x] **Added Telegram bot webhook** - Created /api/telegram/webhook for handling /start and menu commands
 - [x] **Added phone collection to Telegram bot** - Users can now send phone numbers via button or text, bot recognizes Russian phone format
 - [x] **Added call buttons in Telegram** - Added "Отправить телефон", "Позвонить нам", and /call command
