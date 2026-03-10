@@ -1121,7 +1121,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-red-600/20 to-orange-600/20 p-6 rounded-2xl border border-red-500/30">
+            <div className="bg-gradient-to-br from-red-600/20 to-red-800/20 p-6 rounded-2xl border border-red-500/30">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                   <TruckDelivery className="w-6 h-6 text-white" />
@@ -1132,7 +1132,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                <div className="bg-gradient-to-r from-red-500 to-red-700 h-2 rounded-full" style={{ width: '100%' }}></div>
               </div>
             </div>
           </motion.div>
