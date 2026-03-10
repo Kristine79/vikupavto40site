@@ -1091,14 +1091,14 @@ export default function Home() {
             viewport={{ once: true }}
             className="mt-16 grid md:grid-cols-3 gap-6"
           >
-            <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-2xl border border-blue-500/30">
+            <div className="bg-gradient-to-br from-red-600/20 to-red-800/20 p-6 rounded-2xl border border-red-500/30">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-white">15 минут</div>
-                  <div className="text-blue-400 text-sm">Среднее время сделки</div>
+                  <div className="text-red-400 text-sm">Среднее время сделки</div>
                 </div>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
@@ -1106,14 +1106,14 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 p-6 rounded-2xl border border-green-500/30">
+            <div className="bg-gradient-to-br from-red-600/20 to-red-800/20 p-6 rounded-2xl border border-red-500/30">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">
                   <span className="text-2xl">₽</span>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-white">До 95%</div>
-                  <div className="text-green-400 text-sm">Рыночной стоимости</div>
+                  <div className="text-red-400 text-sm">Рыночной стоимости</div>
                 </div>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
