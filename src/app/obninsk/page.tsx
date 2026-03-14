@@ -14,6 +14,21 @@ export const metadata: Metadata = {
 export default function ObninskPage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
+      {/* Header */}
+      <header className="relative z-10 border-b border-white/10">
+        <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-bold text-red-500">АВТОВЫКУП</span>
+          </Link>
+          <Link 
+            href="/"
+            className="bg-gradient-to-r from-red-600 to-red-900 px-6 py-2 rounded-full font-semibold shadow-lg shadow-red-600/30"
+          >
+            На главную
+          </Link>
+        </nav>
+      </header>
+
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-neutral-950 to-black"></div>

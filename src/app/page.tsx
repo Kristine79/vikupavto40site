@@ -855,9 +855,9 @@ export default function Home() {
             aria-label="Основная навигация"
           >
             <div className="flex items-center gap-2">
-              <a href="/kaluga" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Калуга</a>
-              <a href="/obninsk" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Обнинск</a>
-              <a href="/tula" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Тула</a>
+              <a href="/kaluga" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Автовыкуп в Калуге</a>
+              <a href="/obninsk" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Автовыкуп в Обнинске</a>
+              <a href="/tula" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Автовыкуп в Туле</a>
             </div>
             <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" aria-label="Avito - профиль на Авито" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -927,21 +927,21 @@ export default function Home() {
                   className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Калуга
+                  Автовыкуп в Калуге
                 </a>
                 <a 
                   href="/obninsk" 
                   className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Обнинск
+                  Автовыкуп в Обнинске
                 </a>
                 <a 
                   href="/tula" 
                   className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Тула
+                  Автовыкуп в Туле
                 </a>
                 <div className="border-t border-white/10 my-2"></div>
                 <a 
