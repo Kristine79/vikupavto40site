@@ -230,6 +230,22 @@ export default function Home() {
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const captchaQuestion = "Сколько будет 7 + 3 = ?";
 
+  // Logo icon cycling state
+  const [currentIcon, setCurrentIcon] = useState(0);
+  const logoIcons = [
+    { icon: <Car className="w-7 h-7 text-red-500" />, name: "Автомобиль" },
+    { icon: <Truck className="w-7 h-7 text-red-500" />, name: "Трактор" },
+    { icon: <Bike className="w-7 h-7 text-red-500" />, name: "Квадроцикл" },
+    { icon: <Bike className="w-7 h-7 text-red-500" style={{ transform: 'rotate(-45deg)' }} />, name: "Мотоцикл" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIcon((prev) => (prev + 1) % logoIcons.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [logoIcons.length]);
+
   // Filter models based on input
   const filterModels = (input: string) => {
     if (!calcData.brand || calcData.brand === "Другая") {
@@ -810,10 +826,12 @@ export default function Home() {
               <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="relative">
                   <motion.div
-                    animate={{ y: [-2, -6, -2] }}
+                    animate={{ y: [-2, -6, -2], opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+                    key={currentIcon}
+                    initial={{ opacity: 0, scale: 0.5 }}
                   >
-                    <Car className="w-7 h-7 text-red-500" />
+                    {logoIcons[currentIcon].icon}
                   </motion.div>
                 </div>
               </div>
@@ -828,39 +846,24 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="hidden md:flex items-center gap-6"
+            className="hidden md:flex items-center gap-4"
           >
-            <a href="#services" className="hover:text-red-400 transition-colors font-medium">Услуги</a>
-            <a href="#calculator" className="hover:text-red-400 transition-colors font-medium">Калькулятор</a>
-            <a href="#advantages" className="hover:text-red-400 transition-colors font-medium">Преимущества</a>
-            <a href="#avito-reviews" className="hover:text-red-400 transition-colors font-medium">Отзывы</a>
-            <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors font-medium flex items-center gap-1">
-              Avito
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+            <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                 <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
               </svg>
+              <span className="font-medium">Avito</span>
             </a>
-            <a href="#contact" className="hover:text-red-400 transition-colors font-medium">Контакты</a>
+            <motion.a 
+              href="#contact"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              className="bg-gradient-to-r from-red-600 to-red-900 px-6 py-2 rounded-full font-semibold shadow-lg shadow-red-600/30"
+            >
+              Связаться
+            </motion.a>
           </motion.div>
-          
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden p-2 text-white"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Меню"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-          
-          <motion.a 
-            href="#contact"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.05 }}
-            className="hidden md:inline-flex bg-gradient-to-r from-red-600 to-red-900 px-6 py-2 rounded-full font-semibold shadow-lg shadow-red-600/30"
-          >
-            Связаться
-          </motion.a>
         </nav>
         
         {/* Mobile Menu */}
@@ -900,6 +903,17 @@ export default function Home() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Отзывы
+                </a>
+                <a 
+                  href="https://www.avito.ru/brands/i105346056" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors flex items-center gap-2"
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                    <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+                  </svg>
+                  Avito
                 </a>
                 <a 
                   href="#contact" 
