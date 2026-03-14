@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "АвтоВыкуп Калуга, Тула, Обнинск - Выкуп автомобилей за 15 минут",
     description: "Срочный выкуп автомобилей, мотоциклов и спецтехники. Бесплатный вывоз на эвакуаторе.",
-    creator: "@AvtoVikup40_bot",
-    site: "@AvtoVikup40_bot"
+    creator: "@avtovikupkaluga_bot",
+    site: "@avtovikupkaluga_bot"
   },
   alternates: {
     canonical: "https://vikupavto40.ru",
@@ -103,7 +103,7 @@ const jsonLd = {
   ],
   "image": "https://vikupavto40.ru/og-image.jpg",
   "sameAs": [
-    "https://t.me/AvtoVikup40_bot"
+    "https://t.me/avtovikupkaluga_bot"
   ],
   "serviceType": ["Автовыкуп", "Выкуп мотоциклов", "Выкуп спецтехники", "Срочный выкуп авто"],
   "hasOfferCatalog": {

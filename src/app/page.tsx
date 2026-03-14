@@ -107,16 +107,16 @@ const reviews = [
     avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&h=100&fit=crop&crop=face"
   },
   {
-    name: "Михаил Иванов",
+    name: "Мария Козлова",
     city: "Тула",
     text: "Взяли мою старую Toyota Camry даже с неисправным двигателем. Цена устроила, вывезли на эвакуаторе бесплатно. Рекомендую!",
     rating: 5,
     avatar: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face"
   },
   {
-    name: "Сергей Николаев",
+    name: "Елена Соколова",
     city: "Обнинск",
-    text: "Продал мотоцикл Honda CBR. Всё чётко, без лишних вопросов. Деньги получил в день обращения. Молодцы!",
+    text: "Продала мотоцикл Honda CBR. Всё чётко, без лишних вопросов. Деньги получила в день обращения. Молодцы!",
     rating: 5,
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face"
   },
@@ -2034,7 +2034,7 @@ export default function Home() {
               className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
               <a 
-                href="https://t.me/AvtoVikup40_bot"
+                href="https://t.me/avtovikupkaluga_bot"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
@@ -2044,7 +2044,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">Telegram бот</div>
-                  <div className="text-gray-400 text-sm">@AvtoVikup40_bot</div>
+                  <div className="text-gray-400 text-sm">@avtovikupkaluga_bot</div>
                 </div>
               </a>
 
@@ -2097,7 +2097,7 @@ export default function Home() {
 
       {/* Floating Telegram Bot Button */}
       <a
-        href="https://t.me/AvtoVikup40_bot"
+        href="https://t.me/avtovikupkaluga_bot"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-red-600 to-red-800 p-4 rounded-full shadow-2xl shadow-red-600/30 hover:scale-110 transition-transform"
