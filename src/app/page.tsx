@@ -2221,17 +2221,27 @@ export default function Home() {
 
               {/* Telegram account - second */}
               <a 
-                href="https://t.me/Patap8888"
+                href={showTelegram ? "https://t.me/Patap8888" : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={(e) => {
+                  if (!showTelegram) {
+                    e.preventDefault();
+                    setShowTelegram(true);
+                  }
+                }}
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <MessageCircle className="w-7 h-7" />
                 </div>
                 <div>
                   <div className="font-bold">Telegram</div>
-                  <div className="text-gray-400 text-sm">@Patap8888</div>
+                  {showTelegram ? (
+                    <div className="text-gray-400 text-sm">@Patap8888</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
                 </div>
               </a>
 
@@ -2303,8 +2313,11 @@ export default function Home() {
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
-                  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor">
-                    <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+                  <svg viewBox="0 0 24 24" className="w-7 h-7">
+                    <circle cx="6" cy="12" r="3" fill="#0098D9"/>
+                    <circle cx="12" cy="6" r="3" fill="#6276E8"/>
+                    <circle cx="18" cy="12" r="3" fill="#7B53EF"/>
+                    <circle cx="12" cy="18" r="3" fill="#E56798"/>
                   </svg>
                 </div>
                 <div>
@@ -2338,8 +2351,11 @@ export default function Home() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 hover:text-red-400 transition-colors"
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-              <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+            <svg viewBox="0 0 24 24" className="w-4 h-4">
+              <circle cx="6" cy="12" r="3" fill="#0098D9"/>
+              <circle cx="12" cy="6" r="3" fill="#6276E8"/>
+              <circle cx="18" cy="12" r="3" fill="#7B53EF"/>
+              <circle cx="12" cy="18" r="3" fill="#E56798"/>
             </svg>
             Мы на Avito
           </a>
