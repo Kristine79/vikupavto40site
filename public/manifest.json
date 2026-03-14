@@ -1,0 +1,16 @@
+{
+  "name": "АВТОВЫКУП - Срочный выкуп автомобилей",
+  "short_name": "АВТОВЫКУП",
+  "description": "Срочный выкуп автомобилей, мотоциклов и спецтехники в Калуге, Туле и Обнинске",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

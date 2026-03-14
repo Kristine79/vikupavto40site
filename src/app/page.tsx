@@ -826,8 +826,8 @@ export default function Home() {
               <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="relative">
                   <motion.div
-                    animate={{ y: [-2, -6, -2], opacity: 1, scale: 1 }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ y: [-2, -6, -2] }}
+                    transition={{ duration: 1.8, repeat: 0, ease: "easeInOut" }}
                     key={currentIcon}
                     initial={{ opacity: 0, scale: 0.5 }}
                   >
@@ -845,7 +845,9 @@ export default function Home() {
           <button 
             className="md:hidden p-2 text-white"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Меню"
+            aria-label="Открыть меню"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -855,8 +857,10 @@ export default function Home() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="hidden md:flex items-center gap-4"
+            role="navigation"
+            aria-label="Основная навигация"
           >
-            <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
+            <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" aria-label="Avito - профиль на Авито" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                 <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
               </svg>
@@ -878,10 +882,13 @@ export default function Home() {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div 
+              id="mobile-menu"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden bg-neutral-900/95 backdrop-blur-lg border-t border-white/10"
+              role="navigation"
+              aria-label="Мобильное меню"
             >
               <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
                 <a 
@@ -1314,8 +1321,8 @@ export default function Home() {
             >
               <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1592921870789-04563d55041c?w=600&h=400&fit=crop"
-                  alt="Спецтехника и строительная техника"
+                  src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=600&h=400&fit=crop"
+                  alt="Спецтехника и комбайн"
                   fill
                   unoptimized
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -2210,8 +2217,49 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mt-12 grid md:grid-cols-2 lg:grid-cols-5 gap-6"
+              className="mt-12 grid md:grid-cols-2 lg:grid-cols-6 gap-6"
             >
+              {/* Phone - first */}
+              <a 
+                href={showPhone ? "tel:+79105250060" : "#"}
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={(e) => {
+                  if (!showPhone) {
+                    e.preventDefault();
+                    setShowPhone(true);
+                  }
+                }}
+              >
+                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                  <MapPin className="w-7 h-7" />
+                </div>
+                <div>
+                  <div className="font-bold">Телефон</div>
+                  {showPhone ? (
+                    <div className="text-gray-400 text-sm">+7 (910) 525-00-60</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
+                </div>
+              </a>
+
+              {/* Telegram account - second */}
+              <a 
+                href="https://t.me/Patap8888"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+              >
+                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="w-7 h-7" />
+                </div>
+                <div>
+                  <div className="font-bold">Telegram</div>
+                  <div className="text-gray-400 text-sm">@Patap8888</div>
+                </div>
+              </a>
+
+              {/* Telegram bot - third */}
               <a 
                 href="https://t.me/avtovikupkaluga_bot"
                 target="_blank"
@@ -2227,6 +2275,7 @@ export default function Home() {
                 </div>
               </a>
 
+              {/* Telegram channel - fourth */}
               <a 
                 href="https://t.me/avtovikupkaluga"
                 target="_blank"
@@ -2244,21 +2293,7 @@ export default function Home() {
                 </div>
               </a>
 
-              <a 
-                href="https://t.me/Patap8888"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
-              >
-                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
-                  <MessageCircle className="w-7 h-7" />
-                </div>
-                <div>
-                  <div className="font-bold">Telegram</div>
-                  <div className="text-gray-400 text-sm">@Patap8888</div>
-                </div>
-              </a>
-
+              {/* WhatsApp - fifth */}
               <a 
                 href={showWhatsApp ? "https://wa.me/79105250060" : "#"}
                 target="_blank"
@@ -2284,6 +2319,7 @@ export default function Home() {
                 </div>
               </a>
 
+              {/* Avito - sixth */}
               <a 
                 href="https://www.avito.ru/kaluga/predlozheniya_uslug/avto_vykup._vykup_avto._avtovykup_4678165521"
                 target="_blank"
@@ -2298,29 +2334,6 @@ export default function Home() {
                 <div>
                   <div className="font-bold">Авито</div>
                   <div className="text-gray-400 text-sm">avito.ru</div>
-                </div>
-              </a>
-
-              <a 
-                href={showPhone ? "tel:+79105250060" : "#"}
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
-                onClick={(e) => {
-                  if (!showPhone) {
-                    e.preventDefault();
-                    setShowPhone(true);
-                  }
-                }}
-              >
-                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
-                  <MapPin className="w-7 h-7" />
-                </div>
-                <div>
-                  <div className="font-bold">Телефон</div>
-                  {showPhone ? (
-                    <div className="text-gray-400 text-sm">+7 (910) 525-00-60</div>
-                  ) : (
-                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
-                  )}
                 </div>
               </a>
             </motion.div>
