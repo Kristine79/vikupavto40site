@@ -13,8 +13,8 @@ export const metadata: Metadata = {
     default: "АВТОВЫКУП Калуга, Тула, Обнинск - Выкуп автомобилей за 15 минут",
     template: "%s | АВТОВЫКУП"
   },
-  description: "Срочный выкуп автомобилей, мотоциклов и спецтехники в Калуге, Туле и Обнинске. Бесплатный вывоз на эвакуаторе. Оценка за 5 минут. Честные цены. Звоните: 79105250060",
-  keywords: ["выкуп авто", "выкуп автомобилей", "продать авто", "выкуп мотоциклов", "выкуп спецтехники", "автовыкуп Калуга", "автовыкуп Тула", "автовыкуп Обнинск", "срочный выкуп авто", "выкуп битых авто", "выкуп авто с пробегом", "продать машину Калуга", "автовыкуп быстрый", "выкуп неисправных авто"],
+  description: "Срочный выкуп автомобилей в Калуге, Туле и Обнинске. Выкуп мотоциклов, спецтехники, квадроциклов. Бесплатный вывоз на эвакуаторе. Оценка за 5 минут. Честные цены. Звоните: 89105250060",
+  keywords: ["выкуп авто", "выкуп автомобилей", "продать авто", "выкуп мотоциклов", "выкуп спецтехники", "автовыкуп Калуга", "автовыкуп Тула", "автовыкуп Обнинск", "срочный выкуп авто", "выкуп битых авто", "выкуп авто с пробегом", "продать машину Калуга", "автовыкуп быстрый", "выкуп неисправных авто", "выкуп квадроциклов", "выкуп снегоходов", "выкуп тракторов", "выкуп грузовиков", "выкуп прицепов"],
   authors: [{ name: "АВТОВЫКУП" }],
   creator: "АВТОВЫКУП",
   publisher: "АВТОВЫКУП",
@@ -41,6 +41,14 @@ export const metadata: Metadata = {
     siteName: "АВТОВЫКУП",
     locale: "ru_RU",
     type: "website",
+    images: [
+      {
+        url: "https://vikupavto40.ru/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "АВТОВЫКУП - Срочный выкуп автомобилей в Калуге"
+      }
+    ]
   },
   twitter: {
     card: "summary_large_image",
@@ -60,6 +68,10 @@ export const metadata: Metadata = {
   verification: {
     yandex: "yandex_verification_code",
     google: "google_verification_code"
+  },
+  other: {
+    "yandex-verification": "yandex_verification_code",
+    "google-site-verification": "google_verification_code"
   }
 };
 
@@ -77,7 +89,8 @@ const jsonLd = {
     "@type": "PostalAddress",
     "addressLocality": "Калуга",
     "addressRegion": "Калужская область",
-    "addressCountry": "RU"
+    "addressCountry": "RU",
+    "streetAddress": "Калужская область"
   },
   "geo": {
     "@type": "GeoCoordinates",
@@ -103,8 +116,16 @@ const jsonLd = {
   ],
   "image": "https://vikupavto40.ru/og-image.jpg",
   "sameAs": [
-    "https://t.me/avtovikupkaluga_bot"
+    "https://t.me/avtovikupkaluga_bot",
+    "https://t.me/avtovikupkaluga",
+    "https://www.avito.ru/brands/i105346056"
   ],
+  "priceSpecification": {
+    "@type": "PriceSpecification",
+    "minPrice": 10000,
+    "maxPrice": 5000000,
+    "priceCurrency": "RUB"
+  },
   "serviceType": ["Автовыкуп", "Выкуп мотоциклов", "Выкуп спецтехники", "Срочный выкуп авто"],
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
@@ -124,6 +145,11 @@ const jsonLd = {
         "@type": "Offer",
         "name": "Выкуп спецтехники",
         "description": "Выкуп экскаваторов, погрузчиков, комбайнов, строительной и сельхозтехники"
+      },
+      {
+        "@type": "Offer",
+        "name": "Выкуп грузовых автомобилей",
+        "description": "Выкуп грузовиков, прицепов, полуприцепов"
       }
     ]
   }
