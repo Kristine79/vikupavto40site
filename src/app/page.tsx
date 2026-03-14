@@ -789,7 +789,7 @@ export default function Home() {
             <motion.div 
               whileHover={{ scale: 1.15, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="relative w-14 h-14 group cursor-pointer"
+              className="relative w-14 h-14 group cursor-pointer flex-shrink-0"
             >
               {/* Glow ring */}
               <motion.div 
@@ -802,8 +802,8 @@ export default function Home() {
               <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="relative">
                   <motion.div
-                    animate={{ y: [-2, 2, -2] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ x: [0, 3, 0] }}
+                    transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <Car className="w-7 h-7 text-red-500" />
                   </motion.div>
@@ -815,17 +815,12 @@ export default function Home() {
                   />
                 </div>
               </div>
-              {/* Animated 40 badge */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-                className="absolute -top-2 -right-2 bg-gradient-to-r from-red-600 to-red-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-lg"
-              >
-                40
-              </motion.div>
             </motion.div>
-            <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">АвтоВыкуп<span className="text-red-500">40</span></span>
+            <span className="text-2xl md:text-3xl font-black tracking-wider">
+              <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-600 bg-clip-text text-transparent">АВТОВЫКУП</span>
+              <br className="md:hidden" />
+              <span className="text-red-500"> ДОРОГО</span>
+            </span>
           </motion.div>
           
           {/* Desktop Navigation */}
@@ -2268,7 +2263,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 py-8 border-t border-white/10">
         <div className="container mx-auto px-4 text-center text-gray-500">
-          <p>© 2026 АвтоВыкуп. Все права защищены.</p>
+          <p>© 2026 АВТОВЫКУП ДОРОГО. Все права защищены.</p>
         </div>
       </footer>
     </main>
