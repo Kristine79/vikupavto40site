@@ -837,7 +837,7 @@ export default function Home() {
             <a href="#services" className="hover:text-red-400 transition-colors font-medium">Услуги</a>
             <a href="#calculator" className="hover:text-red-400 transition-colors font-medium">Калькулятор</a>
             <a href="#advantages" className="hover:text-red-400 transition-colors font-medium">Преимущества</a>
-            <a href="#reviews" className="hover:text-red-400 transition-colors font-medium">Отзывы</a>
+            <a href="#avito-reviews" className="hover:text-red-400 transition-colors font-medium">Отзывы</a>
             <a href="#contact" className="hover:text-red-400 transition-colors font-medium">Контакты</a>
           </motion.div>
           
@@ -893,7 +893,7 @@ export default function Home() {
                   Преимущества
                 </a>
                 <a 
-                  href="#reviews" 
+                  href="#avito-reviews" 
                   className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -1872,7 +1872,91 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Reviews Section */}
+      {/* Avito Reviews Section */}
+      <section id="avito-reviews" className="relative z-10 py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-red-600/10 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-red-800/10 rounded-full blur-[100px]"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/30 px-4 py-2 rounded-full mb-4">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-red-500" fill="currentColor">
+                <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+              </svg>
+              <span className="text-red-400 text-sm font-medium">Отзывы с Авито</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                ОТЗЫВЫ НА АВИТО
+              </span>
+            </h2>
+            <p className="text-gray-400 text-lg mb-2">Рейтинг исполнителя: <span className="text-red-500 font-bold text-xl">4.9</span> / 5</p>
+            <p className="text-gray-500 text-sm">19 отзывов</p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            {reviews.slice(0, 6).map((review, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-red-500">
+                    <Image 
+                      src={review.avatar} 
+                      alt={review.name}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <div className="font-bold">{review.name}</div>
+                    <div className="text-sm text-red-400">{review.city}</div>
+                  </div>
+                </div>
+                <div className="flex gap-1 mb-3">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className={`w-4 h-4 ${j < review.rating ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
+                  ))}
+                </div>
+                <p className="text-gray-300 text-sm italic">&ldquo;{review.text}&rdquo;</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <a 
+              href="https://www.avito.ru/brands/i105346056"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-900 px-8 py-4 rounded-full font-bold text-lg shadow-2xl shadow-red-600/30 hover:scale-105 transition-transform"
+            >
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor">
+                <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+              </svg>
+              Все отзывы на Авито
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Regular Reviews Section */}
       <section id="reviews" className="relative z-10 py-24 bg-black/20">
         <div className="container mx-auto px-4">
           <motion.div 
