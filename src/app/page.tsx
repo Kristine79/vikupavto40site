@@ -1297,7 +1297,7 @@ export default function Home() {
             >
               <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://arendaspectechniki.ru/wp-content/uploads/2025/06/spectechniva-banner.webp"
+                  src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop"
                   alt="Спецтехника и строительная техника"
                   fill
                   unoptimized
