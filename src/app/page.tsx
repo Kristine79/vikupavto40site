@@ -2247,26 +2247,42 @@ export default function Home() {
 
               {/* Telegram bot - third */}
               <a 
-                href="https://t.me/avtovikupkaluga_bot"
+                href={showTelegram ? "https://t.me/avtovikupkaluga_bot" : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={(e) => {
+                  if (!showTelegram) {
+                    e.preventDefault();
+                    setShowTelegram(true);
+                  }
+                }}
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <Bot className="w-7 h-7" />
                 </div>
                 <div>
                   <div className="font-bold">Telegram бот</div>
-                  <div className="text-gray-400 text-sm">@avtovikupkaluga_bot</div>
+                  {showTelegram ? (
+                    <div className="text-gray-400 text-sm">@avtovikupkaluga_bot</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
                 </div>
               </a>
 
               {/* Telegram channel - fourth */}
               <a 
-                href="https://t.me/avtovikupkaluga"
+                href={showTelegram ? "https://t.me/avtovikupkaluga" : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={(e) => {
+                  if (!showTelegram) {
+                    e.preventDefault();
+                    setShowTelegram(true);
+                  }
+                }}
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
@@ -2275,7 +2291,11 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">Telegram канал</div>
-                  <div className="text-gray-400 text-sm">@avtovikupkaluga</div>
+                  {showTelegram ? (
+                    <div className="text-gray-400 text-sm">@avtovikupkaluga</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
                 </div>
               </a>
 
@@ -2321,7 +2341,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <div>
-                  <div className="font-bold">Авито</div>
+                  <div className="font-bold">Мы на Авито</div>
                   <div className="text-gray-400 text-sm">avito.ru</div>
                 </div>
               </a>
