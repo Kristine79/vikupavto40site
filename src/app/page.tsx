@@ -242,7 +242,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIcon((prev) => (prev + 1) % logoIcons.length);
-    }, 3000);
+    }, 9000);
     return () => clearInterval(interval);
   }, [logoIcons.length]);
 
@@ -827,7 +827,7 @@ export default function Home() {
                 <div className="relative">
                   <motion.div
                     animate={{ y: [-2, -6, -2], opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
                     key={currentIcon}
                     initial={{ opacity: 0, scale: 0.5 }}
                   >
