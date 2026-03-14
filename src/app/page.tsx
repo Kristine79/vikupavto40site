@@ -230,22 +230,6 @@ export default function Home() {
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const captchaQuestion = "Сколько будет 7 + 3 = ?";
 
-  // Logo icon cycling state
-  const [currentIcon, setCurrentIcon] = useState(0);
-  const logoIcons = [
-    { icon: <Car className="w-7 h-7 text-red-500" />, name: "Автомобиль" },
-    { icon: <Truck className="w-7 h-7 text-red-500" />, name: "Трактор" },
-    { icon: <Bike className="w-7 h-7 text-red-500" />, name: "Квадроцикл" },
-    { icon: <Bike className="w-7 h-7 text-red-500" style={{ transform: 'rotate(-45deg)' }} />, name: "Мотоцикл" },
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIcon((prev) => (prev + 1) % logoIcons.length);
-    }, 9000);
-    return () => clearInterval(interval);
-  }, [logoIcons.length]);
-
   // Filter models based on input
   const filterModels = (input: string) => {
     if (!calcData.brand || calcData.brand === "Другая") {
@@ -827,11 +811,9 @@ export default function Home() {
                 <div className="relative">
                   <motion.div
                     animate={{ y: [-2, -6, -2] }}
-                    transition={{ duration: 1.8, repeat: 0, ease: "easeInOut" }}
-                    key={currentIcon}
-                    initial={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    {logoIcons[currentIcon].icon}
+                    <Car className="w-7 h-7 text-red-500" />
                   </motion.div>
                 </div>
               </div>
