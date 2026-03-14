@@ -192,6 +192,7 @@ export default function Home() {
   // Hidden contacts state
   const [showPhone, setShowPhone] = useState(false);
   const [showTelegram, setShowTelegram] = useState(false);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
 
   // Filter models based on input
   const filterModels = (input: string) => {
@@ -2073,17 +2074,44 @@ export default function Home() {
               </a>
 
               <a 
-                href="https://wa.me/79105250060"
+                href={showWhatsApp ? "https://wa.me/79105250060" : "#"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={(e) => {
+                  if (!showWhatsApp) {
+                    e.preventDefault();
+                    setShowWhatsApp(true);
+                  }
+                }}
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <Phone className="w-7 h-7" />
                 </div>
                 <div>
                   <div className="font-bold">WhatsApp</div>
-                  <div className="text-gray-400 text-sm">79105250060</div>
+                  {showWhatsApp ? (
+                    <div className="text-gray-400 text-sm">+7 (910) 525-00-60</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
+                </div>
+              </a>
+
+              <a 
+                href="https://www.avito.ru/kaluga/predlozheniya_uslug/avto_vykup._vykup_avto._avtovykup_4678165521"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+              >
+                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="currentColor">
+                    <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-bold">Авито</div>
+                  <div className="text-gray-400 text-sm">avito.ru</div>
                 </div>
               </a>
 
