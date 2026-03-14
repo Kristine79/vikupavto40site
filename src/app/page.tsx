@@ -802,24 +802,17 @@ export default function Home() {
               <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="relative">
                   <motion.div
-                    animate={{ x: [0, 3, 0] }}
-                    transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ y: [-2, -6, -2] }}
+                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <Car className="w-7 h-7 text-red-500" />
                   </motion.div>
-                  <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring" }}
-                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"
-                  />
                 </div>
               </div>
             </motion.div>
-            <span className="text-2xl md:text-3xl font-black tracking-wider">
-              <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-600 bg-clip-text text-transparent">АВТОВЫКУП</span>
-              <br className="md:hidden" />
-              <span className="text-red-500"> ДОРОГО</span>
+            <span className="text-2xl md:text-3xl font-black tracking-wider whitespace-nowrap">
+              <span className="text-red-500">АВТОВЫКУП</span>
+              <span className="text-white"> ДОРОГО</span>
             </span>
           </motion.div>
           
@@ -2263,7 +2256,18 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 py-8 border-t border-white/10">
         <div className="container mx-auto px-4 text-center text-gray-500">
-          <p>© 2026 АВТОВЫКУП ДОРОГО. Все права защищены.</p>
+          <p className="mb-2">© 2026 АВТОВЫКУП ДОРОГО. Все права защищены.</p>
+          <a 
+            href="https://www.avito.ru/brands/i105346056" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 hover:text-red-400 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+              <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+            </svg>
+            Мы на Avito
+          </a>
         </div>
       </footer>
     </main>
