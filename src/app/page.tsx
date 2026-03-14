@@ -225,10 +225,21 @@ export default function Home() {
   // Form consent state
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
 
-  // Simple captcha state
-  const [captchaAnswer, setCaptchaAnswer] = useState("");
-  const [captchaVerified, setCaptchaVerified] = useState(false);
-  const captchaQuestion = "Сколько будет 7 + 3 = ?";
+  // Logo icon cycling state
+  const [currentIcon, setCurrentIcon] = useState(0);
+  const logoIcons = [
+    { icon: <Car className="w-7 h-7 text-red-500" />, name: "Автомобиль" },
+    { icon: <Truck className="w-7 h-7 text-red-500" />, name: "Трактор" },
+    { icon: <Bike className="w-7 h-7 text-red-500" />, name: "Квадроцикл" },
+    { icon: <Bike className="w-7 h-7 text-red-500" style={{ transform: 'rotate(-45deg)' }} />, name: "Мотоцикл" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIcon((prev) => (prev + 1) % logoIcons.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [logoIcons.length]);
 
   // Filter models based on input
   const filterModels = (input: string) => {
@@ -810,10 +821,11 @@ export default function Home() {
               <div className="absolute inset-0.5 bg-gradient-to-br from-neutral-900 to-black rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="relative">
                   <motion.div
-                    animate={{ y: [-2, -6, -2] }}
-                    transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+                    animate={{ y: [-2, -6, -2], opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    key={currentIcon}
                   >
-                    <Car className="w-7 h-7 text-red-500" />
+                    {logoIcons[currentIcon].icon}
                   </motion.div>
                 </div>
               </div>
@@ -843,8 +855,8 @@ export default function Home() {
             aria-label="Основная навигация"
           >
             <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" aria-label="Avito - профиль на Авито" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#0077B8">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
               </svg>
               <span className="font-medium">Avito</span>
             </a>
@@ -969,7 +981,7 @@ export default function Home() {
               className="text-xl md:text-2xl text-gray-300 mb-10"
             >
               Автомобили, мотоциклы и спецтехника любого состояния. 
-              <span className="text-red-400 font-semibold">Бесплатный вывоз</span> по Калужской области до 200 км
+              <span className="text-red-400 font-semibold">Бесплатный выезд</span> по Калужской области до 200 км
             </motion.p>
 
             <motion.div 
@@ -990,35 +1002,14 @@ export default function Home() {
               {/* Anti-bot: Hidden honeypot field */}
               <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
               
-              {!captchaVerified ? (
-                <div className="flex flex-col items-center gap-2">
-                  <motion.a 
-                    href="#advantages"
-                    className="border-2 border-red-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-600/20 transition-colors cursor-pointer"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const answer = prompt("Докажите, что вы человек! Сколько будет 7 + 3?");
-                      if (answer === "10") {
-                        setCaptchaVerified(true);
-                        document.getElementById("advantages")?.scrollIntoView({ behavior: "smooth" });
-                      } else {
-                        alert("Неверный ответ! Попробуйте ещё раз.");
-                      }
-                    }}
-                  >
-                    Узнать условия
-                  </motion.a>
-                </div>
-              ) : (
-                <motion.a 
-                  href="#advantages"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="border-2 border-red-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-600/20 transition-colors"
-                >
-                  Узнать условия
-                </motion.a>
-              )}
+              <motion.a 
+                href="#advantages"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="border-2 border-red-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-600/20 transition-colors"
+              >
+                Узнать условия
+              </motion.a>
             </motion.div>
 
             {/* Stats */}
@@ -1425,7 +1416,7 @@ export default function Home() {
               },
               {
                 icon: <TruckDelivery className="w-8 h-8" />,
-                title: "Бесплатный вывоз",
+                title: "Бесплатный выезд",
                 desc: "Эвакуатор за наш счет. Забираем авто в любом состоянии"
               }
             ].map((adv, i) => (
