@@ -854,6 +854,11 @@ export default function Home() {
             role="navigation"
             aria-label="Основная навигация"
           >
+            <div className="flex items-center gap-2">
+              <a href="/kaluga" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Калуга</a>
+              <a href="/obninsk" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Обнинск</a>
+              <a href="/tula" className="px-3 py-2 hover:text-red-400 transition-colors font-medium">Тула</a>
+            </div>
             <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" aria-label="Avito - профиль на Авито" className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5">
                 <circle cx="6" cy="12" r="3" fill="#0098D9"/>
@@ -916,6 +921,29 @@ export default function Home() {
                 >
                   Отзывы
                 </a>
+                <div className="border-t border-white/10 my-2"></div>
+                <a 
+                  href="/kaluga" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Калуга
+                </a>
+                <a 
+                  href="/obninsk" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Обнинск
+                </a>
+                <a 
+                  href="/tula" 
+                  className="text-lg font-medium py-2 hover:text-red-400 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Тула
+                </a>
+                <div className="border-t border-white/10 my-2"></div>
                 <a 
                   href="https://www.avito.ru/brands/i105346056" 
                   target="_blank"
