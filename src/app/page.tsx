@@ -100,32 +100,60 @@ const allBrands = Object.keys(carBrandsAndModels);
 // Review data
 const reviews = [
   {
-    name: "Алексей Петров",
+    name: "Кристина",
     city: "Калуга",
-    text: "Продал свой Ford Focus за 45 минут! Оценщик приехал прямо на работу, всё осмотрел и рассчитался на месте. Отличный сервис!",
+    text: "Спасибо большое! Купил мою машину по той цене, которая меня устраивала. Быстро приехал. Во время общения был вежливый. Купил машину сразу же, чему я была очень рада. Так что рекомендую! Хороший специалист в своём деле.",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&h=100&fit=crop&crop=face"
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
   },
   {
-    name: "Мария Козлова",
+    name: "Алексей",
+    city: "Калуга",
+    text: "Приехали быстро, машину забрали, сумма как договаривались. Всё чётко и без лишних вопросов.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
+  },
+  {
+    name: "Елена",
     city: "Тула",
-    text: "Взяли мою старую Toyota Camry даже с неисправным двигателем. Цена устроила, вывезли на эвакуаторе бесплатно. Рекомендую!",
+    text: "Сделка прошла на отлично. Приехал вовремя. О цене договорились. Рекомендую!",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&h=100&fit=crop&crop=face"
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
   },
   {
-    name: "Елена Соколова",
-    city: "Обнинск",
-    text: "Продала мотоцикл Honda CBR. Всё чётко, без лишних вопросов. Деньги получила в день обращения. Молодцы!",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    name: "Дмитрий Смирнов",
+    name: "Денис",
     city: "Калуга",
-    text: "Продавал экскаватор-погрузчик. Компания оценила технику справедливо, помогли с оформлением документов. Очень доволен!",
+    text: "Приехали ребята, всё быстро оформили. Сделка прошла отлично, рекомендую!",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&h=100&fit=crop&crop=face"
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face"
+  },
+  {
+    name: "Екатерина С.",
+    city: "Обнинск",
+    text: "Отличные ребята, всем советую! Через час уже были на месте, как и договаривались. Я в восторге от быстроты сделки, не ожидала. Однозначно рекомендую!",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face"
+  },
+  {
+    name: "Максим",
+    city: "Калуга",
+    text: "Быстро ответили на сообщение, перезвонили и забрали машину в этот же вечер. Рекомендую!",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+  },
+  {
+    name: "Владислав",
+    city: "Тула",
+    text: "Всё прошло хорошо! Приехали, посмотрели, купили. За ту сумму как и договаривались. Договор оформили на месте, деньги перевели на карту. Отличные ребята. Рекомендую!",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face"
+  },
+  {
+    name: "строй сервис",
+    city: "Калуга",
+    text: "Дмитрий помог с продажей машины. Все быстро и четко!",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face"
   }
 ];
 
