@@ -864,6 +864,15 @@ export default function Home() {
               Связаться
             </motion.a>
           </motion.div>
+
+          {/* Mobile Menu Button - Always visible on mobile */}
+          <button 
+            className="md:hidden p-2 text-white"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Меню"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </nav>
         
         {/* Mobile Menu */}
