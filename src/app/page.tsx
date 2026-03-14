@@ -222,6 +222,14 @@ export default function Home() {
   const [showTelegram, setShowTelegram] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
 
+  // Form consent state
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+
+  // Simple captcha state
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const captchaQuestion = "Сколько будет 7 + 3 = ?";
+
   // Filter models based on input
   const filterModels = (input: string) => {
     if (!calcData.brand || calcData.brand === "Другая") {
@@ -826,6 +834,12 @@ export default function Home() {
             <a href="#calculator" className="hover:text-red-400 transition-colors font-medium">Калькулятор</a>
             <a href="#advantages" className="hover:text-red-400 transition-colors font-medium">Преимущества</a>
             <a href="#avito-reviews" className="hover:text-red-400 transition-colors font-medium">Отзывы</a>
+            <a href="https://www.avito.ru/brands/i105346056" target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition-colors font-medium flex items-center gap-1">
+              Avito
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+                <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-10.25 13.5a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm-5.5 3a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75zm5.5 0a.75.75 0 01-.75.75h-2.5a.75.75 0 010-1.5h2.5a.75.75 0 01.75.75z"/>
+              </svg>
+            </a>
             <a href="#contact" className="hover:text-red-400 transition-colors font-medium">Контакты</a>
           </motion.div>
           
@@ -961,14 +975,39 @@ export default function Home() {
               >
                 Продать авто сейчас
               </motion.a>
-              <motion.a 
-                href="#advantages"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="border-2 border-red-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-600/20 transition-colors"
-              >
-                Узнать условия
-              </motion.a>
+              
+              {/* Anti-bot: Hidden honeypot field */}
+              <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
+              
+              {!captchaVerified ? (
+                <div className="flex flex-col items-center gap-2">
+                  <motion.a 
+                    href="#advantages"
+                    className="border-2 border-red-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-600/20 transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const answer = prompt("Докажите, что вы человек! Сколько будет 7 + 3?");
+                      if (answer === "10") {
+                        setCaptchaVerified(true);
+                        document.getElementById("advantages")?.scrollIntoView({ behavior: "smooth" });
+                      } else {
+                        alert("Неверный ответ! Попробуйте ещё раз.");
+                      }
+                    }}
+                  >
+                    Узнать условия
+                  </motion.a>
+                </div>
+              ) : (
+                <motion.a 
+                  href="#advantages"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-2 border-red-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-red-600/20 transition-colors"
+                >
+                  Узнать условия
+                </motion.a>
+              )}
             </motion.div>
 
             {/* Stats */}
@@ -2107,9 +2146,22 @@ export default function Home() {
                       rows={4}
                       className="w-full px-6 py-4 bg-white/10 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors resize-none"
                     />
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreedToPrivacy}
+                        onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                        className="mt-1 w-5 h-5 rounded border-gray-600 bg-white/10 text-red-500 focus:ring-red-500 focus:ring-offset-0"
+                      />
+                      <span className="text-gray-400 text-sm">
+                        Я согласен с{" "}
+                        <a href="#privacy" className="text-red-400 hover:underline">политикой конфиденциальности</a> 
+                        {" "}и обработкой персональных данных
+                      </span>
+                    </label>
                     <motion.button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !agreedToPrivacy}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-gradient-to-r from-red-600 to-red-900 py-4 rounded-xl font-bold text-lg shadow-2xl shadow-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -2136,7 +2188,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="mt-12 grid md:grid-cols-2 lg:grid-cols-5 gap-6"
             >
               <a 
                 href="https://t.me/avtovikupkaluga_bot"
@@ -2154,22 +2206,34 @@ export default function Home() {
               </a>
 
               <a 
-                href="https://t.me/krisdev13"
+                href="https://t.me/avtovikupkaluga"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
-                onClick={() => setShowTelegram(!showTelegram)}
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+              >
+                <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-bold">Telegram канал</div>
+                  <div className="text-gray-400 text-sm">@avtovikupkaluga</div>
+                </div>
+              </a>
+
+              <a 
+                href="https://t.me/Patap8888"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <MessageCircle className="w-7 h-7" />
                 </div>
                 <div>
                   <div className="font-bold">Telegram</div>
-                  {showTelegram ? (
-                    <div className="text-gray-400 text-sm">@krisdev13</div>
-                  ) : (
-                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
-                  )}
+                  <div className="text-gray-400 text-sm">@Patap8888</div>
                 </div>
               </a>
 
