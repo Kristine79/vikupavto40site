@@ -838,9 +838,17 @@ export default function Home() {
             </motion.div>
             <span className="text-2xl md:text-3xl font-black tracking-wider whitespace-nowrap">
               <span className="text-red-500">АВТОВЫКУП</span>
-              <span className="text-white"> ДОРОГО</span>
             </span>
           </motion.div>
+
+          {/* Mobile Menu Button - visible on mobile */}
+          <button 
+            className="md:hidden p-2 text-white"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Меню"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
           
           {/* Desktop Navigation */}
           <motion.div 
@@ -865,17 +873,6 @@ export default function Home() {
             </motion.a>
           </motion.div>
         </nav>
-        
-        {/* Mobile Menu Button - Always visible on mobile */}
-        <div className="md:hidden flex justify-end px-4 pb-2">
-          <button 
-            className="p-2 text-white bg-white/10 rounded-lg"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Меню"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
         
         {/* Mobile Menu */}
         <AnimatePresence>
@@ -1317,7 +1314,7 @@ export default function Home() {
             >
               <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=400&fit=crop"
+                  src="https://images.unsplash.com/photo-1592921870789-04563d55041c?w=600&h=400&fit=crop"
                   alt="Спецтехника и строительная техника"
                   fill
                   unoptimized
@@ -2345,7 +2342,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="relative z-10 py-8 border-t border-white/10">
         <div className="container mx-auto px-4 text-center text-gray-500">
-          <p className="mb-2">© 2026 АВТОВЫКУП ДОРОГО. Все права защищены.</p>
+          <p className="mb-2">© 2026 АВТОВЫКУП. Все права защищены.</p>
           <a 
             href="https://www.avito.ru/brands/i105346056" 
             target="_blank" 
