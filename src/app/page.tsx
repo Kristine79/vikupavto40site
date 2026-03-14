@@ -189,6 +189,10 @@ export default function Home() {
   const [modelInputRef, setModelInputRef] = useState<HTMLInputElement | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Hidden contacts state
+  const [showPhone, setShowPhone] = useState(false);
+  const [showTelegram, setShowTelegram] = useState(false);
+
   // Filter models based on input
   const filterModels = (input: string) => {
     if (!calcData.brand || calcData.brand === "Другая") {
@@ -1232,7 +1236,7 @@ export default function Home() {
             >
               <div className="relative h-56 mb-6 rounded-xl overflow-hidden">
                 <Image 
-                  src="https://images.unsplash.com/photo-1625043484555-17d1d2e2bc52?w=600&h=400&fit=crop"
+                  src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=600&h=400&fit=crop"
                   alt="Спецтехника и строительная техника"
                   fill
                   unoptimized
@@ -2052,19 +2056,24 @@ export default function Home() {
                 href="https://t.me/krisdev13"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={() => setShowTelegram(!showTelegram)}
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <MessageCircle className="w-7 h-7" />
                 </div>
                 <div>
                   <div className="font-bold">Telegram</div>
-                  <div className="text-gray-400 text-sm">@krisdev13</div>
+                  {showTelegram ? (
+                    <div className="text-gray-400 text-sm">@krisdev13</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
                 </div>
               </a>
 
               <a 
-                href="https://wa.me/79105954668"
+                href="https://wa.me/79105250060"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
@@ -2074,20 +2083,30 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="font-bold">WhatsApp</div>
-                  <div className="text-gray-400 text-sm">79105954668</div>
+                  <div className="text-gray-400 text-sm">79105250060</div>
                 </div>
               </a>
 
               <a 
-                href="tel:+79105954668"
-                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group"
+                href={showPhone ? "tel:+79105250060" : "#"}
+                className="bg-white/5 backdrop-blur-sm p-6 rounded-xl border border-white/10 hover:border-red-500/50 transition-colors flex items-center gap-4 group cursor-pointer"
+                onClick={(e) => {
+                  if (!showPhone) {
+                    e.preventDefault();
+                    setShowPhone(true);
+                  }
+                }}
               >
                 <div className="w-14 h-14 bg-gradient-to-br from-red-600/20 to-red-900/20 rounded-xl flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
                   <MapPin className="w-7 h-7" />
                 </div>
                 <div>
                   <div className="font-bold">Телефон</div>
-                  <div className="text-gray-400 text-sm">79105954668</div>
+                  {showPhone ? (
+                    <div className="text-gray-400 text-sm">+7 (910) 525-00-60</div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">Нажмите чтобы показать</div>
+                  )}
                 </div>
               </a>
             </motion.div>
